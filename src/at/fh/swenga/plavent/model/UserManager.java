@@ -15,6 +15,9 @@ public class UserManager {
 	
 	public UserManager() {
 		// TODO Auto-generated constructor stub
+		
+		//Add test dummy user to have access to web page
+		addUser(new UserModel("admin","admin","admin","admin"));
 	}
 	
 	public List<UserModel> getAllUsers() {
@@ -26,7 +29,24 @@ public class UserManager {
 	}
 	
 	public void removeUser(String username) {
-		users.remove(new UserModel(username,null,null));
+		users.remove(new UserModel(username,null,null,null));
+	}
+	
+	
+	/**
+	 * Return UserModel if given data is valid otherwhise null
+	 * @param username
+	 * @param passwordHash
+	 * @return
+	 */
+	public UserModel verifyLogin(String username, String passwordHash) {
+		UserModel model = this.getUser(username);
+		
+		if (model != null && model.getPasswordHash().equals(passwordHash)) {
+			return model;
+		} 
+		
+		return null;
 	}
 	
 	/**

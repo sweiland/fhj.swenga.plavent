@@ -53,9 +53,15 @@ public class UserManagementController {
 		public String verifyLoginData(Model model, @RequestParam String username, @RequestParam String password) {
 			//TODO: Check if enters user/pw matches to criterias and so on...
 			
-			
-			model.addAttribute("user",new UserModel(username,null,null,null));
-			return "dashboard";
+			UserModel user = userManager.verifyLogin(username, password);
+			if (user == null) {
+				model.addAttribute("errorMessage", "Username or password incorrect!");
+				return "login";
+			} else {
+				model.addAttribute("user",user);
+				model.addAttribute("message","Welcome "+user.getFirstname() + "!");
+				return "dashboard";
+			}
 		}
 
 		@RequestMapping(value = { "listUsers" })
