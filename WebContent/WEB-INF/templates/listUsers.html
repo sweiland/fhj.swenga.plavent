@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<div th:include="~{includes/bootstrap :: bootstrapMeta}" th:remove="tag" />
+<title>PlaVent</title>
+<div th:include="~{includes/bootstrap :: bootstrapCSS}" th:remove="tag" />
+</head>
+
+<body>
+	<div class="container" role="main">
+
+		<div class="page-header">
+			<h1>User Management</h1>
+		</div>
+
+		<!-- include the Nav bar fragment-->
+		<nav th:replace="~{includes/searchNav :: search}"></nav>
+
+		<!--  Error message ----------------------------------------------------------- -->
+		<div th:unless="${errorMessage} == null" th:utext="${errorMessage}"
+			class="alert alert-danger" role="alert"></div>
+		<!--  Error message ----------------------------------------------------------- -->
+
+		<!--  Warning message ----------------------------------------------------------- -->
+		<div th:unless="${warningMessage} == null"
+			th:utext="${warningMessage}" class="alert alert-warning"
+			role="warning"></div>
+		<!--  Warning message ----------------------------------------------------------- -->
+
+		<!--   message ----------------------------------------------------------- -->
+		<div th:unless="${message} == null" th:utext="${message}"
+			class="alert alert-success" role="warning"></div>
+		<!--   message ----------------------------------------------------------- -->
+
+
+		<div class="row">
+			<div class="col-md-10 col-md-offset-1">
+
+				<!-- hoedlale16: Generates a sortable table with bootstrap-style -->
+				<table data-toggle="table" class="table table-striped">
+					<thead>
+						<tr>
+							<th data-sortable="true">UserName</th>
+							<th data-sortable="true">FirstName</th>
+							<th data-sortable="true">LastName</th>
+							<th class="text-right">Actions</th>
+						</tr>
+					</thead>
+					<tbody>
+						<!--  list all items ----------------------------------------------------------- -->
+						<!-- hoedlale16: Fill table content -->
+						<tr th:each="user : ${#request.getAttribute('users')}">
+							<td th:text="${user.username}">mustermann</td>
+							<td th:text="${user.firstname}">Max</td>
+							<td th:text="${user.lastname}">Mustermann</td>
+							<td>
+							  <a th:href="@{/editUser(name=${user.username})}"
+								class="btn btn-xs btn-success"> <span
+									class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+									Edit</a>
+							<a th:href="@{/deleteUser(name=${user.name})}"
+								class="btn btn-xs btn-danger"> <span
+									class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+									Delete
+							</a></td>
+						</tr>
+						<!--  list all items ----------------------------------------------------------- -->
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+	<!--  End of container -->
+	<div th:include="~{includes/bootstrap :: bootstrapJS}" th:remove="tag" />
+</body>
+
+</html>

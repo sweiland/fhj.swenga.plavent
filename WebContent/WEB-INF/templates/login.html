@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<div th:include="~{includes/bootstrap :: bootstrapMeta}" th:remove="tag" />
+<title>PlaVent</title>
+<div th:include="~{includes/bootstrap :: bootstrapCSS}" th:remove="tag" />
+</head>
+
+<body>
+	<div class="container" role="main">
+
+		<div class="page-header">
+			<h1>PlaVent</h1>
+		</div>
+
+        <!--  hoedlale16: Required if user try to hack and we have to inform that he is not logged in! -->
+		<!--  Error message ----------------------------------------------------------- -->
+		<div th:unless="${errorMessage} == null" th:utext="${errorMessage}"
+			class="alert alert-danger" role="alert"></div>
+		<!--  Error message ----------------------------------------------------------- -->
+
+		<!--  Warning message ----------------------------------------------------------- -->
+		<div th:unless="${warningMessage} == null"
+			th:utext="${warningMessage}" class="alert alert-warning"
+			role="warning"></div>
+		<!--  Warning message ----------------------------------------------------------- -->
+
+		<!--   message ----------------------------------------------------------- -->
+		<div th:unless="${message} == null" th:utext="${message}"
+			class="alert alert-success" role="warning"></div>
+		<!--   message ----------------------------------------------------------- -->
+
+
+		<div class="row">
+			<div class="col-md-10 col-md-offset-1">
+
+				<!--  hoedlale16: Form calls /editIllness or /addIllness, depending if an illness is set already. -->
+				<form class="form-horizontal" method="post" action="verifyLogin">
+					<fieldset>
+						<legend>Login</legend>
+
+						<!--  ----------------  name ---------------- -->
+						<div class="form-group">
+							<label for="inputName" class="col-md-2 control-label">Username</label>
+							<div class="col-md-10">
+								<input class="form-control" type="text" name="username"
+									required="required" value="">
+							</div>
+						</div>
+
+						<!--  ----------------  password ---------------- -->
+						<div class="form-group">
+							<label for="inputSymptoms" class="col-md-2 control-label">Password</label>
+							<div class="col-md-10">
+								<input class="form-control" type="password" name="password"
+									required="required" value="">
+							</div>
+						</div>
+
+						<!-- --------------  buttons ---------------- -->
+						<div class="form-group">
+							<div class="col-md-10 col-md-offset-2">
+								<button type="submit" class="btn btn-primary">Submit</button>
+								<a href="createNewUser" class="btn btn-default"> Create new Account </a>
+							</div>
+						</div>
+
+					</fieldset>
+				</form>
+			</div>
+		</div>
+	</div>
+	<!--  End of container -->
+	<div th:include="~{includes/bootstrap :: bootstrapJS}" th:remove="tag" />
+</body>
+
+</html>
