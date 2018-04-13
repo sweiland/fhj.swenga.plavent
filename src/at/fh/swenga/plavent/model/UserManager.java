@@ -18,6 +18,8 @@ public class UserManager {
 		
 		//Add test dummy user to have access to web page
 		addUser(new UserModel("admin","admin","admin","admin"));
+		addUser(new UserModel("guest","guest","guest","guest"));
+		addUser(new UserModel("manager","manager","manager","manager"));
 	}
 	
 	public List<UserModel> getAllUsers() {
@@ -28,8 +30,9 @@ public class UserManager {
 		users.add(newUser);
 	}
 	
-	public void removeUser(String username) {
-		users.remove(new UserModel(username,null,null,null));
+	public boolean removeUser(String username) {
+		//TODO: Handle that via DB
+		return users.remove(new UserModel(username,null,null,null));
 	}
 	
 	

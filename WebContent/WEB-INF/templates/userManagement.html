@@ -12,11 +12,15 @@
 	<div class="container" role="main">
 
 		<div class="page-header">
-			<h1>User Management</h1>
+			<!-- include the Nav bar fragment-->
+			<nav th:replace="~{includes/fragments :: header (header='PlaVent - User Management')}"></nav>
 		</div>
 
 		<!-- include the Nav bar fragment-->
-		<nav th:replace="~{includes/searchNav :: search}"></nav>
+		<nav th:replace="~{includes/fragments :: navigation}"></nav>
+		
+		<!-- include the serach bar fragment for users-->
+		<nav th:replace="~{includes/fragments :: filterUsers}"></nav>
 
 		<!--  Error message ----------------------------------------------------------- -->
 		<div th:unless="${errorMessage} == null" th:utext="${errorMessage}"
@@ -33,7 +37,6 @@
 		<div th:unless="${message} == null" th:utext="${message}"
 			class="alert alert-success" role="warning"></div>
 		<!--   message ----------------------------------------------------------- -->
-
 
 		<div class="row">
 			<div class="col-md-10 col-md-offset-1">
@@ -56,11 +59,11 @@
 							<td th:text="${user.firstname}">Max</td>
 							<td th:text="${user.lastname}">Mustermann</td>
 							<td>
-							  <a th:href="@{/editUser(name=${user.username})}"
+							  <a th:href="@{/editUser(username=${user.username})}"
 								class="btn btn-xs btn-success"> <span
 									class="glyphicon glyphicon-trash" aria-hidden="true"></span>
 									Edit</a>
-							<a th:href="@{/deleteUser(name=${user.name})}"
+							  <a th:unless="${user.username} == ${#request.getAttribute('currLoggedInuser').username}" th:href="@{/deleteUser(username=${user.username})}"
 								class="btn btn-xs btn-danger"> <span
 									class="glyphicon glyphicon-trash" aria-hidden="true"></span>
 									Delete
@@ -71,7 +74,12 @@
 				</table>
 			</div>
 		</div>
+		
 	</div>
+	
+	<!-- hoedlale16: include some fancy footer -->		
+	<footer th:replace="~{includes/fragments :: footer}"></footer>		
+
 	<!--  End of container -->
 	<div th:include="~{includes/bootstrap :: bootstrapJS}" th:remove="tag" />
 </body>

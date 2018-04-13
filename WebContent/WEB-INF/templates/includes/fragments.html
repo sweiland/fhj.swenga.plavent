@@ -1,0 +1,47 @@
+<nav th:fragment="navigation" class="navbar navbar-default">
+	<div class="container-fluid">
+		<a href="userManagement" class="btn btn-default navbar-btn">User Management</a>
+		<a href="dashboard" class="btn btn-default navbar-btn">Home</a>
+	</div>
+</nav>
+
+<header th:fragment="header (header)">
+	<div class="container-fluid">
+		<form class="navbar-form navbar-right" method="post" action="logout">
+			<div class="input-group">
+				<span class="input-group-btn">
+					<button class="btn btn-default" type="submit">Logout</button>
+				</span>
+			</div>
+		</form>
+		
+		<h1 th:text="${(header)}">PlaVent</h1>
+	</div>
+</header>
+
+<footer th:fragment="footer" class="card-footer text-muted">
+<!-- TODO: Bei vielen Zeilen sollte automatisch im Body immer Seite 1..n erfolgen damit die Scrollbar nie kommt... -->
+	<div class="container-fluid text-center footer navbar-fixed-bottom">
+		FERNBACH - HEIDER - HÖDL - WEILAND<br>
+		FH JOANNEUM - Informationsmanagement 2016
+	</div>
+</footer>
+
+<nav th:fragment="filterUsers" class="navbar navbar-default">
+	<div class="container-fluid">
+		<!-- Button to add new illness-->
+		<a href="createNewUser" class="btn btn-default navbar-btn">
+			New User
+		</a>
+	
+		<!-- HTML form with search textbox and submit button-->
+		<form class="navbar-form navbar-right" role="search" method="post" action="searchUsers">
+			<div class="input-group">
+				<input type="text" class="form-control" placeholder="Search for..." name="searchString">
+				<span class="input-group-btn">
+					<button class="btn btn-default" type="submit">Go!</button>
+				</span>
+			</div>
+		</form>
+	</div>
+</nav>

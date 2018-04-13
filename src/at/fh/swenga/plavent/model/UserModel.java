@@ -1,5 +1,7 @@
 package at.fh.swenga.plavent.model;
 
+import java.security.MessageDigest;
+
 public class UserModel {
 	
 	private String username;
@@ -7,7 +9,7 @@ public class UserModel {
 	private String firstname;
 	private String lastname;
 	//TODO: add all required attributes
-	
+		
 	public UserModel() {
 		// TODO Auto-generated constructor stub
 	}
@@ -49,6 +51,11 @@ public class UserModel {
 
 	public void setPasswordHash(String passwordHash) {
 		this.passwordHash = passwordHash;
+	}
+	
+	public void updateModel(UserModel newUserModel) {
+		setFirstname(newUserModel.getFirstname());
+		setLastname(newUserModel.getLastname());
 	}
 
 	@Override
