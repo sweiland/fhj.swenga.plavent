@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import at.fh.swenga.plavent.model.UserManager;
-import at.fh.swenga.plavent.model.UserModel;
+import at.fh.swenga.plavent.model.User;
 
 @Controller
 @Scope(proxyMode = ScopedProxyMode.TARGET_CLASS, value = "session")
@@ -25,7 +25,7 @@ public class UserManagementController {
 	@Autowired
 	private UserManager userManager;
 
-	private UserModel currLoggedInUser; // Instance to hold User which is currently logged in this session
+	private User currLoggedInUser; // Instance to hold User which is currently logged in this session
 
 	public UserManagementController() {
 	}
@@ -45,26 +45,24 @@ public class UserManagementController {
 		}
 	}
 
-	@RequestMapping(value = { "/" })
-	public String showLoginPage(Model model) {
-
-		/*
-		 * hoedlale16: If user already set(logged in, show dashboard page otherwise show
-		 * login page with a warning message
-		 */
-		if (currLoggedInUser != null) {
-			return "dashboard";
-		} else {
-			// Show loginpage
-			return "login";
+	private boolean errorsDetected(Model model, BindingResult bindingResult) {
+		// Any errors? -> Create a String out of all errors and return to the page
+		if (bindingResult.hasErrors()) {
+			String errorMessage = "";
+			for (FieldError fieldError : bindingResult.getFieldErrors()) {
+				errorMessage += fieldError.getField() + " is invalid";
+			}
+			model.addAttribute("errorMessage", errorMessage);
+			return true;
 		}
+		return false;
 	}
 
 	@RequestMapping(value = { "verifyLogin" })
 	public String verifyLoginData(Model model, @RequestParam String username, @RequestParam String password) {
 		// TODO: Check if enters user/pw matches to criterias and so on...
 
-		UserModel user = userManager.verifyLogin(username, password);
+		User user = userManager.verifyLogin(username, password);
 		if (user == null) {
 			model.addAttribute("errorMessage", "Username or password incorrect!");
 			return "login";
@@ -81,7 +79,7 @@ public class UserManagementController {
 		return "login";
 	}
 
-	@RequestMapping(value = { "userManagement" })
+	@RequestMapping(value = { "showUserManagement" })
 	public String showAllUsers(Model model) {
 		// hoedlale16: Verify that user is logged in
 		if (!isLoggedIn(model)) {
@@ -93,35 +91,66 @@ public class UserManagementController {
 		return "userManagement";
 	}
 
-	@PostMapping("/searchUsers")
-	public String search(Model model, @RequestParam String searchString) {
-		model.addAttribute("users", userManager.getFilteredUsers(searchString));
-		model.addAttribute("currLoggedInuser", currLoggedInUser);
-		return "userManagement";
-	}
-
-	@GetMapping("/createNewUser")
+	// Create new User
+	@GetMapping("/showCreateUserForm")
 	public String showNewUserForm(Model model) {
-		return "editUser";
-	}
-
-	// RequestMethod.POST)
-	@PostMapping("/createNewUser")
-	public String addIllness(@Valid UserModel newUserModel, BindingResult bindingResult, Model model) {
-
-		// Any errors? -> Create a String out of all errors and return to the page
-		if (bindingResult.hasErrors()) {
-			String errorMessage = "";
-			for (FieldError fieldError : bindingResult.getFieldErrors()) {
-				errorMessage += fieldError.getField() + " is invalid";
-			}
-			model.addAttribute("errorMessage", errorMessage);
-
-			return showAllUsers(model);
+		if (!isLoggedIn(model)) {
+			return "login";
 		}
 
+		return "createModifyUser";
+	}
+
+	// Modify User
+	@GetMapping("/showModifyUserForm")
+	public String showEditUserForm(Model model, @RequestParam String username) {
+
+		if (!isLoggedIn(model)) {
+			return "login";
+		}
+
+		User user = userManager.getUser(username);
+
+		if (user != null) {
+			model.addAttribute("user", user);
+			return "createModifyUser";
+		} else {
+			model.addAttribute("errorMessage", "Couldn't find user" + username);
+			return showAllUsers(model);
+		}
+	}
+
+	// Change password
+	@GetMapping("/showChangePasswordForm")
+	public String showChangePasswortForm(Model model, @RequestParam String username) {
+		if (!isLoggedIn(model)) {
+			return "login";
+		}
+
+		
+		User user = userManager.getUser(username);
+		if (user != null) {
+			model.addAttribute("user", user);
+			// TODO: Implement
+			// return "changePassword"
+			return "todo";
+		} else {
+			model.addAttribute("errorMessage", "Couldn't find user" + username);
+			return showAllUsers(model);
+		}
+		
+	}
+
+	// RequestMethod.POST => Create new User
+	@PostMapping("/createNewUser")
+	public String createNewUser(@Valid User newUserModel, BindingResult bindingResult, Model model) {
+
+		// Any errors? -> Create a String out of all errors and return to the page
+		if (errorsDetected(model, bindingResult))
+			return showAllUsers(model);
+
 		// Look for illness in the List. One available -> Error
-		if ( userManager.getUser(newUserModel.getUsername()) != null) {
+		if (userManager.getUser(newUserModel.getUsername()) != null) {
 			model.addAttribute("errorMessage", "User already exists!");
 		} else {
 			userManager.addUser(newUserModel);
@@ -131,49 +160,16 @@ public class UserManagementController {
 		return showAllUsers(model);
 	}
 
-	@GetMapping("/deleteUser")
-	public String delete(Model model, @RequestParam String username) {
-		boolean isRemoved = userManager.removeUser(username);
+	// RequestMethod.POST => Update existing User
+	@PostMapping("/modifyExistingUser")
+	public String modifyUser(@Valid User changedUserModel, BindingResult bindingResult, Model model) {
 
-		if (isRemoved) {
-			model.addAttribute("warningMessage", "User " + username + "sucessfully deleted");
-		} else {
-			model.addAttribute("errorMessage", "There is no User with username " + username);
-		}
-
-		return showAllUsers(model);
-	}
-
-	@GetMapping("/editUser")
-	public String showEditUserForm(Model model, @RequestParam String username) {
-
-		UserModel user = userManager.getUser(username);
-
-		if (user != null) {
-			model.addAttribute("user", user);
-			return "editUser";
-		} else {
-			model.addAttribute("errorMessage", "Couldn't find user" + username);
+		// Check for errors
+		if (errorsDetected(model, bindingResult))
 			return showAllUsers(model);
-		}
-	}
-
-	// RequestMethod.POST)
-	@PostMapping("/editUser")
-	public String postEditUserForm(@Valid UserModel changedUserModel, BindingResult bindingResult, Model model) {
-
-		// Any errors? -> Create a String out of all errors and return to the page
-		if (bindingResult.hasErrors()) {
-			String errorMessage = "";
-			for (FieldError fieldError : bindingResult.getFieldErrors()) {
-				errorMessage += fieldError.getField() + " is invalid";
-			}
-			model.addAttribute("errorMessage", errorMessage);
-			return showAllUsers(model);
-		}
 
 		// Get the illness the user wants to change
-		UserModel user = userManager.getUser(changedUserModel.getUsername());
+		User user = userManager.getUser(changedUserModel.getUsername());
 		if (user == null) {
 			model.addAttribute("errorMessage", "User does not exist! <" + changedUserModel.getUsername() + ">");
 		} else {
@@ -185,11 +181,52 @@ public class UserManagementController {
 		return showAllUsers(model);
 	}
 
+	// Delete user
+	@GetMapping("/deleteExistingUser")
+	public String deleteUser(Model model, @RequestParam String username) {
+		boolean isRemoved = userManager.removeUser(username);
+
+		if (isRemoved) {
+			model.addAttribute("warningMessage", "User " + username + "sucessfully deleted");
+		} else {
+			model.addAttribute("errorMessage", "There is no User with username " + username);
+		}
+
+		return showAllUsers(model);
+	}
+
+	// RequestMethod.POST => Update existing User
+	@PostMapping("/changePasswordExistingUser")
+	public String changePasswordFromUser(@Valid User changedUserModel, BindingResult bindingResult, Model model) {
+		// Check for errors
+		if (errorsDetected(model, bindingResult))
+			return showAllUsers(model);
+
+		// Get the illness the user wants to change
+		User user = userManager.getUser(changedUserModel.getUsername());
+		if (user == null) {
+			model.addAttribute("errorMessage", "User does not exist! <" + changedUserModel.getUsername() + ">");
+		} else {
+			// TODO Change password which is stored in changedUserModel
+		}
+		return showAllUsers(model);
+	}
+
+	// Filter userManagement
+	@PostMapping("/filterUsers")
+	public String filterUsers(Model model, @RequestParam String searchString) {
+		if (!isLoggedIn(model)) {
+			return "login";
+		}
+
+		model.addAttribute("users", userManager.getFilteredUsers(searchString));
+		model.addAttribute("currLoggedInuser", currLoggedInUser);
+		return "userManagement";
+	}
+
 	@ExceptionHandler(Exception.class)
 	public String handleAllException(Exception ex) {
-
 		return "error";
-
 	}
 
 }

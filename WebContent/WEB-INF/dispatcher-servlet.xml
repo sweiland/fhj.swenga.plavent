@@ -2,25 +2,38 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:p="http://www.springframework.org/schema/p" xmlns:context="http://www.springframework.org/schema/context"
 	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:aop="http://www.springframework.org/schema/aop"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:util="http://www.springframework.org/schema/util"
 
 	xsi:schemaLocation="
 		http://www.springframework.org/schema/aop 
 		http://www.springframework.org/schema/aop/spring-aop.xsd
+		http://www.springframework.org/schema/tx 
+		http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
 		http://www.springframework.org/schema/mvc
         http://www.springframework.org/schema/mvc/spring-mvc.xsd
 		http://www.springframework.org/schema/beans
 		http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/util 
+		http://www.springframework.org/schema/util/spring-util.xsd
 		http://www.springframework.org/schema/context
 		http://www.springframework.org/schema/context/spring-context.xsd">
 
+
+	<!-- Read DB information -->
+	<context:property-placeholder location="classpath:db.properties" />
+
 	<!-- - POJOs labeled with the @Controller and @Service annotations are auto-detected 
 		in this package and all sub packages. -->
-	<context:component-scan base-package="at.fh.swenga" />
+	<context:component-scan base-package="at.fh.swenga.plavent" />
 
 	<!-- JSR-303/JSR-349 (= databinding and validation) support will be detected 
 		on classpath and enabled automatically -->
 	<mvc:annotation-driven />
+
+	<!-- This handler will forward all requests to the default Servlet. to use 
+		static content(images and stuff) -->
+	<mvc:default-servlet-handler />
 
 	<!-- SpringResourceTemplateResolver automatically integrates with Spring's 
 		own -->
@@ -33,7 +46,8 @@
 		<property name="templateMode" value="HTML" />
 		<!-- Template cache is true by default. Set to false if you want -->
 		<!-- templates to be automatically updated when modified. -->
-		<property name="cacheable" value="false" /> <!-- hoedlale16: just in production environment on true. on Development env. keep to false -->
+		<property name="cacheable" value="false" /> <!-- hoedlale16: just in production environment on true. on Development env. 
+			keep to false -->
 	</bean>
 
 	<!-- SpringTemplateEngine automatically applies SpringStandardDialect and -->
@@ -50,10 +64,45 @@
 		<property name="enableSpringELCompiler" value="false" />
 	</bean>
 
-    <!-- hoedlale16: Thymeleaf View Resolfer  -->
+	<!-- hoedlale16: Thymeleaf View Resolver -->
 	<bean class="org.thymeleaf.spring5.view.ThymeleafViewResolver">
 		<property name="templateEngine" ref="templateEngine" />
 	</bean>
 
+	<bean id="dataSource" class="org.apache.commons.dbcp2.BasicDataSource">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<property name="url" value="${db.url}" />
+		<property name="username" value="${db.username}" />
+		<property name="password" value="${db.password}" />
+		<property name="initialSize" value="2" />
+		<property name="maxTotal" value="5" />
+	</bean>
 
+	<bean
+		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"
+		id="entityManagerFactory">
+		<property name="dataSource" ref="dataSource" />
+		<property name="packagesToScan" value="at.fh.swenga.plavent" /> <!-- Checks for Entries -->
+		<property name="jpaVendorAdapter">
+			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter" />
+		</property>
+		<property name="jpaProperties">
+			<props>
+				<!-- validate: validate the schema, makes no changes to the database. 
+					update: update the schema. create: creates the schema, destroying previous 
+					data. create-drop: drop the schema at the end of the session. -->
+				<prop key="hibernate.hbm2ddl.auto">create-drop</prop>  <!-- Whenever the application starts, the database is creates newly. DEVELOPMENT 
+					ENVIRONEMNt -->
+				<prop key="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</prop>
+				<prop key="hibernate.show_sql">true</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+		<property name="entityManagerFactory" ref="entityManagerFactory" />
+	</bean>
+	<tx:annotation-driven />
+	<bean id="persistenceExceptionTranslationPostProcessor"
+		class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor" />
 </beans>

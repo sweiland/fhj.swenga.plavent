@@ -18,7 +18,7 @@
 
 				<!--  hoedlale16: Form calls /edituser or /adduser, depending if an user is set already. -->
 				<form class="form-horizontal" method="post"
-					th:action="${user} ? @{/editUser} : @{/createNewUser}">
+					th:action="${user} ? @{/modifyExistingUser} : @{/createNewUser}">
 					<fieldset>
 						<legend th:text="${user}? 'Change user' : 'New user'">New
 							user</legend>
@@ -65,7 +65,7 @@
 						<div class="form-group">
 							<div class="col-md-10 col-md-offset-2">
 								<button type="submit" class="btn btn-primary">Submit</button>
-								<a href="userManagement" class="btn btn-default"> Cancel </a>
+								<a href="showUserManagement" class="btn btn-default"> Cancel </a>
 							</div>
 						</div>
 

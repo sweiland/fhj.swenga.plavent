@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<div th:include="~{includes/bootstrap :: bootstrapMeta}" th:remove="tag" />
+<title>PlaVent</title>
+<div th:include="~{includes/bootstrap :: bootstrapCSS}" th:remove="tag" />
+</head>
+
+<body>
+	<div class="container" role="main">
+
+		<div class="page-header">
+			<!-- include the Nav bar fragment-->
+			<nav th:replace="~{includes/fragments :: header (header='PlaVent - Category Management')}"></nav>
+		</div>
+
+		<!-- include the Nav bar fragment-->
+		<nav th:replace="~{includes/fragments :: navigation}"></nav>
+		
+		<!-- include the serach bar fragment for users-->
+		<nav th:replace="~{includes/fragments :: MgmtNavBar (buttonText='New Category',buttonLink='showCreateCategoryForm',searchLink='filterCategories')}"></nav>
+
+		<!--  Error message ----------------------------------------------------------- -->
+		<div th:unless="${errorMessage} == null" th:utext="${errorMessage}"
+			class="alert alert-danger" role="alert"></div>
+		<!--  Error message ----------------------------------------------------------- -->
+
+		<!--  Warning message ----------------------------------------------------------- -->
+		<div th:unless="${warningMessage} == null"
+			th:utext="${warningMessage}" class="alert alert-warning"
+			role="warning"></div>
+		<!--  Warning message ----------------------------------------------------------- -->
+
+		<!--   message ----------------------------------------------------------- -->
+		<div th:unless="${message} == null" th:utext="${message}"
+			class="alert alert-success" role="warning"></div>
+		<!--   message ----------------------------------------------------------- -->
+
+		<div class="row">
+			<div class="col-md-10 col-md-offset-1">
+			  TODO: Hier kommt der Inhalt
+			</div>
+		</div>
+	</div>
+	
+	<!-- hoedlale16: include some fancy footer -->		
+	<footer th:replace="~{includes/fragments :: footer}"></footer>		
+
+	<!--  End of container -->
+	<div th:include="~{includes/bootstrap :: bootstrapJS}" th:remove="tag" />
+</body>
+
+</html>

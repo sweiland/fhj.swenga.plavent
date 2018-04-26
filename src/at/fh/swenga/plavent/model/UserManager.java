@@ -11,28 +11,28 @@ import org.springframework.stereotype.Repository;
 @Scope(proxyMode = ScopedProxyMode.TARGET_CLASS, value = "session")
 public class UserManager {
 	
-	private List<UserModel> users = new ArrayList<UserModel>();
+	private List<User> users = new ArrayList<User>();
 	
 	public UserManager() {
 		// TODO Auto-generated constructor stub
 		
 		//Add test dummy user to have access to web page
-		addUser(new UserModel("admin","admin","admin","admin"));
-		addUser(new UserModel("guest","guest","guest","guest"));
-		addUser(new UserModel("manager","manager","manager","manager"));
+		addUser(new User("admin","admin","admin","admin"));
+		addUser(new User("guest","guest","guest","guest"));
+		addUser(new User("manager","manager","manager","manager"));
 	}
 	
-	public List<UserModel> getAllUsers() {
+	public List<User> getAllUsers() {
 		return users;
 	}
 	
-	public void addUser(UserModel newUser) {
+	public void addUser(User newUser) {
 		users.add(newUser);
 	}
 	
 	public boolean removeUser(String username) {
 		//TODO: Handle that via DB
-		return users.remove(new UserModel(username,null,null,null));
+		return users.remove(new User(username,null,null,null));
 	}
 	
 	
@@ -42,8 +42,8 @@ public class UserManager {
 	 * @param passwordHash
 	 * @return
 	 */
-	public UserModel verifyLogin(String username, String passwordHash) {
-		UserModel model = this.getUser(username);
+	public User verifyLogin(String username, String passwordHash) {
+		User model = this.getUser(username);
 		
 		if (model != null && model.getPasswordHash().equals(passwordHash)) {
 			return model;
@@ -57,8 +57,8 @@ public class UserManager {
 	 * @param username Username to identify user object
 	 * @return null or userobject with given name
 	 */
-	public UserModel getUser(String username) {
-		for(UserModel user: users) {
+	public User getUser(String username) {
+		for(User user: users) {
 			if (user.getUsername().equals(username)) {
 				return user;
 			}
@@ -66,10 +66,10 @@ public class UserManager {
 		return null;
 	}
 
-	public List<UserModel> getFilteredUsers(String searchString) {
-		List<UserModel> filteredList = new ArrayList<UserModel>();
+	public List<User> getFilteredUsers(String searchString) {
+		List<User> filteredList = new ArrayList<User>();
 
-		for (UserModel model : users) {
+		for (User model : users) {
 			if ((model.getUsername() != null && model.getUsername().contains(searchString))
 					|| (model.getFirstname() != null && model.getFirstname().contains(searchString)) 
 					|| (model.getLastname() != null && model.getLastname().contains(searchString)) ) {

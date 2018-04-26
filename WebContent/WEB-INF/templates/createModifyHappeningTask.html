@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<div th:include="~{includes/bootstrap :: bootstrapMeta}" th:remove="tag" />
+<title>PlaVent</title>
+<div th:include="~{includes/bootstrap :: bootstrapCSS}" th:remove="tag" />
+<link
+	href="http://www.malot.fr/bootstrap-datetimepicker/bootstrap-datetimepicker/css/bootstrap-datetimepicker.css"
+	rel="stylesheet">
+</head>
+
+<body>
+	<div class="container" role="main">
+		<div class="row">
+			<div class="col-md-8 col-md-offset-2">
+
+				<!--  hoedlale16: Form calls /edituser or /adduser, depending if an user is set already. -->
+				<form class="form-horizontal" method="post"
+					th:action="${happening} ? @{/modifyExistingHappeningTask} : @{/createNewHappeningTask}">
+					<fieldset>
+						<legend th:text="${happeningTask}? 'Change happening task' : 'New happening task'"></legend>
+						
+						<!-- TODO Send happeningName with form as well -->
+						<input type="hidden" name="happeningName" value="TODO" />
+
+						<!-- TODO werte und stuff setzen! -->
+
+						<!--  ----------------  happeningName ---------------- -->
+						<div class="form-group">
+							<label for="inputName" class="col-md-2 control-label">Happening name</label>
+							<div class="col-md-10">
+								<input class="form-control" type="text" name="happeningName"
+									required="required" th:value="${happening} ? ${happening.happeningName}"
+									th:readonly="${happening}">
+							</div>
+						</div>
+					
+
+						<!-- --------------  buttons ---------------- -->
+						<div class="form-group">
+							<div class="col-md-10 col-md-offset-2">
+								<button type="submit" class="btn btn-primary">Submit</button>
+								<a href="showTaskListManagement" class="btn btn-default"> Cancel </a>
+							</div>
+						</div>
+
+					</fieldset>
+				</form>
+			</div>
+		</div>
+
+	</div>
+	<!--  End of container -->
+	<div th:include="~{includes/bootstrap :: bootstrapJS}" th:remove="tag" />
+
+	<!-- JS for Datetime picker -->
+	<script type="text/javascript"
+		src="http://www.malot.fr/bootstrap-datetimepicker/bootstrap-datetimepicker/js/bootstrap-datetimepicker.js"></script>
+
+	<script>
+		$(function() {
+
+			$(".form_datetime").datetimepicker({
+				format : "dd.mm.yyyy",
+				autoclose : true,
+				todayBtn : true,
+				pickerPosition : "bottom-left",
+				minView : 2
+			});
+
+		});
+	</script>
+
+</body>
+
+</html>

@@ -1,7 +1,9 @@
 <nav th:fragment="navigation" class="navbar navbar-default">
 	<div class="container-fluid">
-		<a href="userManagement" class="btn btn-default navbar-btn">User Management</a>
-		<a href="dashboard" class="btn btn-default navbar-btn">Home</a>
+		<a href="showUserManagement" class="btn btn-default navbar-btn">User Management</a>
+		<a href="showHappeningManagement" class="btn btn-default navbar-btn">Happening Management</a>
+		<a href="showCategoryManagement" class="btn btn-default navbar-btn">Category Management</a>
+		<a href="dashboard" class="btn btn-default navbar-btn">Dashboard</a>
 	</div>
 </nav>
 
@@ -15,7 +17,7 @@
 			</div>
 		</form>
 		
-		<h1 th:text="${(header)}">PlaVent</h1>
+		<h1 th:text="${(header)}"></h1>
 	</div>
 </header>
 
@@ -27,19 +29,19 @@
 	</div>
 </footer>
 
-<nav th:fragment="filterUsers" class="navbar navbar-default">
+<nav th:fragment="MgmtNavBar (buttonText,buttonLink,searchLink)" class="navbar navbar-default">
 	<div class="container-fluid">
 		<!-- Button to add new illness-->
-		<a href="createNewUser" class="btn btn-default navbar-btn">
-			New User
+		<a th:href="${(buttonLink)}" class="btn btn-default navbar-btn" th:text="${(buttonText)}">
+			New
 		</a>
 	
 		<!-- HTML form with search textbox and submit button-->
-		<form class="navbar-form navbar-right" role="search" method="post" action="searchUsers">
+		<form class="navbar-form navbar-right" role="search" method="post" th:action="${(searchLink)}">
 			<div class="input-group">
 				<input type="text" class="form-control" placeholder="Search for..." name="searchString">
 				<span class="input-group-btn">
-					<button class="btn btn-default" type="submit">Go!</button>
+					<button class="btn btn-default" type="submit">Filter</button>
 				</span>
 			</div>
 		</form>

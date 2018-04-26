@@ -2,7 +2,7 @@ package at.fh.swenga.plavent.model;
 
 import java.security.MessageDigest;
 
-public class UserModel {
+public class User {
 	
 	private String username;
 	private String passwordHash;
@@ -10,11 +10,11 @@ public class UserModel {
 	private String lastname;
 	//TODO: add all required attributes
 		
-	public UserModel() {
+	public User() {
 		// TODO Auto-generated constructor stub
 	}
 	
-	public UserModel(String username, String passwordHash, String firstname, String lastname) {
+	public User(String username, String passwordHash, String firstname, String lastname) {
 		this.username = username;
 		this.passwordHash = passwordHash;
 		this.firstname = firstname;
@@ -53,7 +53,7 @@ public class UserModel {
 		this.passwordHash = passwordHash;
 	}
 	
-	public void updateModel(UserModel newUserModel) {
+	public void updateModel(User newUserModel) {
 		setFirstname(newUserModel.getFirstname());
 		setLastname(newUserModel.getLastname());
 	}
@@ -74,7 +74,7 @@ public class UserModel {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		UserModel other = (UserModel) obj;
+		User other = (User) obj;
 		if (username == null) {
 			if (other.username != null)
 				return false;
