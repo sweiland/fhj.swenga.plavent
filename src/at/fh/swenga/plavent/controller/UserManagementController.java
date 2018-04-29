@@ -1,5 +1,7 @@
 package at.fh.swenga.plavent.controller;
 
+import java.security.MessageDigest;
+
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,20 +17,80 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import at.fh.swenga.plavent.model.UserManager;
+import at.fh.swenga.plavent.dao.HappeningCategoryDao;
+import at.fh.swenga.plavent.dao.HappeningStatusDao;
+import at.fh.swenga.plavent.dao.UserDao;
+import at.fh.swenga.plavent.dao.UserRoleDao;
+import at.fh.swenga.plavent.model.HappeningCategory;
+import at.fh.swenga.plavent.model.HappeningStatus;
 import at.fh.swenga.plavent.model.User;
+import at.fh.swenga.plavent.model.UserRole;
 
 @Controller
 @Scope(proxyMode = ScopedProxyMode.TARGET_CLASS, value = "session")
 public class UserManagementController {
 
 	@Autowired
-	private UserManager userManager;
+	private UserDao userDao;
+	
+	@Autowired
+	private UserRoleDao userRoleDao;
 
+	@Autowired
+	private HappeningStatusDao happeningStatusDao;
+	
+	@Autowired
+	private HappeningCategoryDao happeningCategoryDao;
+	
 	private User currLoggedInUser; // Instance to hold User which is currently logged in this session
 
 	public UserManagementController() {
 	}
+	
+	
+	@RequestMapping(value = { "preparePlavent" })
+	public String preparePlavent(Model model) throws Exception {
+		
+		//Create useroles if required
+		UserRole roleAdmin = userRoleDao.getUserRole("ADMIN");
+		if(roleAdmin == null)
+			roleAdmin = new UserRole("ADMIN","The role to manage the system");
+		UserRole roleHost = userRoleDao.getUserRole("HOST");
+		if(roleHost == null)
+			roleHost = new UserRole("HOST","The role to create happening and manage them");
+		UserRole roleGuest = userRoleDao.getUserRole("GUEST");
+		if(roleGuest == null)
+			roleGuest = new UserRole("GUEST","The role to be a guest at happenings");
+		
+		
+		//Create Happing status values 
+		HappeningStatus hsActive = happeningStatusDao.getHappeningStatus("ACTIVE");
+		if (hsActive == null)
+			hsActive = new HappeningStatus("ACTIVE","The happening will happen as planned!");
+		
+		HappeningStatus hsDeleted= happeningStatusDao.getHappeningStatus("DELETED");
+		if (hsDeleted == null)
+			hsDeleted = new HappeningStatus("DELETED","The happening is cancelled!");
+		
+		//Create a default happening cateogry
+		HappeningCategory catUnAssigned  = happeningCategoryDao.getCategory("Unassigned");
+		if (catUnAssigned == null)
+			catUnAssigned = new HappeningCategory("Unassigned","Not specified ");
+		
+		
+		//Create overall admin if required
+		if(userDao.getUser("admin") == null) {
+			MessageDigest md5 = java.security.MessageDigest.getInstance("MD5");
+			String passwordHash = new String(md5.digest("admin".getBytes()));
+			User administrator = new User("admin",passwordHash,"Administrator","Administrator",roleAdmin);
+
+			userDao.persist(administrator);
+		}
+		
+		model.addAttribute("warningMessage","Environment created - Start planning!");
+		return "login";
+	}
+
 
 	/**
 	 * General function to verify if user is logged in
@@ -59,10 +121,10 @@ public class UserManagementController {
 	}
 
 	@RequestMapping(value = { "verifyLogin" })
-	public String verifyLoginData(Model model, @RequestParam String username, @RequestParam String password) {
+	public String verifyLoginData(Model model, @RequestParam String username, @RequestParam String password) throws Exception {
 		// TODO: Check if enters user/pw matches to criterias and so on...
 
-		User user = userManager.verifyLogin(username, password);
+		User user = userDao.verifyLogin(username, password);
 		if (user == null) {
 			model.addAttribute("errorMessage", "Username or password incorrect!");
 			return "login";
@@ -87,7 +149,7 @@ public class UserManagementController {
 		}
 
 		model.addAttribute("currLoggedInuser", currLoggedInUser);
-		model.addAttribute("users", userManager.getAllUsers());
+		model.addAttribute("users", userDao.getUsers());
 		return "userManagement";
 	}
 
@@ -109,7 +171,7 @@ public class UserManagementController {
 			return "login";
 		}
 
-		User user = userManager.getUser(username);
+		User user = userDao.getUser(username);
 
 		if (user != null) {
 			model.addAttribute("user", user);
@@ -128,7 +190,7 @@ public class UserManagementController {
 		}
 
 		
-		User user = userManager.getUser(username);
+		User user = userDao.getUser(username);
 		if (user != null) {
 			model.addAttribute("user", user);
 			// TODO: Implement
@@ -150,10 +212,11 @@ public class UserManagementController {
 			return showAllUsers(model);
 
 		// Look for illness in the List. One available -> Error
-		if (userManager.getUser(newUserModel.getUsername()) != null) {
+		if (userDao.getUser(newUserModel.getUsername()) != null) {
 			model.addAttribute("errorMessage", "User already exists!");
 		} else {
-			userManager.addUser(newUserModel);
+			userDao.persist(newUserModel);
+			//userManager.addUser(newUserModel);
 			model.addAttribute("message", "New user " + newUserModel.getUsername() + " added.");
 		}
 
@@ -169,12 +232,11 @@ public class UserManagementController {
 			return showAllUsers(model);
 
 		// Get the illness the user wants to change
-		User user = userManager.getUser(changedUserModel.getUsername());
+		User user = userDao.getUser(changedUserModel.getUsername());
 		if (user == null) {
 			model.addAttribute("errorMessage", "User does not exist! <" + changedUserModel.getUsername() + ">");
 		} else {
-			// Change the attributes
-			user.updateModel(changedUserModel);
+			userDao.merge(changedUserModel);
 			model.addAttribute("message", "Changed user " + user.getUsername());
 		}
 
@@ -184,14 +246,13 @@ public class UserManagementController {
 	// Delete user
 	@GetMapping("/deleteExistingUser")
 	public String deleteUser(Model model, @RequestParam String username) {
-		boolean isRemoved = userManager.removeUser(username);
-
-		if (isRemoved) {
-			model.addAttribute("warningMessage", "User " + username + "sucessfully deleted");
+		User user = userDao.getUser(username);
+		if (user == null) {
+			model.addAttribute("errorMessage", "User does not exist! <" + username + ">");
 		} else {
-			model.addAttribute("errorMessage", "There is no User with username " + username);
+			userDao.delete(user);
+			model.addAttribute("warningMessage", "User " + username + "sucessfully deleted");
 		}
-
 		return showAllUsers(model);
 	}
 
@@ -203,7 +264,7 @@ public class UserManagementController {
 			return showAllUsers(model);
 
 		// Get the illness the user wants to change
-		User user = userManager.getUser(changedUserModel.getUsername());
+		User user = userDao.getUser(changedUserModel.getUsername());
 		if (user == null) {
 			model.addAttribute("errorMessage", "User does not exist! <" + changedUserModel.getUsername() + ">");
 		} else {
@@ -219,7 +280,7 @@ public class UserManagementController {
 			return "login";
 		}
 
-		model.addAttribute("users", userManager.getFilteredUsers(searchString));
+		model.addAttribute("users", userDao.getFilteredUsers(searchString));
 		model.addAttribute("currLoggedInuser", currLoggedInUser);
 		return "userManagement";
 	}

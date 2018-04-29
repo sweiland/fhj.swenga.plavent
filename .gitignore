@@ -1,4 +1,2 @@
-/build/
-/target/
-
-/target/
+/build/*
+target/*

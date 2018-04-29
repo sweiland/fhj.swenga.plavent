@@ -1,19 +1,99 @@
 package at.fh.swenga.plavent.model;
 
-public class Happening {
+import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.Version;
+
+@Entity
+@Table(name = "Happening")
+public class Happening implements Serializable {
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private int happeningId;
 	
+	@Column(nullable = false, length = 64)
 	private String happeningName;
+	
+	@Column(nullable = false)
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date start;
+
+	@Column(nullable = false)
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date end;
+	
+	@Column(nullable = true, length = 512)
+	private String description;
+	
+	@Column(nullable = false, length = 128)
+	private String location;
+	
+	
+	/*cascade = CascadeType.PERSIST: Changes the default setting for this relationship, so the EntityManager saves unmanaged related object automatically*/
+	@ManyToOne (cascade = CascadeType.PERSIST)
+	private HappeningCategory category;
+	
+	/*cascade = CascadeType.PERSIST: Changes the default setting for this relationship, so the EntityManager saves unmanaged related object automatically*/
+	@ManyToOne (cascade = CascadeType.PERSIST)
+	private HappeningStatus happeningStatus;
+	
+	
+	@OneToOne(fetch=FetchType.EAGER)
+    @JoinColumn(name="username")
+	private User happeningHost;
+	
+	@ManyToMany(cascade=CascadeType.PERSIST)  
+	private List<User> guestList;
+	
+	@Version
+	long version;
 	
 	public Happening() {
 		// TODO Auto-generated constructor stub
 	}
 
-	public Happening(String happeningName) {
+	
+
+	public Happening(String happeningName, Date start, Date end, String description, String location,
+			HappeningCategory category, HappeningStatus happeningStatus, User happeningHost, List<User> guestList) {
 		super();
 		this.happeningName = happeningName;
+		this.start = start;
+		this.end = end;
+		this.description = description;
+		this.location = location;
+		this.category = category;
+		this.happeningStatus = happeningStatus;
+		this.happeningHost = happeningHost;
+		this.guestList = guestList;
 	}
 
 
+
+	public int getHappeningId() {
+		return happeningId;
+	}
+
+	public void setHappeningId(int happeningId) {
+		this.happeningId = happeningId;
+	}
 
 	public String getHappeningName() {
 		return happeningName;
@@ -22,6 +102,72 @@ public class Happening {
 	public void setHappeningName(String happeningName) {
 		this.happeningName = happeningName;
 	}
+
+	public Date getStart() {
+		return start;
+	}
+
+	public void setStart(Date start) {
+		this.start = start;
+	}
+
+	public Date getEnd() {
+		return end;
+	}
+
+	public void setEnd(Date end) {
+		this.end = end;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public String getLocation() {
+		return location;
+	}
+
+	public void setLocation(String location) {
+		this.location = location;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + happeningId;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Happening other = (Happening) obj;
+		if (happeningId != other.happeningId)
+			return false;
+		return true;
+	}
+
+
+
+	@Override
+	public String toString() {
+		return "Happening [happeningId=" + happeningId + ", happeningName=" + happeningName + ", start=" + start
+				+ ", end=" + end + ", description=" + description + ", location=" + location + ", category=" + category
+				+ ", happeningStatus=" + happeningStatus.getStatusName() + ", happeningHost=" + happeningHost.getUsername() + ", guestListSize="
+				+ guestList.size() + ", version=" + version + "]";
+	}
+
+	
 	
 	
 
