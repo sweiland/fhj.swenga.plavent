@@ -35,6 +35,9 @@ public class HappeningTask implements Serializable {
 	@Min(value = 0L, message = "The duration must be positive") //Nach oben hin offen, task koennta ja mehr als einen Tag dauern...
 	private double durationInHour;
 	
+	@ManyToOne(cascade = CascadeType.PERSIST, optional=true)
+	private User responsibleUser;
+	
 	@Version
 	long version;
 	
@@ -42,13 +45,14 @@ public class HappeningTask implements Serializable {
 		// TODO Auto-generated constructor stub
 	}
 
-	public HappeningTask(Happening happening, String topic, String description, double durationInHour) {
+	public HappeningTask(Happening happening, String topic, String description, double durationInHour,User responsibleUser) {
 		super();
 		this.happening = happening;
 		this.topic = topic;
 		this.description = description;
 		
 		this.durationInHour = durationInHour;
+		this.responsibleUser = responsibleUser;
 	}
 
 	public int getTaskId() {
@@ -91,10 +95,18 @@ public class HappeningTask implements Serializable {
 		this.durationInHour = durationInHour;
 	}
 
+	public User getResponsibleUser() {
+		return responsibleUser;
+	}
+
+	public void setResponsibleUser(User responsibleUser) {
+		this.responsibleUser = responsibleUser;
+	}
+
 	@Override
 	public String toString() {
 		return "Task [taskId=" + taskId + ", happeningID=" + happening.getHappeningId() + ", topic=" + topic + ", description="
-				+ description + ", durationInHour=" + durationInHour + "]";
+				+ description + ", durationInHour=" + durationInHour +", responsibleUser=" + responsibleUser.getUsername() + "]";
 	}
 	
 	

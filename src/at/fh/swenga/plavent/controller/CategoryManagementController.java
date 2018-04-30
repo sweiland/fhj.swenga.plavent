@@ -1,5 +1,6 @@
 package at.fh.swenga.plavent.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Controller;
@@ -8,19 +9,29 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import at.fh.swenga.plavent.dao.HappeningCategoryDao;
+import at.fh.swenga.plavent.model.User;
+
 @Controller
 @Scope(proxyMode = ScopedProxyMode.TARGET_CLASS, value = "session")
 public class CategoryManagementController {
 
+	@Autowired
+	private HappeningCategoryDao categoryDao;
+	
 	public CategoryManagementController() {
 		// TODO Auto-generated constructor stub
 	}
 	
-	private boolean isLoggedIn(Model model) {
-		// TODO: Implement and check if user is logged in...
-		// TODO: Check if user has the permission to have access here!
-		return true;
-
+	private boolean isLoggedInAndHasPermission(Model model) {
+		// hoedlale16: Verify that user is logged in
+		if (!UserManagementController.isLoggedIn(model)) {
+			return false;
+		} else {
+			// User logged in - check if he has the permission for happening management
+			User currLoggedInUser = UserManagementController.getCurrentLoggedInUser();
+			return currLoggedInUser.getRole().isPermissionCategoryMgmt();
+		}
 	}
 
 	private boolean errorsDetected(Model model, BindingResult bindingResult) {
@@ -39,14 +50,12 @@ public class CategoryManagementController {
 	@RequestMapping(value = { "showCategoryManagement" })
 	public String showCategories(Model model) {
 		// hoedlale16: Verify that user is logged in
-		if (!isLoggedIn(model)) {
+		if (!isLoggedInAndHasPermission(model)) {
 			return "login";
 		}
-
-		// TODO: set attributes
-		// model.addAttribute("currLoggedInuser", currLoggedInUser);
-		// model.addAttribute("categories", userManager.getAllUsers());
-		model.addAttribute("warningMessage", "Not implemented <" + "showCategories" + ">");
+		
+		//Set attributes
+		model.addAttribute("categories", categoryDao.getHappeningCategories());
 		return "categoryManagement";
 	}
 	

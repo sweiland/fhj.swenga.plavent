@@ -1,8 +1,8 @@
-<nav th:fragment="navigation" class="navbar navbar-default">
+<nav th:fragment="navigation (currLoggedInUser)" class="navbar navbar-default">
 	<div class="container-fluid">
 		<a href="showUserManagement" class="btn btn-default navbar-btn">User Management</a>
-		<a href="showHappeningManagement" class="btn btn-default navbar-btn">Happening Management</a>
-		<a href="showCategoryManagement" class="btn btn-default navbar-btn">Category Management</a>
+		<a th:if="${currLoggedInUser.role.permissionHappeningMgmt} == true" href="showHappeningManagement" class="btn btn-default navbar-btn">Happening Management</a>
+		<a th:if="${currLoggedInUser.role.permissionCategoryMgmt} == true"  href="showCategoryManagement" class="btn btn-default navbar-btn">Category Management</a> 
 		<a href="dashboard" class="btn btn-default navbar-btn">Dashboard</a>
 	</div>
 </nav>

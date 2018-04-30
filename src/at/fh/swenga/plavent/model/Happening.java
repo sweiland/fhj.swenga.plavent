@@ -27,10 +27,10 @@ public class Happening implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int happeningId;
-	
+
 	@Column(nullable = false, length = 64)
 	private String happeningName;
-	
+
 	@Column(nullable = false)
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date start;
@@ -38,38 +38,47 @@ public class Happening implements Serializable {
 	@Column(nullable = false)
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date end;
-	
+
 	@Column(nullable = true, length = 512)
 	private String description;
-	
+
 	@Column(nullable = false, length = 128)
 	private String location;
-	
-	
-	/*cascade = CascadeType.PERSIST: Changes the default setting for this relationship, so the EntityManager saves unmanaged related object automatically*/
-	@ManyToOne (cascade = CascadeType.PERSIST)
+
+	/*
+	 * cascade = CascadeType.PERSIST: Changes the default setting for this
+	 * relationship, so the EntityManager saves unmanaged related object
+	 * automatically
+	 */
+	@ManyToOne(cascade = CascadeType.PERSIST)
 	private HappeningCategory category;
-	
-	/*cascade = CascadeType.PERSIST: Changes the default setting for this relationship, so the EntityManager saves unmanaged related object automatically*/
-	@ManyToOne (cascade = CascadeType.PERSIST)
+
+	/*
+	 * cascade = CascadeType.PERSIST: Changes the default setting for this
+	 * relationship, so the EntityManager saves unmanaged related object
+	 * automatically
+	 */
+	@ManyToOne(cascade = CascadeType.PERSIST)
 	private HappeningStatus happeningStatus;
-	
-	
-	@OneToOne(fetch=FetchType.EAGER)
-    @JoinColumn(name="username")
+
+	@OneToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "username")
 	private User happeningHost;
-	
-	@ManyToMany(cascade=CascadeType.PERSIST)  
+
+	/*
+	 * cascade = CascadeType.PERSIST: Changes the default setting for this
+	 * relationship, so the EntityManager saves unmanaged related object
+	 * automatically
+	 */
+	@ManyToMany(cascade = CascadeType.PERSIST)
 	private List<User> guestList;
-	
+
 	@Version
 	long version;
-	
+
 	public Happening() {
 		// TODO Auto-generated constructor stub
 	}
-
-	
 
 	public Happening(String happeningName, Date start, Date end, String description, String location,
 			HappeningCategory category, HappeningStatus happeningStatus, User happeningHost, List<User> guestList) {
@@ -84,8 +93,6 @@ public class Happening implements Serializable {
 		this.happeningHost = happeningHost;
 		this.guestList = guestList;
 	}
-
-
 
 	public int getHappeningId() {
 		return happeningId;
@@ -157,18 +164,51 @@ public class Happening implements Serializable {
 		return true;
 	}
 
+	public HappeningCategory getCategory() {
+		return category;
+	}
 
+	public void setCategory(HappeningCategory category) {
+		this.category = category;
+	}
+
+	public HappeningStatus getHappeningStatus() {
+		return happeningStatus;
+	}
+
+	public void setHappeningStatus(HappeningStatus happeningStatus) {
+		this.happeningStatus = happeningStatus;
+	}
+
+	public User getHappeningHost() {
+		return happeningHost;
+	}
+
+	public void setHappeningHost(User happeningHost) {
+		this.happeningHost = happeningHost;
+	}
+
+	public List<User> getGuestList() {
+		return guestList;
+	}
+
+	public void setGuestList(List<User> guestList) {
+		this.guestList = guestList;
+	}
+
+	public void addGuestToList(User user) {
+		guestList.add(user);
+	}
+
+	public boolean removeFromList(String username) {
+		return guestList.remove(new User(username, null, null, null, null));
+	}
 
 	@Override
 	public String toString() {
 		return "Happening [happeningId=" + happeningId + ", happeningName=" + happeningName + ", start=" + start
 				+ ", end=" + end + ", description=" + description + ", location=" + location + ", category=" + category
-				+ ", happeningStatus=" + happeningStatus.getStatusName() + ", happeningHost=" + happeningHost.getUsername() + ", guestListSize="
-				+ guestList.size() + ", version=" + version + "]";
+				+ ", happeningStatus=" + happeningStatus.getStatusName() + ", happeningHost="
+				+ happeningHost.getUsername() + ", guestListSize=" + guestList.size() + ", version=" + version + "]";
 	}
-
-	
-	
-	
-
 }

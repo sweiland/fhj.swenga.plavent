@@ -13,11 +13,12 @@
 
 		<div class="page-header">
 			<!-- include the Nav bar fragment-->
-			<nav th:replace="~{includes/fragments :: header (header='PlaVent - User Management')}"></nav>
+			<nav th:replace="~{includes/fragments :: header (header='PlaVent - Happening Management')}"></nav>
 		</div>
 
 		<!-- include the Nav bar fragment-->
-		<nav th:replace="~{includes/fragments :: navigation}"></nav>
+		<nav th:replace="~{includes/fragments :: navigation (currLoggedInUser=${#request.getAttribute('currLoggedInUser')}) }"></nav>
+		
 		
 		<!-- include the serach bar fragment for users-->
 		<nav th:replace="~{includes/fragments :: MgmtNavBar (buttonText='New Happening',buttonLink='showCreateHappeningForm',searchLink='filterHappenings')}"></nav>
@@ -40,7 +41,54 @@
 
 		<div class="row">
 			<div class="col-md-10 col-md-offset-1">
-			  TODO: Hier kommt der Inhalt
+			  <!-- hoedlale16: Generates a sortable table with bootstrap-style -->
+				<table data-toggle="table" class="table table-striped">
+					<thead>
+						<tr>
+							<th data-sortable="true">HappeningName</th>
+							<th data-sortable="true">Status</th>
+							<th data-sortable="true">Category</th>
+							<th data-sortable="true">StartTime</th>
+							<th data-sortable="true">EndTime</th>
+							<th data-sortable="true">Location</th>
+							<th data-sortable="true">Host</th>
+							<th class="text-right">Actions</th>
+						</tr>
+					</thead>
+					<tbody>
+						<!--  list all items ----------------------------------------------------------- -->
+						<!-- hoedlale16: Fill table content -->
+						<tr th:each="happening : ${#request.getAttribute('happenings')}">
+							<td th:text="${happening.happeningName}"></td>
+							<td th:text="${happening.happeningStatus.name}"></td>
+							<td th:text="${happening.category.name}"></td>
+							<td th:text="${#dates.format(happening.start,'dd.MM.yyyy HH:mm')}}"></td>
+							<td th:text="${#dates.format(happening.end,'dd.MM.yyyy HH:mm')}}"></td>
+							<td th:text="${happening.location}"></td>
+							<td th:text="${happening.happeningHost.lastname +' '+happening.happeningHost.firstname}"></td>
+							
+							<td>
+							<a th:href="@{/showGuestListManagement(happeningID=${happening.happening.happeningId})}"
+								class="btn btn-xs btn-success"> <span
+									class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+									Guests</a>
+							<a th:href="@{/showTaskListManagement(happeningID=${happening.happening.happeningId})}"
+								class="btn btn-xs btn-success"> <span
+									class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+									Tasks</a>
+							  <a th:href="@{/showModifyExistingHappingForm(happeningID=${happening.happening.happeningId})}"
+								class="btn btn-xs btn-success"> <span
+									class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+									Edit</a>
+							  <a th:href="@{/deleteExistingHappening(happeningID=${happening.happening.happeningId})}"
+								class="btn btn-xs btn-danger"> <span
+									class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+									Delete</a>
+							</td>
+						</tr>
+						<!--  list all items ----------------------------------------------------------- -->
+					</tbody>
+				</table>
 			</div>
 		</div>
 	</div>

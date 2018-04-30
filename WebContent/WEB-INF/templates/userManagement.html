@@ -17,7 +17,7 @@
 		</div>
 
 		<!-- include the Nav bar fragment-->
-		<nav th:replace="~{includes/fragments :: navigation}"></nav>
+		<nav th:replace="~{includes/fragments :: navigation (currLoggedInUser=${#request.getAttribute('currLoggedInUser')}) }"></nav>
 		
 		<!-- include the serach bar fragment for users-->
 		<nav th:replace="~{includes/fragments :: MgmtNavBar (buttonText='New User',buttonLink='showCreateUserForm',searchLink='filterUsers')}"></nav>
@@ -63,7 +63,7 @@
 								class="btn btn-xs btn-success"> <span
 									class="glyphicon glyphicon-trash" aria-hidden="true"></span>
 									Edit</a>
-							  <a th:unless="${user.username} == ${#request.getAttribute('currLoggedInuser').username}" th:href="@{/deleteExistingUser(username=${user.username})}"
+							  <a th:unless="${user.username} == ${#request.getAttribute('currLoggedInUser').username}" th:href="@{/deleteExistingUser(username=${user.username})}"
 								class="btn btn-xs btn-danger"> <span
 									class="glyphicon glyphicon-trash" aria-hidden="true"></span>
 									Delete

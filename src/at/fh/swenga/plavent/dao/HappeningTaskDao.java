@@ -1,5 +1,6 @@
 package at.fh.swenga.plavent.dao;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -39,6 +40,14 @@ public class HappeningTaskDao {
 		} catch (NoResultException e) {
 			return null;
 		}
+	}
+	
+
+	
+	public List<HappeningTask> getUnassignedTasks(int happeningId) {
+		//TODO
+		List<HappeningTask> tasks = new ArrayList<HappeningTask>();
+		return tasks;
 	}
 
 }

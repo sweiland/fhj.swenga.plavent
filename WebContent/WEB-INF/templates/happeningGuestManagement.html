@@ -17,7 +17,7 @@
 		</div>
 
 		<!-- include the Nav bar fragment-->
-		<nav th:replace="~{includes/fragments :: navigation}"></nav>
+		<nav th:replace="~{includes/fragments :: navigation (currLoggedInUser=${#request.getAttribute('currLoggedInUser')}) }"></nav>
 		
 		<!-- Customized Subnavbar because of Drop-Down selection -->
 		<nav>

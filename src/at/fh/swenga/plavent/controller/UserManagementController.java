@@ -1,7 +1,5 @@
 package at.fh.swenga.plavent.controller;
 
-import java.security.MessageDigest;
-
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,14 +15,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import at.fh.swenga.plavent.dao.HappeningCategoryDao;
-import at.fh.swenga.plavent.dao.HappeningStatusDao;
 import at.fh.swenga.plavent.dao.UserDao;
-import at.fh.swenga.plavent.dao.UserRoleDao;
-import at.fh.swenga.plavent.model.HappeningCategory;
-import at.fh.swenga.plavent.model.HappeningStatus;
 import at.fh.swenga.plavent.model.User;
-import at.fh.swenga.plavent.model.UserRole;
 
 @Controller
 @Scope(proxyMode = ScopedProxyMode.TARGET_CLASS, value = "session")
@@ -33,64 +25,10 @@ public class UserManagementController {
 	@Autowired
 	private UserDao userDao;
 	
-	@Autowired
-	private UserRoleDao userRoleDao;
-
-	@Autowired
-	private HappeningStatusDao happeningStatusDao;
-	
-	@Autowired
-	private HappeningCategoryDao happeningCategoryDao;
-	
-	private User currLoggedInUser; // Instance to hold User which is currently logged in this session
+	private static User currLoggedInUser; // Instance to hold User which is currently logged in this session
 
 	public UserManagementController() {
 	}
-	
-	
-	@RequestMapping(value = { "preparePlavent" })
-	public String preparePlavent(Model model) throws Exception {
-		
-		//Create useroles if required
-		UserRole roleAdmin = userRoleDao.getUserRole("ADMIN");
-		if(roleAdmin == null)
-			roleAdmin = new UserRole("ADMIN","The role to manage the system");
-		UserRole roleHost = userRoleDao.getUserRole("HOST");
-		if(roleHost == null)
-			roleHost = new UserRole("HOST","The role to create happening and manage them");
-		UserRole roleGuest = userRoleDao.getUserRole("GUEST");
-		if(roleGuest == null)
-			roleGuest = new UserRole("GUEST","The role to be a guest at happenings");
-		
-		
-		//Create Happing status values 
-		HappeningStatus hsActive = happeningStatusDao.getHappeningStatus("ACTIVE");
-		if (hsActive == null)
-			hsActive = new HappeningStatus("ACTIVE","The happening will happen as planned!");
-		
-		HappeningStatus hsDeleted= happeningStatusDao.getHappeningStatus("DELETED");
-		if (hsDeleted == null)
-			hsDeleted = new HappeningStatus("DELETED","The happening is cancelled!");
-		
-		//Create a default happening cateogry
-		HappeningCategory catUnAssigned  = happeningCategoryDao.getCategory("Unassigned");
-		if (catUnAssigned == null)
-			catUnAssigned = new HappeningCategory("Unassigned","Not specified ");
-		
-		
-		//Create overall admin if required
-		if(userDao.getUser("admin") == null) {
-			MessageDigest md5 = java.security.MessageDigest.getInstance("MD5");
-			String passwordHash = new String(md5.digest("admin".getBytes()));
-			User administrator = new User("admin",passwordHash,"Administrator","Administrator",roleAdmin);
-
-			userDao.persist(administrator);
-		}
-		
-		model.addAttribute("warningMessage","Environment created - Start planning!");
-		return "login";
-	}
-
 
 	/**
 	 * General function to verify if user is logged in
@@ -98,13 +36,18 @@ public class UserManagementController {
 	 * @param model
 	 * @return
 	 */
-	private boolean isLoggedIn(Model model) {
+	public static boolean isLoggedIn(Model model) {
 		if (currLoggedInUser != null) {
+			model.addAttribute("currLoggedInUser", currLoggedInUser);
 			return true;
 		} else {
 			model.addAttribute("warningMessage", "Currently not logged in!");
 			return false;
 		}
+	}
+	
+	public static User getCurrentLoggedInUser() {
+		return currLoggedInUser;
 	}
 
 	private boolean errorsDetected(Model model, BindingResult bindingResult) {
@@ -130,6 +73,7 @@ public class UserManagementController {
 			return "login";
 		} else {
 			currLoggedInUser = user;
+			model.addAttribute("currLoggedInUser", currLoggedInUser);
 			model.addAttribute("message", "Welcome " + currLoggedInUser.getFirstname() + "!");
 			return "dashboard";
 		}
@@ -147,8 +91,6 @@ public class UserManagementController {
 		if (!isLoggedIn(model)) {
 			return "login";
 		}
-
-		model.addAttribute("currLoggedInuser", currLoggedInUser);
 		model.addAttribute("users", userDao.getUsers());
 		return "userManagement";
 	}
@@ -281,7 +223,6 @@ public class UserManagementController {
 		}
 
 		model.addAttribute("users", userDao.getFilteredUsers(searchString));
-		model.addAttribute("currLoggedInuser", currLoggedInUser);
 		return "userManagement";
 	}
 

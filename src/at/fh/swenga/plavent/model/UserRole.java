@@ -24,6 +24,16 @@ public class UserRole implements Serializable {
 	@Column(nullable = true, length = 512)
 	private String description;
 	
+	@Column(nullable = false)
+	private boolean permissionUserMgmt;
+	
+	@Column(nullable = false)
+	private boolean permissionHappeningMgmt;
+	
+	@Column(nullable = false)
+	private boolean permissionCategoryMgmt;
+	
+	
 	@Version
 	long version;
 	
@@ -31,11 +41,17 @@ public class UserRole implements Serializable {
 		// TODO Auto-generated constructor stub
 	}
 
-	public UserRole(String roleName, String description) {
+	public UserRole(String roleName, String description, boolean permissionUserMgmt, boolean permissionHappeningMgmt,
+			boolean permissionCategoryMgmt) {
 		super();
 		this.roleName = roleName;
 		this.description = description;
+		this.permissionUserMgmt = permissionUserMgmt;
+		this.permissionHappeningMgmt = permissionHappeningMgmt;
+		this.permissionCategoryMgmt = permissionCategoryMgmt;
 	}
+
+
 
 	public int getRoleID() {
 		return roleID;
@@ -61,6 +77,30 @@ public class UserRole implements Serializable {
 		this.description = description;
 	}
 
+	public boolean isPermissionUserMgmt() {
+		return permissionUserMgmt;
+	}
+
+	public void setPermissionUserMgmt(boolean permissionUserMgmt) {
+		this.permissionUserMgmt = permissionUserMgmt;
+	}
+
+	public boolean isPermissionHappeningMgmt() {
+		return permissionHappeningMgmt;
+	}
+
+	public void setPermissionHappeningMgmt(boolean permissionHappeningMgmt) {
+		this.permissionHappeningMgmt = permissionHappeningMgmt;
+	}
+
+	public boolean isPermissionCategoryMgmt() {
+		return permissionCategoryMgmt;
+	}
+
+	public void setPermissionCategoryMgmt(boolean permissionCategoryMgmt) {
+		this.permissionCategoryMgmt = permissionCategoryMgmt;
+	}
+
 	public long getVersion() {
 		return version;
 	}
@@ -70,11 +110,31 @@ public class UserRole implements Serializable {
 	}
 
 	@Override
-	public String toString() {
-		return "UserRole [roleID=" + roleID + ", roleName=" + roleName + ", description=" + description + ", version="
-				+ version + "]";
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + roleID;
+		return result;
 	}
-	
-	
 
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		UserRole other = (UserRole) obj;
+		if (roleID != other.roleID)
+			return false;
+		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "UserRole [roleID=" + roleID + ", roleName=" + roleName + ", description=" + description
+				+ ", permissionUserMgmt=" + permissionUserMgmt + ", permissionHappeningMgmt=" + permissionHappeningMgmt
+				+ ", permissionCategoryMgmt=" + permissionCategoryMgmt + "]";
+	}
 }
