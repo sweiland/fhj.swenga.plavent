@@ -22,23 +22,156 @@
 					<fieldset>
 						<legend th:text="${happening}? 'Change happening' : 'New happening'"></legend>
 
-						<!--  ----------------  happeningName ---------------- -->
-						<div class="form-group">
-							<label for="inputName" class="col-md-2 control-label">Happening name</label>
+						<!--  ----------------  happeningID ---------------- -->
+						<div th:if="${happening} != null" class="form-group">
+							<label for="inputId" class="col-md-2 control-label">ID</label>
 							<div class="col-md-10">
-								<input class="form-control" type="text" name="happeningName"
-									required="required" th:value="${happening} ? ${happening.happeningName}"
+								<input class="form-control" type="text" name="happeningId"
+									required="required" th:value="${happening} ? ${happening.happeningId}"
 									th:readonly="${happening}">
 							</div>
 						</div>
-					
+						
+						<!--  ----------------  happeningID ---------------- -->
+						<input class="form-control" type="hidden" name="statusString"  th:value="${happening} ? ${happening.happeningStatus.statusName}">
+						
+						<!--  ----------------  happeningName ---------------- -->
+						<div class="form-group">
+							<label for="inputName" class="col-md-2 control-label">Name</label>
+							<div class="col-md-10">
+								<input class="form-control" type="text" name="happeningName"
+									required="required" th:value="${happening} ? ${happening.happeningName}"
+									th:readonly="${happening} ? ${happening.happeningStatus.statusName == 'DELETED'}">
+							</div>
+						</div>
+						
+						<!--  ----------------  start ---------------- -->
+						<div class="form-group">
+							<label for="inputStart" class="col-md-2 control-label">Start</label>
+							<div class="col-md-10">
+								<!-- Why the heck can bootstrap not handle a date and time in a type="date" field??? -->
+								<input class="form_datetime form-control" type="text" name="startDate" 
+									required="required" th:value="${happening} ? ${#dates.format(happening.start, 'dd.MM.yyyy hh:mm')}"
+									th:disabled="${happening} ? ${happening.happeningStatus.statusName == 'DELETED'}">
+							</div>
+						</div>
+						<!--  ----------------  end ---------------- -->
+						<div class="form-group">
+							<label for="inputEnd" class="col-md-2 control-label">End</label>
+							<div class="col-md-10">
+								<!-- Why the heck can bootstrap not handle a date and time in a type="date" field??? -->
+								<input class="form_datetime form-control" type="text" name="endDate" 
+									required="required" th:value="${happening} ? ${#dates.format(happening.end, 'dd.MM.yyyy hh:mm')}"
+									th:disabled="${happening} ? ${happening.happeningStatus.statusName == 'DELETED'}">
+							</div>
+						</div>
+						
+						<!--  ----------------  description ---------------- -->
+						<div class="form-group">
+							<label for="inputDescription" class="col-md-2 control-label">Description</label>
+							<div class="col-md-10">
+								<input class="form-control" type="text" name="description"
+									required="required" th:value="${happening} ? ${happening.description}"
+									th:readonly="${happening} ? ${happening.happeningStatus.statusName == 'DELETED'}">
+							</div>
+						</div>
+						
+						<!--  ----------------  location ---------------- -->
+						<div class="form-group">
+							<label for="inputLocation" class="col-md-2 control-label">Location</label>
+							<div class="col-md-10">
+								<input class="form-control" type="text" name="location"
+									required="required" th:value="${happening} ? ${happening.location}"
+									th:readonly="${happening} ? ${happening.happeningStatus.statusName == 'DELETED'}">
+							</div>
+						</div>
+						
+						<!--  ----------------  category ---------------- -->
+						<div class="form-group">
+							<label for="inputCategory" class="col-md-2 control-label">Category</label> 
+							<div class="col-md-10">
+								<select id="inputCategory" class="form-control" name="categoryID" required="required"
+								th:value="${happening} ? ${happening.category.categoryID}"
+								th:disabled="${happening} ? ${happening.happeningStatus.statusName == 'DELETED'}">
+									<option th:if="${happening == null}" disabled="disabled" selected="selected" > Choose...</option>
+									<option th:each="category : ${happeningCategories}" th:value="${category.categoryID}" th:text="${category.categoryName}" ></option>
+								</select>
+							</div>
+						</div>
+						<!--  ----------------  status ---------------- -->
+						<!--  Status is not changeable via this form. User can change state just via deletion of event! -->
+						
+						<!--  ----------------  happeningHost ---------------- -->
+						<!--  TODO: Role ADMIN is allowed to change the owner of an happening. All other can just create events for themself -->												
+						<div class="form-group">
+							<label for="inputHost" class="col-md-2 control-label">Host</label> 
+							<div class="col-md-10">
+							
+								<!-- CREATE NEW HAPPINING VERSION-->
+								<th:block th:if="${happening == null}">
+									<select id="inputHost" class="form-control" name="host" required="required" th:readonly="${currLoggedInUser.role.isAdminRole() == false}">
+											<option selected="selected" th:value="${currLoggedInUser.username}" th:text="${currLoggedInUser.username}" ></option>
+											
+											<!-- For admins: add all other possible hosts to list -->
+											<!--  TODO:Add possible other Possible other HOSTS to list if current logged in user is a ADMIN -->
+											<!-- <option th:if="${currLoggedInUser.role.isAdminRole()} == true" 
+											        th:each="user : ${happeningHosts}" th:value="${user.username}" th:text="${user.username}" ></option>
+											-->
+									</select>
+								</th:block>
+							
+								<!-- MODIFY EXISTING HAPPINING VERSION-->
+								<th:block th:if="${happening}">
+									<th:block th:switch="${happening.happeningStatus.statusName}">										
+										 	<th:block th:case="ACTIVE">									 
+										 	
+										 		<select id="inputHost" class="form-control" name="host" required="required" th:readonly="${currLoggedInUser.role.isAdminRole() == false}">
+														<option selected="selected" th:value="${happening.happeningHost.username}" th:text="${happening.happeningHost.username}" ></option>
+														
+														<!-- For admins: add all other possible hosts to list -->
+														<!--  TODO:Add possible other Possible other HOSTS to list if current logged in user is a ADMIN -->
+														<!-- <option th:if="${currLoggedInUser.role.isAdminRole()} == true" 
+														        th:each="user : ${happeningHosts}" th:value="${user.username}" th:text="${user.username}" ></option>
+														-->
+												</select>
+											</th:block>
+										 	<th:block th:case="DELETED">
+										 		<!-- Show a disabled Drop down if happening is deleted -->
+												<select id="inputHost" class="form-control" name="host" required="required" disabled> 
+													<option selected="selected" th:value="${happening.happeningHost.username}" th:text="${happening.happeningHost.username}" ></option>
+												</select>
+										 	</th:block>
+									</th:block>
+								</th:block>
+							</div>
+						</div>
 
 						<!-- --------------  buttons ---------------- -->
 						<div class="form-group">
 							<div class="col-md-10 col-md-offset-2">
-								<button type="submit" class="btn btn-primary">Submit</button>
-								<a href="showHappeningManagement" class="btn btn-default"> Cancel </a>
-							</div>
+								<th:block th:if="${happening}">
+									<th:block th:switch="${happening.happeningStatus.statusName}">										
+									 	<th:block th:case="ACTIVE">									 	
+									 		<button type="submit" class="btn btn-primary">Submit</button>
+									 		<a href="showHappeningManagement" class="btn btn-default"> Cancel </a>	
+									 		
+									 		<a th:href="@{/deleteExistingHappening(happeningId=${happening.happeningId})}"  class="btn btn-danger pull-right"> 
+											<span class="glyphicon glyphicon-trash" aria-hidden="true"></span>Delete</a>
+									 	</th:block>
+									 
+										<th:block th:case="DELETED">
+											<a th:href="@{/reactivateExistingHappening(happeningId=${happening.happeningId})}" class="btn btn-primary"> 
+												<span class="glyphicon" aria-hidden="true"></span>Reactivate</a>
+											<a href="showHappeningManagement" class="btn btn-default"> Cancel </a>	
+										</th:block>
+									</th:block>
+								</th:block> 
+								
+								<th:block th:unless="${happening}">
+									<button type="submit" class="btn btn-primary">Submit</button>
+									<a href="showHappeningManagement" class="btn btn-default"> Cancel </a>	
+								</th:block>														
+							</div>						
 						</div>
 
 					</fieldset>
@@ -56,16 +189,16 @@
 
 	<script>
 		$(function() {
-
+			<!-- https://www.malot.fr/bootstrap-datetimepicker/demo.php -->
 			$(".form_datetime").datetimepicker({
-				format : "dd.mm.yyyy",
+				format : "dd.mm.yyyy hh:ii",
 				autoclose : true,
 				todayBtn : true,
 				pickerPosition : "bottom-left",
-				minView : 2
 			});
-
 		});
+		
+		
 	</script>
 
 </body>

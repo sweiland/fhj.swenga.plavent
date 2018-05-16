@@ -1,5 +1,7 @@
 package at.fh.swenga.plavent.controller;
 
+import java.security.MessageDigest;
+
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,8 +68,12 @@ public class UserManagementController {
 	@RequestMapping(value = { "verifyLogin" })
 	public String verifyLoginData(Model model, @RequestParam String username, @RequestParam String password) throws Exception {
 		// TODO: Check if enters user/pw matches to criterias and so on...
-
-		User user = userDao.verifyLogin(username, password);
+		// Convert PW into md5 hash
+		MessageDigest md5 = java.security.MessageDigest.getInstance("MD5");
+		String passwordHash = new String(md5.digest(password.getBytes()));
+		
+		
+		User user = userDao.verifyLogin(username, passwordHash);
 		if (user == null) {
 			model.addAttribute("errorMessage", "Username or password incorrect!");
 			return "login";
@@ -91,7 +97,7 @@ public class UserManagementController {
 		if (!isLoggedIn(model)) {
 			return "login";
 		}
-		model.addAttribute("users", userDao.getUsers());
+		model.addAttribute("users", userDao.findAll());
 		return "userManagement";
 	}
 
@@ -113,7 +119,7 @@ public class UserManagementController {
 			return "login";
 		}
 
-		User user = userDao.getUser(username);
+		User user = userDao.findFirstByUsername(username);
 
 		if (user != null) {
 			model.addAttribute("user", user);
@@ -132,7 +138,7 @@ public class UserManagementController {
 		}
 
 		
-		User user = userDao.getUser(username);
+		User user = userDao.findFirstByUsername(username);
 		if (user != null) {
 			model.addAttribute("user", user);
 			// TODO: Implement
@@ -154,10 +160,10 @@ public class UserManagementController {
 			return showAllUsers(model);
 
 		// Look for illness in the List. One available -> Error
-		if (userDao.getUser(newUserModel.getUsername()) != null) {
+		if (userDao.findFirstByUsername(newUserModel.getUsername()) != null) {
 			model.addAttribute("errorMessage", "User already exists!");
 		} else {
-			userDao.persist(newUserModel);
+			userDao.save(newUserModel);
 			//userManager.addUser(newUserModel);
 			model.addAttribute("message", "New user " + newUserModel.getUsername() + " added.");
 		}
@@ -174,11 +180,11 @@ public class UserManagementController {
 			return showAllUsers(model);
 
 		// Get the illness the user wants to change
-		User user = userDao.getUser(changedUserModel.getUsername());
+		User user = userDao.findFirstByUsername(changedUserModel.getUsername());
 		if (user == null) {
 			model.addAttribute("errorMessage", "User does not exist! <" + changedUserModel.getUsername() + ">");
 		} else {
-			userDao.merge(changedUserModel);
+			userDao.save(changedUserModel);
 			model.addAttribute("message", "Changed user " + user.getUsername());
 		}
 
@@ -188,7 +194,7 @@ public class UserManagementController {
 	// Delete user
 	@GetMapping("/deleteExistingUser")
 	public String deleteUser(Model model, @RequestParam String username) {
-		User user = userDao.getUser(username);
+		User user = userDao.findFirstByUsername(username);
 		if (user == null) {
 			model.addAttribute("errorMessage", "User does not exist! <" + username + ">");
 		} else {
@@ -206,7 +212,7 @@ public class UserManagementController {
 			return showAllUsers(model);
 
 		// Get the illness the user wants to change
-		User user = userDao.getUser(changedUserModel.getUsername());
+		User user = userDao.findFirstByUsername(changedUserModel.getUsername());
 		if (user == null) {
 			model.addAttribute("errorMessage", "User does not exist! <" + changedUserModel.getUsername() + ">");
 		} else {

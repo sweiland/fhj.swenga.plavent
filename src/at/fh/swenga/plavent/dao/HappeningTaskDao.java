@@ -19,5 +19,7 @@ public interface HappeningTaskDao extends JpaRepository<HappeningTask, Integer> 
 
 	@Query("Select t From HappeningTask t WHERE t.happening.happeningId  = :happeningId and t.responsibleUser = null" )
 	public List<HappeningTask> getUnassignedTasks(@Param("happeningId") int happeningId);
+	
+	public List<HappeningTask> findByHappeningHappeningId(int happeningId);
 
 }

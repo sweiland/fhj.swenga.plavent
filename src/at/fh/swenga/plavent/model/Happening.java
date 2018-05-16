@@ -1,4 +1,4 @@
-package at.fh.swenga.plavent.model;
+	package at.fh.swenga.plavent.model;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -50,7 +50,7 @@ public class Happening implements Serializable {
 	 * relationship, so the EntityManager saves unmanaged related object
 	 * automatically
 	 */
-	@ManyToOne(cascade = CascadeType.PERSIST)
+	@ManyToOne(cascade = CascadeType.MERGE,fetch = FetchType.EAGER)
 	private HappeningCategory category;
 
 	/*
@@ -58,7 +58,7 @@ public class Happening implements Serializable {
 	 * relationship, so the EntityManager saves unmanaged related object
 	 * automatically
 	 */
-	@ManyToOne(cascade = CascadeType.PERSIST)
+	@ManyToOne(cascade = CascadeType.MERGE,fetch = FetchType.EAGER)
 	private HappeningStatus happeningStatus;
 
 	@OneToOne(fetch = FetchType.EAGER)
@@ -70,7 +70,7 @@ public class Happening implements Serializable {
 	 * relationship, so the EntityManager saves unmanaged related object
 	 * automatically
 	 */
-	@ManyToMany(cascade = CascadeType.PERSIST)
+	@ManyToMany(cascade = CascadeType.MERGE,fetch = FetchType.EAGER)
 	private List<User> guestList;
 
 	@Version

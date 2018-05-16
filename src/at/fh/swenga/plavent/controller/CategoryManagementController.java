@@ -55,7 +55,7 @@ public class CategoryManagementController {
 		}
 		
 		//Set attributes
-		model.addAttribute("categories", categoryDao.getHappeningCategories());
+		model.addAttribute("happeningCategories", categoryDao.findAll());
 		return "categoryManagement";
 	}
 	

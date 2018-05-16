@@ -40,20 +40,19 @@ public class InitialSetupController {
 	public String preparePlavent(Model model) {
 		try {
 
-		// Create Categories
-		this.createHappeningCategories();
+			// Create Categories
+			this.createHappeningCategories();
 
-		// Create HappeningStatus
-		this.createHappeningStatus();
+			// Create HappeningStatus
+			this.createHappeningStatus();
 
-		// Create UserRoles and Users
-		createUsersAndRoles();
+			// Create UserRoles and Users
+			createUsersAndRoles();
 
-		model.addAttribute("warningMessage", "Environment created - Start planning!");
-		return "login";
-		}
-		catch (Exception e) {
-			System.out.println("Error occured: "+ e.getMessage());
+			model.addAttribute("warningMessage", "Environment created - Start planning!");
+			return "login";
+		} catch (Exception e) {
+			System.out.println("Error occured: " + e.getMessage());
 			model.addAttribute("errorMessage", "Error occured: \"+ e.getMessage()!");
 			return "error";
 		}
@@ -62,29 +61,34 @@ public class InitialSetupController {
 	private void createHappeningCategories() {
 
 		// Create a default happening cateogry
-		HappeningCategory catUnAssigned = happeningCategoryDao.getCategory("Unassigned");
-		if (catUnAssigned == null)
+		HappeningCategory catUnAssigned = happeningCategoryDao.findFirstByCategoryName("Unassigned");
+		if (catUnAssigned == null) {
 			catUnAssigned = new HappeningCategory("Unassigned", "Not specified ");
-
+			happeningCategoryDao.save(catUnAssigned);
+		}
 	}
 
 	private void createHappeningStatus() {
 		// Create Happening status values
-		HappeningStatus hsActive = happeningStatusDao.getHappeningStatus("ACTIVE");
-		if (hsActive == null)
+		HappeningStatus hsActive = happeningStatusDao.findFirstByStatusName("ACTIVE");
+		if (hsActive == null) {
 			hsActive = new HappeningStatus("ACTIVE", "The happening will happen as planned!");
-
-		HappeningStatus hsDeleted = happeningStatusDao.getHappeningStatus("DELETED");
-		if (hsDeleted == null)
+			happeningStatusDao.save(hsActive);
+		}
+		HappeningStatus hsDeleted = happeningStatusDao.findFirstByStatusName("DELETED");
+		if (hsDeleted == null) {
 			hsDeleted = new HappeningStatus("DELETED", "The happening is cancelled!");
+			happeningStatusDao.save(hsDeleted);
+		}
 	}
 
 	private void createUsersAndRoles() throws NoSuchAlgorithmException {
 
 		// Create useroles if required
 		UserRole roleAdmin = userRoleDao.getUserRole("ADMIN");
-		if (roleAdmin == null)
+		if (roleAdmin == null) {
 			roleAdmin = new UserRole("ADMIN", "The role to manage the system", true, true, true);
+		}
 		UserRole roleHost = userRoleDao.getUserRole("HOST");
 		if (roleHost == null)
 			roleHost = new UserRole("HOST", "The role to create happening and manage them", false, true, false);
@@ -94,23 +98,22 @@ public class InitialSetupController {
 
 		// Create overall admin if required
 		MessageDigest md5 = java.security.MessageDigest.getInstance("MD5");
-		if (userDao.getUser("admin") == null) {
+		if (userDao.findFirstByUsername("admin") == null) {
 			User administrator = new User("admin", new String(md5.digest("admin".getBytes())), "Administrator",
 					"Administrator", roleAdmin);
-			userDao.persist(administrator);
+			userDao.save(administrator);
 		}
 
 		// Create a host user if required
-		if (userDao.getUser("host") == null) {
+		if (userDao.findFirstByUsername("host") == null) {
 			User host = new User("host", new String(md5.digest("host".getBytes())), "Host", "Host", roleHost);
-			userDao.persist(host);
+			userDao.save(host);
 		}
 
 		// Create a simple guest user if required
-		if (userDao.getUser("guest") == null) {
+		if (userDao.findFirstByUsername("guest") == null) {
 			User host = new User("guest", new String(md5.digest("guest".getBytes())), "Host", "Host", roleGuest);
-			userDao.persist(host);
+			userDao.save(host);
 		}
 	}
-
 }

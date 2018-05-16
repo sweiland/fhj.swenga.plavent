@@ -16,5 +16,7 @@ public interface HappeningDao extends JpaRepository<Happening, Integer> {
 	public List<Happening> findByHappeningId(int happeningID);
 	
 	public List<Happening> findByHappeningName(String happeningName);
+	
+	public List<Happening> findByHappeningHostUsername(String username);
 
 }

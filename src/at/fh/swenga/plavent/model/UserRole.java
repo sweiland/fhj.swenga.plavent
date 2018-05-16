@@ -52,6 +52,19 @@ public class UserRole implements Serializable {
 	}
 
 
+	public boolean isAdminRole() {
+		return (permissionUserMgmt && permissionHappeningMgmt && permissionCategoryMgmt);
+	}
+	
+	public boolean isHostRole() {
+		return (permissionUserMgmt && permissionHappeningMgmt && ! permissionCategoryMgmt);
+	}
+	
+	public boolean isGuestRole() {
+		return (permissionUserMgmt && ! permissionHappeningMgmt && ! permissionCategoryMgmt);
+	}
+	
+	
 
 	public int getRoleID() {
 		return roleID;
