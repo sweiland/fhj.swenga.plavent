@@ -8,8 +8,10 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
@@ -35,7 +37,7 @@ public class User implements Serializable {
 	private String telNumber;
 	
 	/*cascade = CascadeType.PERSIST: Changes the default setting for this relationship, so the EntityManager saves unmanaged related object automatically*/
-	@ManyToOne (cascade = CascadeType.PERSIST)
+	@ManyToOne (cascade = CascadeType.PERSIST,fetch = FetchType.EAGER)
 	private UserRole role;
 	
 	//TODO: add all required attributes

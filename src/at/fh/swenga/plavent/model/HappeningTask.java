@@ -5,9 +5,11 @@ import java.io.Serializable;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
@@ -22,7 +24,8 @@ public class HappeningTask implements Serializable {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
     private int taskId;
 	
-	@ManyToOne (cascade = CascadeType.PERSIST)
+	@ManyToOne (cascade = CascadeType.MERGE ,fetch = FetchType.EAGER)
+    @JoinColumn(nullable = false)
 	private Happening happening;
 	
 	@Column(nullable = false, length = 128)
@@ -45,14 +48,37 @@ public class HappeningTask implements Serializable {
 		// TODO Auto-generated constructor stub
 	}
 
-	public HappeningTask(Happening happening, String topic, String description, double durationInHour,User responsibleUser) {
+	public HappeningTask(int taskId, Happening happening, String topic, String description, double durationInHour,User responsibleUser) {
 		super();
+		this.taskId = taskId;
 		this.happening = happening;
 		this.topic = topic;
 		this.description = description;
 		
 		this.durationInHour = durationInHour;
 		this.responsibleUser = responsibleUser;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + taskId;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		HappeningTask other = (HappeningTask) obj;
+		if (taskId != other.taskId)
+			return false;
+		return true;
 	}
 
 	public int getTaskId() {

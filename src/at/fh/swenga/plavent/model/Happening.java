@@ -14,11 +14,15 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Version;
+
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 @Entity
 @Table(name = "Happening")
@@ -72,6 +76,14 @@ public class Happening implements Serializable {
 	 */
 	@ManyToMany(cascade = CascadeType.MERGE,fetch = FetchType.EAGER)
 	private List<User> guestList;
+	
+	
+	/*
+	 * https://stackoverflow.com/questions/24675340/org-hibernate-loader-multiplebagfetchexception-cannot-simultaneously-fetch-mult/24676806
+	 */
+	@OneToMany(fetch = FetchType.EAGER, mappedBy = "happening")
+	@Fetch(value = FetchMode.SUBSELECT)
+	private List<HappeningTask> taskList;
 
 	@Version
 	long version;
@@ -81,7 +93,7 @@ public class Happening implements Serializable {
 	}
 
 	public Happening(String happeningName, Date start, Date end, String description, String location,
-			HappeningCategory category, HappeningStatus happeningStatus, User happeningHost, List<User> guestList) {
+			HappeningCategory category, HappeningStatus happeningStatus, User happeningHost, List<User> guestList, List<HappeningTask> tasks) {
 		super();
 		this.happeningName = happeningName;
 		this.start = start;
@@ -92,6 +104,7 @@ public class Happening implements Serializable {
 		this.happeningStatus = happeningStatus;
 		this.happeningHost = happeningHost;
 		this.guestList = guestList;
+		this.taskList = tasks;
 	}
 
 	public int getHappeningId() {
@@ -202,6 +215,26 @@ public class Happening implements Serializable {
 
 	public boolean removeFromList(String username) {
 		return guestList.remove(new User(username, null, null, null, null));
+	}
+	
+	public List<HappeningTask> getTaskList() {
+		return taskList;
+	}
+
+	public void setTaskList(List<HappeningTask> taskList) {
+		this.taskList = taskList;
+	}
+	
+	public void addHappeningTask(HappeningTask task) {
+		taskList.add(task);
+	}
+
+	public boolean removeHappeningTaskFromList(int taskId) {
+		return taskList.remove(new HappeningTask(taskId,null,null,null,0,null));
+	}
+	
+	public boolean removeHappeningTaskFromList(HappeningTask task) {
+		return taskList.remove(task);
 	}
 
 	@Override

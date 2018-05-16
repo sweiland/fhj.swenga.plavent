@@ -1,0 +1,33 @@
+<div class="container-fluid" th:fragment="happeningHeader (happening)">
+	<h3 th:text="${(happening.happeningName)}"></h3>
+	<div class="row">
+			<div class="col-md-10 col-md-offset-1">
+			  <!-- hoedlale16: Generates a sortable table with bootstrap-style -->
+				<table class="table">
+					<thead>
+					</thead>
+					<tbody>
+						<tr>
+							<td><b>Host:</b></td>
+							<td th:text="${happening.happeningHost.lastname +' '+#strings.substring(happening.happeningHost.firstname,0,1) +'.'}"></td>
+							<td><b>Status:</b></td>
+							<td th:text="${happening.happeningStatus.statusName}"></td>
+						</tr>
+						<tr>
+							<td><b>Start:</b></td>
+							<td th:text="${#dates.format(happening.start,'dd.MM.yyyy hh:mm')}"></td>
+							<td><b>Location:</b></td>
+							<td th:text="${happening.location}"></td>
+						</tr>
+						<tr>
+							<td><b>End:</b></td>
+							<td th:text="${#dates.format(happening.end,'dd.MM.yyyy hh:mm')}"></td>
+							<td><b>Category:</b></td>
+							<td th:text="${happening.category.categoryName}"></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>

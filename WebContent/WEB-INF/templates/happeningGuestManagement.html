@@ -19,6 +19,9 @@
 		<!-- include the Nav bar fragment-->
 		<nav th:replace="~{includes/fragments :: navigation (currLoggedInUser=${#request.getAttribute('currLoggedInUser')}) }"></nav>
 		
+		<!-- include Header information of given happening-->
+		<div th:replace="~{includes/happeningFragments :: happeningHeader (happening=${#request.getAttribute('happening')}) }"></div>
+		
 		<!-- Customized Subnavbar because of Drop-Down selection -->
 		<nav>
 			<div class="container-fluid">
@@ -28,10 +31,11 @@
 					<input type="hidden" name="happeningName" value="TODO" />
 					
 					<div class="input-group">
-						<!-- TODO HappeningName mitschicken -->
-						<select name="username">
-	    					<option value="TODO">TODO</option>
-	  					</select>
+	  					<select id="inputNewGuest" class="form-control" name="newGuestUsername" required="required">
+							<option disabled="disabled" selected="selected" > Choose...</option>
+							<option th:each="user : ${potentialGuests}" th:value="${user.username}" th:text="${user.username}" ></option>
+						</select>
+	  					
 						<span class="input-group-btn">
 							<button class="btn btn-default" type="submit">Assign guest</button>
 						</span>
