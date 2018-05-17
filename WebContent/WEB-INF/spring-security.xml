@@ -1,44 +1,63 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<b:beans xmlns:b="http://www.springframework.org/schema/beans"
+<beans:beans xmlns="http://www.springframework.org/schema/security"
 	xmlns:context="http://www.springframework.org/schema/context"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.springframework.org/schema/security"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
-	http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd
-	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
-
-	<http>
-		<csrf disabled="false" />
+	xmlns:beans="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+           http://www.springframework.org/schema/security 
+           http://www.springframework.org/schema/security/spring-security.xsd
+		   http://www.springframework.org/schema/context 
+		   http://www.springframework.org/schema/context/spring-context.xsd">
+	<http auto-config="true">
 		<intercept-url pattern="/login" access="permitAll" />
-		<intercept-url pattern="/logout" access="permitAll" />
-		<intercept-url pattern="/**" access="hasRole('USER')" />
-		<intercept-url pattern="/" access="hasRole('USER', 'ADMIN')" />
+		<intercept-url pattern="/logout" access="permitAll" />		
+		<intercept-url pattern="/" access="permitAll" />
+		
 		<intercept-url pattern="/editUser" access="hasRole('USER', 'ADMIN')" />
 		<intercept-url pattern="/deleteExistingUser" access="hasRole('ADMIN')" />
 		<intercept-url pattern="/showChangePasswordForm" access="hasRole('USER', 'ADMIN')" />
 		<intercept-url pattern="/showUserManagement" access="hasRole('USER', 'ADMIN')" />
+		
+		
+		<intercept-url pattern="/**" access="permitAll" />
+		<!-- <intercept-url pattern="/**" access="hasRole('USER')" /> -->
+		
 		<form-login login-page="/login" default-target-url="/"
 			always-use-default-target="true" />
 		<logout logout-success-url="/login" logout-url="/logout" />
 	</http>
 
+	<!-- 
+	<context:property-placeholder location="classpath:db.properties" />
+
+	<beans:bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
+		destroy-method="close">
+		<beans:property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<beans:property name="url" value="${db.url}" />
+		<beans:property name="username" value="${db.username}" />
+		<beans:property name="password" value="${db.password}" />
+		<beans:property name="initialSize" value="2" />
+		<beans:property name="maxTotal" value="5" />
+	</beans:bean>
+
+
 	<authentication-manager>
 		<authentication-provider>
 			<jdbc-user-service data-source-ref="dataSource"
-				users-by-username-query="select username,password from users where username=?"
-				authorities-by-username-query="select username, role from UserRole where username =?  " />
+				authorities-by-username-query="SELECT uur.username, ur.roleName  FROM User_UserRole uur JOIn UserRole ur ON(ur.roleID = uur.roleID) WHERE uur.username = ?"
+				users-by-username-query="SELECT username, password, 1 as enabled FROM User WHERE username = ?" />
 		</authentication-provider>
 	</authentication-manager>
+	
+	-->
 
-<!-- 
 	<authentication-manager>
 		<authentication-provider>
 			<user-service>
-				
 				<user name="user" password="{noop}password" authorities="ROLE_USER" />
 				<user name="host" password="{noop}password" authorities="ROLE_USER, ROLE_HOST" />
 				<user name="admin" password="{noop}password" authorities="ROLE_USER,ROLE_ADMIN" />
 			</user-service>
 		</authentication-provider>
-	</authentication-manager> -->
- 
-</b:beans>
+	</authentication-manager>
+</beans:beans>
