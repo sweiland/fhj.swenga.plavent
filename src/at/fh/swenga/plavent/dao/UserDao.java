@@ -9,6 +9,9 @@ import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,8 +19,23 @@ import at.fh.swenga.plavent.model.User;
 
 @Repository
 @Transactional
-public class UserDao {
+public interface UserDao extends JpaRepository<User, Integer> {
 
+	/**
+	 *  CURRENTLY WORKED ON BY FERNBACH16
+	 */
+
+	@Query("Select u from User u where u.username = :username")
+	public User findByUserName(@Param("username") String username);
+
+	@Query("Select u from User u")
+	public List<User> findAllBy();
+	
+	@Query("Delete from User u where u.username = :username")
+	public void deleteByUserName(@Param ("username") String username);
+	
+	/**
+	 * INITAL SETUP-FRAMEWORK BY HOEDLALE16
 	@PersistenceContext
 	protected EntityManager entityManager;
 
@@ -29,7 +47,8 @@ public class UserDao {
 	}
 
 	public List<User> getFilteredUsers(String searchString) {
-		TypedQuery<User> typedQuery = entityManager.createQuery("select u from User u where u.username like %:username%", User.class);
+		TypedQuery<User> typedQuery = entityManager
+				.createQuery("select u from User u where u.username like %:username%", User.class);
 		List<User> typedResultList = typedQuery.getResultList();
 		return typedResultList;
 	}
@@ -52,12 +71,12 @@ public class UserDao {
 		try {
 			// Convert PW into md5 hash
 			MessageDigest md5 = java.security.MessageDigest.getInstance("MD5");
-			String passwordHash = new String(md5.digest(password.getBytes()));
+			String password = new String(md5.digest(password.getBytes()));
 
 			TypedQuery<User> typedQuery = entityManager.createQuery(
-					"select u from User u where u.username = :username and u.passwordHash = :passwordHash", User.class);
+					"select u from User u where u.username = :username and u.password = :password", User.class);
 			typedQuery.setParameter("username", username);
-			typedQuery.setParameter("passwordHash", passwordHash);
+			typedQuery.setParameter("password", password);
 
 			User user = typedQuery.getSingleResult();
 			return user;
@@ -79,4 +98,6 @@ public class UserDao {
 	public void delete(User user) {
 		entityManager.remove(user);
 	}
+	
+	**/
 }

@@ -38,6 +38,7 @@ public class DashboardController {
 		// TODO Auto-generated constructor stub
 	}
 
+	/**
 	@RequestMapping(value = { "/" })
 	public String showLoginPage(Model model) {
 
@@ -45,6 +46,8 @@ public class DashboardController {
 		 * hoedlale16: If user already set(logged in, show dashboard page otherwise show
 		 * login page
 		 */
+	
+	/**
 		if (UserManagementController.isLoggedIn(model)) {
 		  return "dashboard";
 		} else {
@@ -66,4 +69,6 @@ public class DashboardController {
 		model.addAttribute("message", "Welcome " + user.getFirstname() + "!");
 		return "dashboard";
 	}
+	**/
 }
+

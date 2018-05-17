@@ -23,6 +23,7 @@ public class CategoryManagementController {
 		// TODO Auto-generated constructor stub
 	}
 	
+	/**
 	private boolean isLoggedInAndHasPermission(Model model) {
 		// hoedlale16: Verify that user is logged in
 		if (!UserManagementController.isLoggedIn(model)) {
@@ -33,6 +34,7 @@ public class CategoryManagementController {
 			return currLoggedInUser.getRole().isPermissionCategoryMgmt();
 		}
 	}
+**/
 
 	private boolean errorsDetected(Model model, BindingResult bindingResult) {
 		// Any errors? -> Create a String out of all errors and return to the page
@@ -47,6 +49,7 @@ public class CategoryManagementController {
 		return false;
 	}
 
+	/**
 	@RequestMapping(value = { "showCategoryManagement" })
 	public String showCategories(Model model) {
 		// hoedlale16: Verify that user is logged in
@@ -58,7 +61,7 @@ public class CategoryManagementController {
 		model.addAttribute("categories", categoryDao.getHappeningCategories());
 		return "categoryManagement";
 	}
-	
+	**/
 	
 	//showCreateCategoryForm
 	//filterCategories

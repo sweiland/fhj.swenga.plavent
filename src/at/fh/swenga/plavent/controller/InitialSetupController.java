@@ -2,6 +2,8 @@ package at.fh.swenga.plavent.controller;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -47,7 +49,7 @@ public class InitialSetupController {
 		this.createHappeningStatus();
 
 		// Create UserRoles and Users
-		createUsersAndRoles();
+		//createUsersAndRoles();
 
 		model.addAttribute("warningMessage", "Environment created - Start planning!");
 		return "login";
@@ -79,38 +81,74 @@ public class InitialSetupController {
 			hsDeleted = new HappeningStatus("DELETED", "The happening is cancelled!");
 	}
 
-	private void createUsersAndRoles() throws NoSuchAlgorithmException {
+	/** USERS AND ROLES ARE DEPLOYED IN THE SPRING SECURITY XML FILE. FERNBACH16 **/
+	private void createUsersAndRoles() {
 
 		// Create useroles if required
 		UserRole roleAdmin = userRoleDao.getUserRole("ADMIN");
 		if (roleAdmin == null)
-			roleAdmin = new UserRole("ADMIN", "The role to manage the system", true, true, true);
+			roleAdmin = new UserRole("ROLE_ADMIN", "The role to manage the system");
 		UserRole roleHost = userRoleDao.getUserRole("HOST");
 		if (roleHost == null)
-			roleHost = new UserRole("HOST", "The role to create happening and manage them", false, true, false);
+			roleHost = new UserRole("ROLE_HOST", "The role to create happening and manage them");
 		UserRole roleGuest = userRoleDao.getUserRole("GUEST");
 		if (roleGuest == null)
-			roleGuest = new UserRole("GUEST", "The role to be a guest at happenings", false, false, false);
+			roleGuest = new UserRole("ROLE_GUEST", "The role to be a guest at happenings");
 
 		// Create overall admin if required
-		MessageDigest md5 = java.security.MessageDigest.getInstance("MD5");
-		if (userDao.getUser("admin") == null) {
-			User administrator = new User("admin", new String(md5.digest("admin".getBytes())), "Administrator",
-					"Administrator", roleAdmin);
-			userDao.persist(administrator);
+		List<UserRole> roles = new LinkedList<UserRole>();
+		
+		roles.add(roleAdmin);
+		if (userDao.findByUserName("admin") == null) {
+			User administrator = new User("admin", "admin", "Administrator",
+					"Administrator", roles);
+			userDao.save(administrator);
 		}
+		
+		roles.clear();
+		roles.add(roleHost);
 
 		// Create a host user if required
-		if (userDao.getUser("host") == null) {
-			User host = new User("host", new String(md5.digest("host".getBytes())), "Host", "Host", roleHost);
-			userDao.persist(host);
+		if (userDao.findByUserName("host") == null) {
+			User host = new User("host", "host", "Host", "Host", roles);
+			userDao.save(host);
 		}
+		
+		roles.clear();
+		roles.add(roleGuest);
 
 		// Create a simple guest user if required
-		if (userDao.getUser("guest") == null) {
-			User host = new User("guest", new String(md5.digest("guest".getBytes())), "Host", "Host", roleGuest);
-			userDao.persist(host);
+		if (userDao.findByUserName("guest") == null) {
+			User host = new User("guest", "guest", "Host", "Host", roles);
+			userDao.save(host);
 		}
 	}
+	
+	/** DATA FACTORY FOR LATER USE !!! FERNBACH16
+	@RequestMapping("/fillList")
+	@Transactional
+	public String fillData(Model model) {
+
+		DataFactory df = new DataFactory();
+
+		User user = null;
+
+		String[] pw = {"password"};
+		
+		for (int i = 0; i < 100; i++) {
+			if (i % 10 == 0) {
+				String name = df.getBusinessName();
+				producer = producerRepository.findFirstByName(name);
+				if (producer == null) {
+					producer = new Producer(name);
+				}
+			}
+
+			User user = new User(df.getRandomWord(), df.getItem(pw), df.getFirstName(), df.getLastName(), df.getEmailAddress(), df.getNumberText(15));
+			pictureFrame.setProducer(producer);
+			UserDao.save(user);
+		}
+	}
+	**/
 
 }

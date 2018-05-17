@@ -43,6 +43,7 @@ public class HappeningManagementController {
 		// TODO Auto-generated constructor stub
 	}
 
+	/**
 	private boolean isLoggedInAndHasPermission(Model model) {
 		// hoedlale16: Verify that user is logged in
 		if (!UserManagementController.isLoggedIn(model)) {
@@ -53,7 +54,7 @@ public class HappeningManagementController {
 			return currLoggedInUser.getRole().isPermissionHappeningMgmt();
 		}
 	}
-
+**/
 	private boolean errorsDetected(Model model, BindingResult bindingResult) {
 		// Any errors? -> Create a String out of all errors and return to the page
 		if (bindingResult.hasErrors()) {
@@ -67,6 +68,7 @@ public class HappeningManagementController {
 		return false;
 	}
 
+	/**
 	@RequestMapping(value = { "showHappeningManagement" })
 	public String showHappenings(Model model) {
 
@@ -78,6 +80,7 @@ public class HappeningManagementController {
 		model.addAttribute("happenings", happeningDao.findAll());
 		return "happeningManagement";
 	}
+
 
 	@RequestMapping(value = { "showCreateHappeningForm" })
 	public String showCreateHappeningForm(Model model) {
@@ -202,7 +205,7 @@ public class HappeningManagementController {
 			@RequestParam(value = "username") String username) {
 
 		// TODO: User uber corrected identifier(ID?) holen und zuordnen
-		User user = userDao.getUser(username);
+		User user = userDao.findByUserName(username);
 		if (happening != null && user != null) {
 			model.addAttribute("warningMessage", "Not implemented <" + "assignNewGuest" + ">");
 			happening.addGuestToList(user);
@@ -448,4 +451,6 @@ public class HappeningManagementController {
 	public String handleAllException(Exception ex) {
 		return "error";
 	}
+	
+	**/
 }
