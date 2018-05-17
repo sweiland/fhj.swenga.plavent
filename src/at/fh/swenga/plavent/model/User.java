@@ -3,11 +3,21 @@ package at.fh.swenga.plavent.model;
 import java.util.List;
 
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.Table;
 import javax.persistence.Version;
 
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+
+
+@Entity
+@Table(name = "User")
 public class User {
 	
 	@Id
@@ -33,7 +43,11 @@ public class User {
 	 * relationship, so the EntityManager saves unmanaged related object
 	 * automatically
 	 */
-	@ManyToMany(mappedBy = "userList", fetch = FetchType.EAGER)
+	@ManyToMany(fetch = FetchType.EAGER)
+	@JoinTable(name = "User_UserRole",
+		joinColumns = { @JoinColumn(name = "username") },
+		inverseJoinColumns = { @JoinColumn(name = "roleId") })
+	@Fetch(value = FetchMode.SUBSELECT)
 	private List<UserRole> roleList;
 
 	// TODO: add all required attributes

@@ -49,7 +49,7 @@ public class InitialSetupController {
 		this.createHappeningStatus();
 
 		// Create UserRoles and Users
-		//createUsersAndRoles();
+		createUsersAndRoles();
 
 		model.addAttribute("warningMessage", "Environment created - Start planning!");
 		return "login";
@@ -85,19 +85,28 @@ public class InitialSetupController {
 	private void createUsersAndRoles() {
 
 		// Create useroles if required
-		UserRole roleAdmin = userRoleDao.getUserRole("ADMIN");
-		if (roleAdmin == null)
+		UserRole roleAdmin = userRoleDao.findFirstByRoleName("ADMIN");
+		if (roleAdmin == null) {
 			roleAdmin = new UserRole("ROLE_ADMIN", "The role to manage the system");
-		UserRole roleHost = userRoleDao.getUserRole("HOST");
-		if (roleHost == null)
+			userRoleDao.save(roleAdmin);
+		}
+		
+		UserRole roleHost = userRoleDao.findFirstByRoleName("HOST");
+		if (roleHost == null) {
 			roleHost = new UserRole("ROLE_HOST", "The role to create happening and manage them");
-		UserRole roleGuest = userRoleDao.getUserRole("GUEST");
-		if (roleGuest == null)
+			userRoleDao.save(roleHost);
+		}
+		
+		UserRole roleGuest = userRoleDao.findFirstByRoleName("GUEST");
+		if (roleGuest == null) {
 			roleGuest = new UserRole("ROLE_GUEST", "The role to be a guest at happenings");
+			userRoleDao.save(roleGuest);
+		}
 
 		// Create overall admin if required
 		List<UserRole> roles = new LinkedList<UserRole>();
 		
+		roles.clear();
 		roles.add(roleAdmin);
 		if (userDao.findByUserName("admin") == null) {
 			User administrator = new User("admin", "admin", "Administrator",
