@@ -17,7 +17,7 @@
 		</div>
 
 		<!-- include the Nav bar fragment-->
-		<nav th:replace="~{includes/fragments :: navigation (currLoggedInUser=${#request.getAttribute('currLoggedInUser')}) }"></nav>
+		<nav th:replace="~{includes/fragments :: navigation }"></nav>
 		
 		<!-- include Header information of given happening-->
 		<div th:replace="~{includes/happeningFragments :: happeningHeader (happening=${#request.getAttribute('happening')}) }"></div>
@@ -26,7 +26,7 @@
 		<nav>
 			<div class="container-fluid">
 				<!-- HTML Form to assign a guest-->
-				<form class="navbar-form navbar-left" method="post" action="assignNewGuestToHappening">
+				<form class="navbar-form navbar-left" method="post" th:action="@{/assignNewGuestToHappening}">
 					
 					<input type="hidden" name="happeningID" th:value="${happening.happeningId}">
 					

@@ -29,8 +29,7 @@
 	</div>
 
 	<!-- include the Nav bar fragment-->
-	<nav
-		th:replace="~{includes/fragments :: navigation (currLoggedInUser=${#request.getAttribute('currLoggedInUser')}) }"></nav>
+	<nav th:replace="~{includes/fragments :: navigation }"></nav>
 
 	<!-- include the serach bar fragment for users-->
 	<nav
@@ -77,7 +76,6 @@
 								class="glyphicon glyphicon-trash" aria-hidden="true"></span>
 								Edit
 						</a> 
-							<!-- th:unless="${user.username} == ${#request.getAttribute('currLoggedInUser').username}" -->
 							<a th:href="@{/deleteUser(username=${user.username})}"
 							class="btn btn-xs btn-danger"> <span
 								class="glyphicon glyphicon-trash" aria-hidden="true"></span>

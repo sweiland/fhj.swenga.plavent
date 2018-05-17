@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:th="http://www.thymeleaf.org">
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
 <head>
 <div th:include="~{includes/bootstrap :: bootstrapMeta}" th:remove="tag" />
@@ -109,14 +110,20 @@
 							
 								<!-- CREATE NEW HAPPINING VERSION-->
 								<th:block th:if="${happening == null}">
-									<select id="inputHost" class="form-control" name="host" required="required" th:readonly="${currLoggedInUser.role.isAdminRole() == false}">
-											<option selected="selected" th:value="${currLoggedInUser.username}" th:text="${currLoggedInUser.username}" ></option>
+									<select id="inputHost" class="form-control" name="host" required="required"
+										th:readonly="${#strings.contains(#authentication.principal.authorities,'ADMIN') == false}">
+											<option selected="selected" 
+												th:value="${#authentication.principal.getUsername()}" 
+												th:text="${#authentication.principal.getUsername()}" >
+											</option>
 											
 											<!-- For admins: add all other possible hosts to list -->
-											<!--  TODO:Add possible other Possible other HOSTS to list if current logged in user is a ADMIN -->
-											<!-- <option th:if="${currLoggedInUser.role.isAdminRole()} == true" 
-											        th:each="user : ${happeningHosts}" th:value="${user.username}" th:text="${user.username}" ></option>
-											-->
+											<option sec:authorize="hasRole('ROLE_ADMIN')"
+												th:each="user : ${happeningHosts}" 
+												th:value="${user.username}" 
+												th:text="${user.username}" >
+											</option>
+
 									</select>
 								</th:block>
 							
@@ -125,20 +132,29 @@
 									<th:block th:switch="${happening.happeningStatus.statusName}">										
 										 	<th:block th:case="ACTIVE">									 
 										 	
-										 		<select id="inputHost" class="form-control" name="host" required="required" th:readonly="${currLoggedInUser.role.isAdminRole() == false}">
-														<option selected="selected" th:value="${happening.happeningHost.username}" th:text="${happening.happeningHost.username}" ></option>
+										 		<select id="inputHost" class="form-control" name="host" required="required"
+										 			th:readonly="${#strings.contains(#authentication.principal.authorities,'ADMIN') == false}">
+										 			
+													<option selected="selected" 
+														th:value="${happening.happeningHost.username}" 
+														th:text="${happening.happeningHost.username}" ></option>
 														
-														<!-- For admins: add all other possible hosts to list -->
-														<!--  TODO:Add possible other Possible other HOSTS to list if current logged in user is a ADMIN -->
-														<!-- <option th:if="${currLoggedInUser.role.isAdminRole()} == true" 
-														        th:each="user : ${happeningHosts}" th:value="${user.username}" th:text="${user.username}" ></option>
-														-->
+													<!-- For admins: add all other possible hosts to list -->
+													<option sec:authorize="hasRole('ROLE_ADMIN')"
+														th:each="user : ${happeningHosts}" 
+														th:value="${user.username}" 
+														th:text="${user.username}" >
+													</option>
+
 												</select>
 											</th:block>
 										 	<th:block th:case="DELETED">
 										 		<!-- Show a disabled Drop down if happening is deleted -->
 												<select id="inputHost" class="form-control" name="host" required="required" disabled> 
-													<option selected="selected" th:value="${happening.happeningHost.username}" th:text="${happening.happeningHost.username}" ></option>
+													<option selected="selected" 
+														th:value="${happening.happeningHost.username}" 
+														th:text="${happening.happeningHost.username}" >
+													</option>
 												</select>
 										 	</th:block>
 									</th:block>

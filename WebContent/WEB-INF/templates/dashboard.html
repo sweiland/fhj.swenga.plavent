@@ -17,7 +17,7 @@
 		</div>
 
 		<!-- include the Nav bar fragment-->
-		<nav th:replace="~{includes/fragments :: navigation (currLoggedInUser=${#request.getAttribute('currLoggedInUser')}) }"></nav>
+		<nav th:replace="~{includes/fragments :: navigation }"></nav>
 
 		<!--  Error message ----------------------------------------------------------- -->
 		<div th:unless="${errorMessage} == null" th:utext="${errorMessage}"
@@ -42,12 +42,7 @@
 			</div>
 		</div>
 	</div>
-	<form th:action="@{/logout}" method="post">
-			<input type="hidden" th:name="${_csrf.parameterName}"
-				th:value="${_csrf.token}" /> <!-- not really needed and can be ommited -->
-				<input class="btn btn-xs btn-danger"
-				type="submit" value="Logout" />
-		</form>
+	
 	<!-- hoedlale16: include some fancy footer -->		
 	<footer th:replace="~{includes/fragments :: footer}"></footer>
 	
