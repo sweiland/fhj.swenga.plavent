@@ -22,4 +22,7 @@ public interface HappeningTaskDao extends JpaRepository<HappeningTask, Integer> 
 	
 	public List<HappeningTask> findByHappeningHappeningId(int happeningId);
 
+	@Query("Select t From HappeningTask t WHERE t.happening.happeningId  = :happeningId AND  LOWER(t.topic) LIKE LOWER(CONCAT('%',:searchstring,'%'))" )
+	public List<HappeningTask> getFilteredTasks(@Param("happeningId") int happeningId, @Param("searchstring") String searchstring);
+
 }

@@ -27,8 +27,8 @@
 			<div class="container-fluid">
 				<!-- HTML Form to assign a guest-->
 				<form class="navbar-form navbar-left" method="post" action="assignNewGuestToHappening">
-					<!-- TODO HappeningName mitschicken -->
-					<input type="hidden" name="happeningName" value="TODO" />
+					
+					<input type="hidden" name="happeningID" th:value="${happening.happeningId}">
 					
 					<div class="input-group">
 	  					<select id="inputNewGuest" class="form-control" name="newGuestUsername" required="required">
@@ -43,11 +43,9 @@
 				</form>
 			
 				<!-- HTML form with search textbox and submit button-->
-				<form class="navbar-form navbar-right" role="search" method="post" action="filterHappeningGuestList">
-					<div class="input-group">
-						<!-- TODO HappeningName mitschicken -->
-						<input type="hidden" name="happeningName" value="TODO" />
-					
+				<form class="navbar-form navbar-right" role="search" method="post" th:action="@{filterHappeningGuestList}">
+					<div class="input-group">					
+						<input type="hidden" name="happeningID" th:value="${happening.happeningId}">
 						<input type="text" class="form-control" placeholder="Search for..." name="searchString">
 						<span class="input-group-btn">
 							<button class="btn btn-default" type="submit">Filter</button>
@@ -68,15 +66,45 @@
 		<!--  Warning message ----------------------------------------------------------- -->
 
 		<!--   message ----------------------------------------------------------- -->
-		<div th:unless="${message} == null" th:utext="${message}"
-			class="alert alert-success" role="warning"></div>
+		<div th:unless="${message} == null" 
+			th:utext="${message}" class="alert alert-success" 
+			role="warning"></div>
 		<!--   message ----------------------------------------------------------- -->
 
 		<div class="row">
-			<div class="col-md-10 col-md-offset-1">
-			  TODO: Hier kommt der Inhalt
+			<div class="col-md-12">
+			  <!-- hoedlale16: Generates a sortable table with bootstrap-style -->
+				<table data-toggle="table" class="table table-striped">
+					<thead>
+						<tr>
+							<th data-sortable="true">Username</th>
+							<th data-sortable="true">Name</th>
+							<th data-sortable="true">Contact (E-Mail)</th>
+							<th class="text-right">Actions</th>
+						</tr>
+					</thead>
+					<tbody>
+						<!--  list all items ----------------------------------------------------------- -->
+						<!-- hoedlale16: Fill table content -->
+						<tr th:each="guest : ${#request.getAttribute('happeningGuests')}">
+							<td th:text="${guest.username}"></td>
+							<td th:text="${guest.lastname +' '+#strings.substring(guest.firstname,0,1) +'.'}"></td>
+							
+							<td th:text="${guest.eMail} ? ${guest.eMail} : 'n/a'"></td>
+							<td>
+								<!-- TODO: Link to taskmanagement to assign task -->		
+								<a th:href="@{/unassignExistingGuest(happeningID=${happening.happeningId}, username=${guest.username})}"  
+									class="btn btn-xs btn-danger"> <span 
+										class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+										Unassign</a>
+							</td>
+						</tr>
+						<!--  list all items ----------------------------------------------------------- -->
+					</tbody>
+				</table>
 			</div>
 		</div>
+	</div>
 	</div>
 	
 	<!-- hoedlale16: include some fancy footer -->		

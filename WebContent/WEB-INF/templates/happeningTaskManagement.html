@@ -36,6 +36,7 @@
 				<!-- HTML form with search textbox and submit button-->
 				<form class="navbar-form navbar-right" role="search" method="post" th:action="@{filterHappeningTaskList}">
 					<div class="input-group">
+						<input type="hidden" name="happeningID" th:value="${happening.happeningId}">
 						<input type="text" class="form-control" placeholder="Search for..." name="searchString">
 						<span class="input-group-btn">
 							<button class="btn btn-default" type="submit">Filter</button>
@@ -78,7 +79,7 @@
 					<tbody>
 						<!--  list all items ----------------------------------------------------------- -->
 						<!-- hoedlale16: Fill table content -->
-						<tr th:each="task : ${#request.getAttribute('happening').taskList}">
+						<tr th:each="task : ${#request.getAttribute('happeningTasks')}">
 							<td th:text="${task.topic}"></td>
 							<td th:text="${task.durationInHour}"></td>
 							<td th:text="${task.responsibleUser} ? ${task.responsibleUser.lastname +' '+#strings.substring(task.responsibleUser.firstname,0,1) +'.'} : 'n/a'"></td>

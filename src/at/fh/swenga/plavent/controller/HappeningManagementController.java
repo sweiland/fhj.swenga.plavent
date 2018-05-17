@@ -241,80 +241,80 @@ public class HappeningManagementController {
 
 		if (happening != null) {
 			model.addAttribute("happening", happening);
-			model.addAttribute("happeningGuests", happening.getGuestList());
-			// Get all Tasks for happening without assignment
-			// model.addAttribute("happeningTasks",
-			// happeningDao.getUnassignedTasks(happeningId));
-
-			// TODO Get all potential users which are not guests yet but can become one
-			// potentially
-			// model.addAttribute("potentialGuests",
-			// userDao.getPotentialGuestsForHappening(happeningId));
-			model.addAttribute("potentialGuests", userDao.findAll());
-
-			// TODO: Set correct required model attributes
-			model.addAttribute("warningMessage", "Not implemented <" + "showGuestListManagement" + ">");
+			model.addAttribute("happeningGuests", happening.getGuestList()); // Required in a separate attribute for
+																				// filtering
+			model.addAttribute("potentialGuests", userDao.getPotentialGuestsForHappening(happening.getHappeningId()));
 			return "happeningGuestManagement";
 		}
 
+		// Fallback - return to happening overview
 		model.addAttribute("warningMessage", "Happening not found");
 		return showHappenings(model);
 	}
 
 	// Add guest to guestlist
 	@PostMapping("/assignNewGuestToHappening")
-	public String assignNewGuestToHappening(Model model, @RequestParam(value = "happeningId") Happening happening,
-			@RequestParam(value = "username") String username) {
+	public String assignNewGuestToHappening(Model model, @RequestParam(value = "happeningID") Happening happening,
+			@RequestParam(value = "newGuestUsername") String username) {
 
-		// TODO: User uber corrected identifier(ID?) holen und zuordnen
-		User user = userDao.findFirstByUsername(username);
-		if (happening != null && user != null) {
-			model.addAttribute("warningMessage", "Not implemented <" + "assignNewGuest" + ">");
-			happening.addGuestToList(user);
+		// LoggedIn and has permission?
+		if (!isLoggedInAndHasPermission(model)) {
+			return "login";
+		}
+
+		User newGuest = userDao.findFirstByUsername(username);
+		if (happening != null && newGuest != null) {
+			// Assign new Guest to happening
+			happening.addGuestToList(newGuest);
+			happeningDao.save(happening);
+			model.addAttribute("message", "User " + newGuest.getUsername() + " added from guestlist!");
 		} else {
 			model.addAttribute("warningMessage", "User or Happening not fonud!");
 		}
-
 		return showGuestListManagement(model, happening);
 	}
 
 	// Remove Guest from guestlist
-	@PostMapping("/unassignExistingGuest")
-	public String unassignGuest(Model model, @RequestParam(value = "happeningId") Happening happening,
+	@GetMapping("/unassignExistingGuest")
+	public String unassignGuest(Model model, @RequestParam(value = "happeningID") Happening happening,
 			@RequestParam(value = "username") String username) {
 
-		if (happening != null) {
-			model.addAttribute("warningMessage", "Not implemented <" + "assignNewGuest" + ">");
-			// TODO: Mögliche Zuordnung der Tasks aufheben und noch nicht zugewiesene Tasks
-			// laden
-			// happeningDao.unassignUserFromTasks(happeningID, username);
-			if (!happening.removeFromList(username)) {
-				model.addAttribute("warningMessage", "Error while unassigning User!");
-			}
+		// LoggedIn and has permission?
+		if (!isLoggedInAndHasPermission(model)) {
+			return "login";
+		}
+
+		User guestToRemove = userDao.findFirstByUsername(username);
+		if (happening != null && guestToRemove != null) {
+			happening.removeFromList(guestToRemove);
+			happeningDao.save(happening);
+			model.addAttribute("message", "User " + guestToRemove.getUsername() + " removed from guestlist!");
+
 		} else {
 			model.addAttribute("warningMessage", "User or Happening not fonud!");
 		}
 
-		model.addAttribute("warningMessage", "Not implemented <" + "unassignExistingGuest" + ">");
 		return showGuestListManagement(model, happening);
 	}
 
 	// Filter GuestListManagement page
 	@PostMapping("/filterHappeningGuestList")
-	public String filterGuestList(Model model, @RequestParam(value = "happeningId") Happening happening,
+	public String filterGuestList(Model model, @RequestParam(value = "happeningID") Happening happening,
 			@RequestParam String searchString) {
+
+		// LoggedIn and has permission?
+		if (!isLoggedInAndHasPermission(model)) {
+			return "login";
+		}
 
 		if (happening != null) {
 			model.addAttribute("happening", happening);
-			model.addAttribute("happeningGuests", happening.getGuestList());
-			// Get all Tasks for happening without assignment
-			model.addAttribute("happeningTasks", happeningTaskDao.getUnassignedTasks(happening.getHappeningId()));
 
-			// Get all potential users which are not guests yet but can become one
-			// potentially
-			// model.addAttribute("users",userDao.getPotentialGuestsForHappening(happeningID));
+			// TODO: set filtered guests
+			// model.addAttribute("happeningGuests", happeningGuestDao. .getGuestList());
+			// model.addAttribute("happeningGuests", happening.getGuestList());
 
-			// TODO: Set correct required model attributes
+			model.addAttribute("potentialGuests", userDao.getPotentialGuestsForHappening(happening.getHappeningId()));
 			model.addAttribute("warningMessage", "Not implemented <" + "showGuestListManagement" + ">");
 			return "happeningGuestManagement";
 		}
@@ -426,13 +426,14 @@ public class HappeningManagementController {
 
 	@RequestMapping(value = { "showTaskListManagement" })
 	public String showTaskListManagement(Model model, @RequestParam(value = "happeningID") Happening happening) {
-		
+
 		// LoggedIn and has permission?
 		if (!isLoggedInAndHasPermission(model)) {
 			return "login";
 		}
 
-		model.addAttribute("happening", happening); // Enthalt GaesteList & Tasks
+		model.addAttribute("happening", happening); // Enthaelt die GaesteList & Tasks
+		model.addAttribute("happeningTasks", happening.getTaskList()); // Extern benoetigt fuer filterfunction
 		return "happeningTaskManagement";
 	}
 
@@ -444,8 +445,8 @@ public class HappeningManagementController {
 
 	@PostMapping("/createNewHappeningTask")
 	public String createNewHappeningTask(Model model, @RequestParam(value = "happeningID") Happening happening,
-			@RequestParam(value = "responsibleUsername") String username,
-			@Valid HappeningTask newTask, BindingResult bindingResult) {
+			@RequestParam(value = "responsibleUsername") String username, @Valid HappeningTask newTask,
+			BindingResult bindingResult) {
 
 		// LoggedIn and has permission?
 		if (!isLoggedInAndHasPermission(model)) {
@@ -454,16 +455,15 @@ public class HappeningManagementController {
 
 		// Any errors? -> Create a String out of all errors and return to the page
 		if (errorsDetected(model, bindingResult))
-			return showTaskListManagement(model,happening);
+			return showTaskListManagement(model, happening);
 
-		
-		//Link Task with user and happening
-		//newTask.setResponsibleUser(userDao.findFirstByUsername(username));
-		newTask.setHappening(happening);		
+		// Link Task with user and happening
+		// newTask.setResponsibleUser(userDao.findFirstByUsername(username));
+		newTask.setHappening(happening);
 		happening.addHappeningTask(newTask);
-		
+
 		happeningTaskDao.save(newTask);
-		
+
 		// TODO: Parameter newTask
 		// Auslesen des Happening
 		// Hinzufügen des Tasks
@@ -472,30 +472,25 @@ public class HappeningManagementController {
 
 	// Filter GuestListManagement page
 	@PostMapping("/filterHappeningTaskList")
-	public String filterHappeingTaskList(Model model, @RequestParam String happeningName,
+	public String filterHappeingTaskList(Model model, @RequestParam(value = "happeningID") Happening happening,
 			@RequestParam String searchString) {
-		// TODO: Laden des geforderten Events
-		// Filtern der tasksnach Searchstring
 
-		// TODO: Set correct required model attributes
-		model.addAttribute("warningMessage", "Not implemented <" + "showTaskListManagement" + ">");
-		// model.addAttribute("happening", happening);
+		// LoggedIn and has permission?
+		if (!isLoggedInAndHasPermission(model)) {
+			return "login";
+		}
 
-		// TODO: Struktur: Hat nicht ein Happening eine Liste von Guesten und Tasks?
-		// model.addAttribute("happeningGuests", TODO);
-		// model.addAttribute("happeningTasks", userManager.getFilteredTasks());
-
-		// model.addAttribute("users", userManager.getAllUsers()); //Sämtliche User als
-		// moegliche Gueste
-		// verfügbare Benutzer zum möglichen Zuordnen
-
+		model.addAttribute("happening", happening);
+		model.addAttribute("happeningTasks",
+				happeningTaskDao.getFilteredTasks(happening.getHappeningId(), searchString)); // Extern benoetigt fuer
+																								// filterfunction
 		return "happeningTaskManagement";
 	}
 
 	@RequestMapping(value = { "showModifyHappeningTaskForm" })
 	public String showModifyHappeningTaskForm(Model model, @RequestParam(value = "taskId") HappeningTask task) {
 		model.addAttribute("happening", task.getHappening());
-		model.addAttribute("happeningTask",task);
+		model.addAttribute("happeningTask", task);
 		return "createModifyHappeningTask";
 	}
 
@@ -510,7 +505,7 @@ public class HappeningManagementController {
 
 	@GetMapping("/deleteExistingTask")
 	public String deleteExistingTask(Model model, @RequestParam(value = "taskId") HappeningTask task) {
-		
+
 		task.getHappening().removeHappeningTaskFromList(task);
 		happeningTaskDao.delete(task);
 		return showTaskListManagement(model, task.getHappening());

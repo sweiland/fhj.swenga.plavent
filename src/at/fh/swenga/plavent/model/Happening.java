@@ -217,6 +217,10 @@ public class Happening implements Serializable {
 		return guestList.remove(new User(username, null, null, null, null));
 	}
 	
+	public boolean removeFromList(User user) {
+		return guestList.remove(user);
+	}
+	
 	public List<HappeningTask> getTaskList() {
 		return taskList;
 	}

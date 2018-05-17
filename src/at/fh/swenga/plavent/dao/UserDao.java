@@ -21,4 +21,13 @@ public interface UserDao extends JpaRepository<User, Integer> {
 	
 	@Query("select u from User u where u.username = :username and u.passwordHash = :passwordHash")
 	public User verifyLogin(@Param("username") String username, @Param("passwordHash") String password);
+	
+	
+	@Query(value = "SELECT u.* " + 
+			"FROM User u " + 
+			"WHERE u.username != (SELECT h.username FROM Happening h WHERE h.happeningId = :happeningID) " + 
+			"  AND u.username NOT IN (SELECT hu.guestList_username " +
+			"                         FROM Happening_User hu " + 
+			"                         WHERE hu.happenings_happeningId = :happeningID)", nativeQuery = true)
+	public List<User> getPotentialGuestsForHappening(@Param("happeningID") int happeningId);
 }
