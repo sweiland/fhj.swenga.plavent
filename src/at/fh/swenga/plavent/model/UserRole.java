@@ -1,12 +1,15 @@
 package at.fh.swenga.plavent.model;
 
 import java.io.Serializable;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
@@ -24,15 +27,8 @@ public class UserRole implements Serializable {
 	@Column(nullable = true, length = 512)
 	private String description;
 	
-	@Column(nullable = false)
-	private boolean permissionUserMgmt;
-	
-	@Column(nullable = false)
-	private boolean permissionHappeningMgmt;
-	
-	@Column(nullable = false)
-	private boolean permissionCategoryMgmt;
-	
+	@ManyToMany(mappedBy = "roleList", fetch = FetchType.EAGER)
+	private List<User> userList;
 	
 	@Version
 	long version;
@@ -41,30 +37,57 @@ public class UserRole implements Serializable {
 		// TODO Auto-generated constructor stub
 	}
 
-	public UserRole(String roleName, String description, boolean permissionUserMgmt, boolean permissionHappeningMgmt,
-			boolean permissionCategoryMgmt) {
+	public UserRole(String roleName, String description,List<User> userList) {
 		super();
 		this.roleName = roleName;
 		this.description = description;
-		this.permissionUserMgmt = permissionUserMgmt;
-		this.permissionHappeningMgmt = permissionHappeningMgmt;
-		this.permissionCategoryMgmt = permissionCategoryMgmt;
+		this.userList = userList;
 	}
-
+	
+	public UserRole(String roleName, String description) {
+		super();
+		this.roleName = roleName;
+		this.description = description;
+	}
+	
 
 	public boolean isAdminRole() {
-		return (permissionUserMgmt && permissionHappeningMgmt && permissionCategoryMgmt);
+		return roleName.equalsIgnoreCase("ADMIN"); //TODO: possible later not required anymore!!!
 	}
 	
 	public boolean isHostRole() {
-		return (permissionUserMgmt && permissionHappeningMgmt && ! permissionCategoryMgmt);
+		return roleName.equalsIgnoreCase("HOST"); //TODO: possible later not required anymore!!!
 	}
 	
 	public boolean isGuestRole() {
-		return (permissionUserMgmt && ! permissionHappeningMgmt && ! permissionCategoryMgmt);
+		return roleName.equalsIgnoreCase("GUEST"); //TODO: possible later not required anymore!!!
 	}
 	
+
+	public void addUser(User u) {
+		userList.add(u);
+	}
 	
+	public boolean removeUser(User u) {
+		return userList.remove(u);
+	}
+
+	
+	
+	/**
+	 * @return the userList
+	 */
+	public List<User> getUserList() {
+		return userList;
+	}
+
+	/**
+	 * @param userList the userList to set
+	 */
+	public void setUserList(List<User> userList) {
+		this.userList = userList;
+	}
+
 
 	public int getRoleID() {
 		return roleID;
@@ -88,48 +111,25 @@ public class UserRole implements Serializable {
 
 	public void setDescription(String description) {
 		this.description = description;
-	}
+	}	
 
-	public boolean isPermissionUserMgmt() {
-		return permissionUserMgmt;
-	}
-
-	public void setPermissionUserMgmt(boolean permissionUserMgmt) {
-		this.permissionUserMgmt = permissionUserMgmt;
-	}
-
-	public boolean isPermissionHappeningMgmt() {
-		return permissionHappeningMgmt;
-	}
-
-	public void setPermissionHappeningMgmt(boolean permissionHappeningMgmt) {
-		this.permissionHappeningMgmt = permissionHappeningMgmt;
-	}
-
-	public boolean isPermissionCategoryMgmt() {
-		return permissionCategoryMgmt;
-	}
-
-	public void setPermissionCategoryMgmt(boolean permissionCategoryMgmt) {
-		this.permissionCategoryMgmt = permissionCategoryMgmt;
-	}
-
-	public long getVersion() {
-		return version;
-	}
-
-	public void setVersion(long version) {
-		this.version = version;
-	}
-
+	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + ((description == null) ? 0 : description.hashCode());
 		result = prime * result + roleID;
+		result = prime * result + ((roleName == null) ? 0 : roleName.hashCode());
 		return result;
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -139,15 +139,26 @@ public class UserRole implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		UserRole other = (UserRole) obj;
+		if (description == null) {
+			if (other.description != null)
+				return false;
+		} else if (!description.equals(other.description))
+			return false;
 		if (roleID != other.roleID)
+			return false;
+		if (roleName == null) {
+			if (other.roleName != null)
+				return false;
+		} else if (!roleName.equals(other.roleName))
 			return false;
 		return true;
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
 	@Override
 	public String toString() {
-		return "UserRole [roleID=" + roleID + ", roleName=" + roleName + ", description=" + description
-				+ ", permissionUserMgmt=" + permissionUserMgmt + ", permissionHappeningMgmt=" + permissionHappeningMgmt
-				+ ", permissionCategoryMgmt=" + permissionCategoryMgmt + "]";
+		return "UserRole [roleID=" + roleID + ", roleName=" + roleName + ", description=" + description + "]";
 	}
 }

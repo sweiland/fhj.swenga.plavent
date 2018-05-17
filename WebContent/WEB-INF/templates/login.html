@@ -14,8 +14,6 @@
 		<div class="page-header">
 			<h1>PlaVent</h1>
 		</div>
-
-        <!--  hoedlale16: Required if user try to hack and we have to inform that he is not logged in! -->
 		<!--  Error message ----------------------------------------------------------- -->
 		<div th:unless="${errorMessage} == null" th:utext="${errorMessage}"
 			class="alert alert-danger" role="alert"></div>
@@ -36,12 +34,20 @@
 		<div class="row">
 			<div class="col-md-10 col-md-offset-1">
 
-				<!--  hoedlale16: Form calls /editIllness or /addIllness, depending if an illness is set already. -->
-				<form class="form-horizontal" method="post" action="verifyLogin">
+				<form class="form-horizontal" method="post" th:action="@{/login}">
+					<input type="hidden" th:name="${_csrf.parameterName}"
+						th:value="${_csrf.token}" />
+
 					<fieldset>
 						<legend>Login</legend>
 
-						<!--  ----------------  name ---------------- -->
+						<div th:if="${param.error}" class="alert alert-danger">
+							Invalid username and password.</div>
+						<div th:if="${param.logout}" class="alert alert-success">You
+							have been logged out.</div>
+
+
+						<!--  ----------------  User Name ---------------- -->
 						<div class="form-group">
 							<label for="inputName" class="col-md-2 control-label">Username</label>
 							<div class="col-md-10">
@@ -52,7 +58,7 @@
 
 						<!--  ----------------  password ---------------- -->
 						<div class="form-group">
-							<label for="inputSymptoms" class="col-md-2 control-label">Password</label>
+							<label for="inputPassword" class="col-md-2 control-label">Password</label>
 							<div class="col-md-10">
 								<input class="form-control" type="password" name="password"
 									required="required" value="">
@@ -62,8 +68,9 @@
 						<!-- --------------  buttons ---------------- -->
 						<div class="form-group">
 							<div class="col-md-10 col-md-offset-2">
-								<button type="submit" class="btn btn-primary">Submit</button>
-								<a href="createNewUser" class="btn btn-default"> Create new Account </a>
+								<td><input name="submit" type="submit" value="submit" class="btn btn-primary"></td>
+								<a href="createNewUser" class="btn btn-default"> Create new
+									Account </a>
 							</div>
 						</div>
 

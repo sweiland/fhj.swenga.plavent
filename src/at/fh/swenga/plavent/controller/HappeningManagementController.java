@@ -8,6 +8,7 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -50,17 +51,6 @@ public class HappeningManagementController {
 		// TODO Auto-generated constructor stub
 	}
 
-	private boolean isLoggedInAndHasPermission(Model model) {
-		// hoedlale16: Verify that user is logged in
-		if (!UserManagementController.isLoggedIn(model)) {
-			return false;
-		} else {
-			// User logged in - check if he has the permission for happening management
-			User currLoggedInUser = UserManagementController.getCurrentLoggedInUser();
-			return currLoggedInUser.getRole().isPermissionHappeningMgmt();
-		}
-	}
-
 	private boolean errorsDetected(Model model, BindingResult bindingResult) {
 		// Any errors? -> Create a String out of all errors and return to the page
 		if (bindingResult.hasErrors()) {
@@ -74,69 +64,58 @@ public class HappeningManagementController {
 		return false;
 	}
 
+	@Secured({ "ROLE_HOST"})
 	@RequestMapping(value = { "showHappeningManagement" })
 	public String showHappenings(Model model) {
 
-		// LoggedIn and has permission?
-		if (!isLoggedInAndHasPermission(model)) {
-			return "login";
-		}
-
-		// TODO: Better according permissionflag not on rolename
-		if (UserManagementController.getCurrentLoggedInUser().getRole().getRoleName().equalsIgnoreCase("ADMIN")) {
-			// Admin is allowed to see all happenings!
+		// TODO: JUST ADMINS are allowed to see all. The others just happenings which belongs to them
+		//if (UserManagementController.getCurrentLoggedInUser().getRole().getRoleName().equalsIgnoreCase("ADMIN")) {
+		// Admin is allowed to see all happenings!
 			model.addAttribute("happenings", happeningDao.findAll());
-		} else {
+		//} else {
 			// Show just happening for given user.
 			// TODO: take logged in user from session flag
-			model.addAttribute("happenings", happeningDao
-					.findByHappeningHostUsername(UserManagementController.getCurrentLoggedInUser().getUsername()));
-		}
+			//model.addAttribute("happenings", happeningDao
+			//		.findByHappeningHostUsername(UserManagementController.getCurrentLoggedInUser().getUsername()));
+		//}
 
 		return "happeningManagement";
 	}
 
+
+	@Secured({ "ROLE_HOST"})
 	@RequestMapping(value = { "showCreateHappeningForm" })
 	public String showCreateHappeningForm(Model model) {
-		// LoggedIn and has permission?
-		if (!isLoggedInAndHasPermission(model)) {
-			return "login";
-		}
 
 		// Set required attributes
 		model.addAttribute("happeningCategories", happeningCategoryDao.findAll());
-		model.addAttribute("currLoggedInUser", UserManagementController.getCurrentLoggedInUser());
 
 		// TODO:Add possible other Possible other HOSTS to list if current logged in
 		// user is a ADMIN
-		if (UserManagementController.getCurrentLoggedInUser().getRole().isAdminRole()) {
+		//if (UserManagementController.getCurrentLoggedInUser().getRole().isAdminRole()) {
 			// TODO: Required from UserDAO: List of all Users which are in Role Hosts except
 			// given one.
 			// model.addAttribute("happeningHosts", )
-		}
+		//}
 
 		return "createModifyHappening";
 	}
 
+	@Secured({ "ROLE_HOST"})
 	@RequestMapping(value = { "showModifyExistingHappingForm" })
 	public String showModifyExistingHappingForm(Model model, @RequestParam(value = "happeningId") Happening happening) {
-		// LoggedIn and has permission?
-		if (!isLoggedInAndHasPermission(model)) {
-			return "login";
-		}
 
 		if (happening != null) {
 			model.addAttribute("happening", happening);
 			model.addAttribute("happeningCategories", happeningCategoryDao.findAll());
-			model.addAttribute("currLoggedInUser", UserManagementController.getCurrentLoggedInUser());
 
 			// TODO:Add possible other Possible other HOSTS to list if current logged in
 			// user is a ADMIN
-			if (UserManagementController.getCurrentLoggedInUser().getRole().isAdminRole()) {
+			//if (UserManagementController.getCurrentLoggedInUser().getRole().isAdminRole()) {
 				// TODO: Required from UserDAO: List of all Users which are in Role Hosts except
 				// given one.
 				// model.addAttribute("happeningHosts", )
-			}
+			//}
 
 			return "createModifyHappening";
 		}
@@ -147,6 +126,7 @@ public class HappeningManagementController {
 		return "happeningManagement";
 	}
 
+	@Secured({ "ROLE_HOST"})
 	@PostMapping("/createNewHappening")
 	// public String createNewHappening(@Valid Happening newHappening, BindingResult
 	// bindingResult, Model model) {
@@ -154,10 +134,6 @@ public class HappeningManagementController {
 			@RequestParam(value = "startDate") String startAsString,
 			@RequestParam(value = "endDate") String endAsString, @RequestParam(value = "categoryID") int categoryID,
 			Model model) throws ParseException {
-		// LoggedIn and has permission?
-		if (!isLoggedInAndHasPermission(model)) {
-			return "login";
-		}
 
 		// Set correct connection objects
 		SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyy hh:mm");
@@ -171,16 +147,12 @@ public class HappeningManagementController {
 		return showHappenings(model);
 	}
 
+	@Secured({ "ROLE_HOST"})
 	@PostMapping("/modifyExistingHappening")
 	public String modifyExistingHappening(Happening newHappening, @RequestParam(value = "host") String hostUsername,
 			@RequestParam(value = "startDate") String startAsString,
 			@RequestParam(value = "endDate") String endAsString, @RequestParam(value = "categoryID") int categoryID,
 			@RequestParam(value = "statusString") String happeningStatus, Model model) throws ParseException {
-
-		// LoggedIn and has permission?
-		if (!isLoggedInAndHasPermission(model)) {
-			return "login";
-		}
 
 		// Set correct connection objects
 		SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyy hh:mm");
@@ -194,36 +166,26 @@ public class HappeningManagementController {
 		return showHappenings(model);
 	}
 
+	@Secured({ "ROLE_HOST"})
 	@GetMapping("/deleteExistingHappening")
 	public String deleteHappening(Model model, @RequestParam(value = "happeningId") Happening happening) {
-		// LoggedIn and has permission?
-		if (!isLoggedInAndHasPermission(model)) {
-			return "login";
-		}
-
 		happening.setHappeningStatus(happeningStatusDao.findFirstByStatusName("DELETED"));
 		happeningDao.save(happening);
 		return showHappenings(model);
 	}
 
+	@Secured({ "ROLE_HOST"})
 	@GetMapping("/reactivateExistingHappening")
 	public String reactivateHappening(Model model, @RequestParam(value = "happeningId") Happening happening) {
-		// LoggedIn and has permission?
-		if (!isLoggedInAndHasPermission(model)) {
-			return "login";
-		}
 
 		happening.setHappeningStatus(happeningStatusDao.findFirstByStatusName("ACTIVE"));
 		happeningDao.save(happening);
 		return showHappenings(model);
 	}
 
+	@Secured({ "ROLE_HOST"})
 	@PostMapping("/filterHappenings")
 	public String filterHappenings(Model model, @RequestParam String searchString) {
-		// LoggedIn and has permission?
-		if (!isLoggedInAndHasPermission(model)) {
-			return "login";
-		}
 		model.addAttribute("happenings", happeningDao.findByHappeningName(searchString));
 		return "happeningManagement";
 	}
@@ -232,12 +194,9 @@ public class HappeningManagementController {
 	// --- GUESTLIST MANAGEMENT ---
 	// -----------------------------------------------------------------------------------------
 
+	@Secured({ "ROLE_HOST"})
 	@RequestMapping(value = { "showGuestListManagement" })
 	public String showGuestListManagement(Model model, @RequestParam(value = "happeningID") Happening happening) {
-		// LoggedIn and has permission?
-		if (!isLoggedInAndHasPermission(model)) {
-			return "login";
-		}
 
 		if (happening != null) {
 			model.addAttribute("happening", happening);
@@ -253,14 +212,10 @@ public class HappeningManagementController {
 	}
 
 	// Add guest to guestlist
+	@Secured({ "ROLE_HOST"})
 	@PostMapping("/assignNewGuestToHappening")
 	public String assignNewGuestToHappening(Model model, @RequestParam(value = "happeningID") Happening happening,
 			@RequestParam(value = "newGuestUsername") String username) {
-
-		// LoggedIn and has permission?
-		if (!isLoggedInAndHasPermission(model)) {
-			return "login";
-		}
 
 		User newGuest = userDao.findFirstByUsername(username);
 		if (happening != null && newGuest != null) {
@@ -275,14 +230,10 @@ public class HappeningManagementController {
 	}
 
 	// Remove Guest from guestlist
+	@Secured({ "ROLE_HOST"})
 	@GetMapping("/unassignExistingGuest")
 	public String unassignGuest(Model model, @RequestParam(value = "happeningID") Happening happening,
 			@RequestParam(value = "username") String username) {
-
-		// LoggedIn and has permission?
-		if (!isLoggedInAndHasPermission(model)) {
-			return "login";
-		}
 
 		User guestToRemove = userDao.findFirstByUsername(username);
 		if (happening != null && guestToRemove != null) {
@@ -298,22 +249,13 @@ public class HappeningManagementController {
 	}
 
 	// Filter GuestListManagement page
+	@Secured({ "ROLE_HOST"})
 	@PostMapping("/filterHappeningGuestList")
 	public String filterGuestList(Model model, @RequestParam(value = "happeningID") Happening happening,
 			@RequestParam String searchString) {
 
-		// LoggedIn and has permission?
-		if (!isLoggedInAndHasPermission(model)) {
-			return "login";
-		}
-
 		if (happening != null) {
 			model.addAttribute("happening", happening);
-
-			// TODO: set filtered guests
-			// model.addAttribute("happeningGuests", happeningGuestDao. .getGuestList());
-			// model.addAttribute("happeningGuests", happening.getGuestList());
-
 			model.addAttribute("potentialGuests", userDao.getPotentialGuestsForHappening(happening.getHappeningId()));
 			model.addAttribute("warningMessage", "Not implemented <" + "showGuestListManagement" + ">");
 			return "happeningGuestManagement";
@@ -324,14 +266,10 @@ public class HappeningManagementController {
 	}
 
 	// Show form to assign Task to a guest
+	@Secured({ "ROLE_HOST"})
 	@GetMapping("/showAssignTaskToGuestForm")
 	public String showAssignTaskToGuestForm(Model model, @RequestParam(value = "happeningID") Happening happening,
 			@RequestParam String username) {
-
-		// LoggedIn and has permission?
-		if (!isLoggedInAndHasPermission(model)) {
-			return "login";
-		}
 
 		// User von der Gaesteliste laden (Nicht zugeordnete leute durefen da nicht
 		// vorkommen!
@@ -367,13 +305,11 @@ public class HappeningManagementController {
 	}
 
 	// Assign given Task to Guest
+	@Secured({ "ROLE_HOST"})
 	@GetMapping("/assignTaskToGuest")
 	public String assignTaskToGuest(Model model, @RequestParam(value = "happeningID") Happening happening,
 			@RequestParam String username, @RequestParam(value = "taskID") HappeningTask happeningTask) {
-		// LoggedIn and has permission?
-		if (!isLoggedInAndHasPermission(model)) {
-			return "login";
-		}
+
 
 		// User von der Gaesteliste laden (Nicht zugeordnete leute durefen da nicht
 		// vorkommen!
@@ -406,16 +342,10 @@ public class HappeningManagementController {
 
 	}
 
+	@Secured({ "ROLE_HOST"})
 	@GetMapping("/generateGuestListPDF")
 	public String generateGuestListPDF(Model model, @RequestParam(value = "happeningID") Happening happening) {
-		// LoggedIn and has permission?
-		if (!isLoggedInAndHasPermission(model)) {
-			return "login";
-		}
-
-		// TODO: Laden des Happening
-		// Laden der Gueste
-		// PDF generieren
+		// TODO PDF generieren
 		model.addAttribute("warningMessage", "Not implemented <" + "generateGuestListPDF" + ">");
 		return showGuestListManagement(model, happening);
 	}
@@ -423,36 +353,26 @@ public class HappeningManagementController {
 	// -----------------------------------------------------------------------------------------
 	// --- TASKLIST MANAGEMENT ---
 	// -----------------------------------------------------------------------------------------
-
+	@Secured({ "ROLE_HOST"})
 	@RequestMapping(value = { "showTaskListManagement" })
 	public String showTaskListManagement(Model model, @RequestParam(value = "happeningID") Happening happening) {
-
-		// LoggedIn and has permission?
-		if (!isLoggedInAndHasPermission(model)) {
-			return "login";
-		}
-
 		model.addAttribute("happening", happening); // Enthaelt die GaesteList & Tasks
 		model.addAttribute("happeningTasks", happening.getTaskList()); // Extern benoetigt fuer filterfunction
 		return "happeningTaskManagement";
 	}
 
+	@Secured({ "ROLE_HOST"})
 	@RequestMapping(value = { "showCreateHappeningTaskForm" })
 	public String showCreateHappeningTaskForm(Model model, @RequestParam(value = "happeningID") Happening happening) {
 		model.addAttribute("happening", happening);
 		return "createModifyHappeningTask";
 	}
 
+	@Secured({ "ROLE_HOST"})
 	@PostMapping("/createNewHappeningTask")
 	public String createNewHappeningTask(Model model, @RequestParam(value = "happeningID") Happening happening,
 			@RequestParam(value = "responsibleUsername") String username, @Valid HappeningTask newTask,
 			BindingResult bindingResult) {
-
-		// LoggedIn and has permission?
-		if (!isLoggedInAndHasPermission(model)) {
-			return "login";
-		}
-
 		// Any errors? -> Create a String out of all errors and return to the page
 		if (errorsDetected(model, bindingResult))
 			return showTaskListManagement(model, happening);
@@ -463,37 +383,31 @@ public class HappeningManagementController {
 		happening.addHappeningTask(newTask);
 
 		happeningTaskDao.save(newTask);
-
-		// TODO: Parameter newTask
-		// Auslesen des Happening
-		// Hinzufügen des Tasks
 		return showTaskListManagement(model, happening);
 	}
 
 	// Filter GuestListManagement page
+	@Secured({ "ROLE_HOST"})
 	@PostMapping("/filterHappeningTaskList")
 	public String filterHappeingTaskList(Model model, @RequestParam(value = "happeningID") Happening happening,
 			@RequestParam String searchString) {
-
-		// LoggedIn and has permission?
-		if (!isLoggedInAndHasPermission(model)) {
-			return "login";
-		}
-
 		model.addAttribute("happening", happening);
+		
+		// Extern benoetigt fuer filterfunction
 		model.addAttribute("happeningTasks",
-				happeningTaskDao.getFilteredTasks(happening.getHappeningId(), searchString)); // Extern benoetigt fuer
-																								// filterfunction
+				happeningTaskDao.getFilteredTasks(happening.getHappeningId(), searchString)); 
 		return "happeningTaskManagement";
 	}
 
+	@Secured({ "ROLE_HOST"})
 	@RequestMapping(value = { "showModifyHappeningTaskForm" })
 	public String showModifyHappeningTaskForm(Model model, @RequestParam(value = "taskId") HappeningTask task) {
 		model.addAttribute("happening", task.getHappening());
 		model.addAttribute("happeningTask", task);
 		return "createModifyHappeningTask";
 	}
-
+	
+	@Secured({ "ROLE_HOST"})
 	@PostMapping("/modifyExistingHappeningTask")
 	public String modifyExistingHappeningTask(Model model, @RequestParam(value = "happeningID") Happening happening) {
 		// TODO: Parameter newTask
@@ -503,6 +417,7 @@ public class HappeningManagementController {
 		return showTaskListManagement(model, happening);
 	}
 
+	@Secured({ "ROLE_HOST"})
 	@GetMapping("/deleteExistingTask")
 	public String deleteExistingTask(Model model, @RequestParam(value = "taskId") HappeningTask task) {
 

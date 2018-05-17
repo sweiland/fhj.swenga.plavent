@@ -13,21 +13,25 @@ import at.fh.swenga.plavent.model.User;
 @Repository
 @Transactional
 public interface UserDao extends JpaRepository<User, Integer> {
+
+	public User findFirstByUsername(String username);
+
+	@Query("Select u from User u")
+	public List<User> findAllBy();
+	
+	@Query("Delete from User u where u.username = :username")
+	public void deleteByUserName(@Param ("username") String username);
+	
+	@Query(value = "SELECT u.* " + 
+				   	"FROM User u " +
+					"WHERE u.username != (SELECT h.username " + 
+					"					 FROM Happening h " + 
+					"                     WHERE h.happeningId = :happeningID) " + 
+					"  AND u.username NOT IN (SELECT g.username " +
+					"						 FROM Guestlist g " +
+					"                         WHERE g.happeningId = :happeningID)", nativeQuery = true)
+	public List<User> getPotentialGuestsForHappening(@Param("happeningID") int happeningId);
 	
 	@Query("Select u From User u where LOWER(u.username) LIKE LOWER(CONCAT('%',:username ,'%'))" )
 	public List<User> getFilteredUsers(@Param("username") String username);
-
-	public User findFirstByUsername(String username);
-	
-	@Query("select u from User u where u.username = :username and u.passwordHash = :passwordHash")
-	public User verifyLogin(@Param("username") String username, @Param("passwordHash") String password);
-	
-	
-	@Query(value = "SELECT u.* " + 
-			"FROM User u " + 
-			"WHERE u.username != (SELECT h.username FROM Happening h WHERE h.happeningId = :happeningID) " + 
-			"  AND u.username NOT IN (SELECT hu.guestList_username " +
-			"                         FROM Happening_User hu " + 
-			"                         WHERE hu.happenings_happeningId = :happeningID)", nativeQuery = true)
-	public List<User> getPotentialGuestsForHappening(@Param("happeningID") int happeningId);
 }
