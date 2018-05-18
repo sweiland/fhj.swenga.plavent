@@ -18,24 +18,75 @@
 
 				<!--  hoedlale16: Form calls /edituser or /adduser, depending if an user is set already. -->
 				<form class="form-horizontal" method="post"
-					th:action="${happening} ? @{/modifyExistingHappeningTask} : @{/createNewHappeningTask}">
+					th:action="${happeningTask} ? @{/modifyExistingHappeningTask} : @{/createNewHappeningTask}">
 					<fieldset>
-						<legend th:text="${happeningTask}? 'Change happening task' : 'New happening task'"></legend>
+						<legend th:text="${happeningTask} ? 'Change happening task' : 'New happening task'"></legend>
 						
-						<!-- TODO Send happeningName with form as well -->
-						<input type="hidden" name="happeningName" value="TODO" />
-
-						<!-- TODO werte und stuff setzen! -->
-
-						<!--  ----------------  happeningName ---------------- -->
+						<!-- Send connected happeningID to assing task with form -->
+						<input type="hidden" name="happeningID" th:value="${happening.happeningId}" />
+												
+						<!--  ----------------  happening ---------------- -->
 						<div class="form-group">
-							<label for="inputName" class="col-md-2 control-label">Happening name</label>
+							<label for="inputId" class="col-md-2 control-label">Happening</label>
 							<div class="col-md-10">
 								<input class="form-control" type="text" name="happeningName"
-									required="required" th:value="${happening} ? ${happening.happeningName}"
-									th:readonly="${happening}">
+									th:value="${happening.happeningName}"
+									readonly>
 							</div>
 						</div>
+
+						<!-- TODO werte und stuff setzen! -->
+						<!--  ----------------  taskId ---------------- -->
+						<div th:if="${happeningTask} != null" class="form-group">
+							<label for="inputId" class="col-md-2 control-label">Task-ID</label>
+							<div class="col-md-10">
+								<input class="form-control" type="text" name="taskId" readonly
+									required="required" th:value="${happeningTask} ? ${happeningTask.taskId}">
+							</div>
+						</div>
+						
+						<!--  ----------------  topic ---------------- -->
+						<div class="form-group">
+							<label for="inputTopic" class="col-md-2 control-label">Topic</label>
+							<div class="col-md-10">
+								<input class="form-control" type="text" name="topic"
+									required="required" th:value="${happeningTask} ? ${happeningTask.topic}">
+							</div>
+						</div>
+						
+						<!--  ----------------  durationInHour ---------------- -->
+						<div class="form-group">
+							<label for="inputTopic" class="col-md-2 control-label">Duration [h]</label>
+							<div class="col-md-10">
+								<input class="form-control" type="number" name="durationInHour"
+									required="required" th:value="${happeningTask} ? ${happeningTask.durationInHour}">
+							</div>
+						</div>
+						
+						<!--  ----------------  responsibleUser ---------------- -->
+						<div class="form-group">
+							<label for="inputResponsibleUser" class="col-md-2 control-label">Responsible</label> 
+							<div class="col-md-10">
+							
+								<!-- TODO: Handling wenn responsibleUser null ist -->
+							
+								<select id="inputResponsibleUser" class="form-control" name="responsibleUsername"
+								th:value="${happeningTask} ? ${happeningTask.responsibleUser.username}">
+									<option th:if="${happeningTask == null}" selected="selected" th:value="${happening.happeningHost.username}" th:text="${happening.happeningHost.username}"></option>
+									<option th:if="${happeningTask != null}" th:value="${happening.happeningHost.username}" th:text="${happening.happeningHost.username}"></option>
+									<option th:each="guest : ${happening.guestList}" th:value="${guest.username}" th:text="${guest.username}" ></option>
+								</select>
+							</div>
+						</div>
+						
+						<!--  ----------------  description ---------------- -->
+						<div class="form-group">
+							<label for="inputDescription" class="col-md-2 control-label">Description</label> 
+							<div class="col-md-10">
+						  		<textarea class="form-control" rows="5" id="description" name="description" required="required"
+						  		th:value="${happeningTask} ? ${happeningTask.description}"></textarea>
+						  	</div>
+						</div> 		
 					
 
 						<!-- --------------  buttons ---------------- -->

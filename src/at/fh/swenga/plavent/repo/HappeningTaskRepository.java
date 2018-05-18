@@ -1,4 +1,4 @@
-package at.fh.swenga.plavent.dao;
+package at.fh.swenga.plavent.repo;
 
 import java.util.List;
 
@@ -12,12 +12,17 @@ import at.fh.swenga.plavent.model.HappeningTask;
 
 @Repository
 @Transactional
-public interface HappeningTaskDao extends JpaRepository<HappeningTask, Integer> {
+public interface HappeningTaskRepository extends JpaRepository<HappeningTask, Integer> {
 		
 	public HappeningTask findByTaskIdAndHappeningHappeningId(int taskID, int happeningID);
 	
 
 	@Query("Select t From HappeningTask t WHERE t.happening.happeningId  = :happeningId and t.responsibleUser = null" )
 	public List<HappeningTask> getUnassignedTasks(@Param("happeningId") int happeningId);
+	
+	public List<HappeningTask> findByHappeningHappeningId(int happeningId);
+
+	@Query("Select t From HappeningTask t WHERE t.happening.happeningId  = :happeningId AND  LOWER(t.topic) LIKE LOWER(CONCAT('%',:searchstring,'%'))" )
+	public List<HappeningTask> getFilteredTasks(@Param("happeningId") int happeningId, @Param("searchstring") String searchstring);
 
 }

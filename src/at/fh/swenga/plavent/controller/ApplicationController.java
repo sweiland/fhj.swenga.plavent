@@ -1,9 +1,11 @@
+/**
+ * 
+ */
 package at.fh.swenga.plavent.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,9 +17,15 @@ import at.fh.swenga.plavent.repo.HappeningStatusRepository;
 import at.fh.swenga.plavent.repo.UserRepository;
 import at.fh.swenga.plavent.repo.UserRoleRepository;
 
+/**
+ * @author Gregor Fernbach Controller for handling general things like
+ *         login/logout
+ * 
+ *
+ */
 @Controller
 @Scope(proxyMode = ScopedProxyMode.TARGET_CLASS, value = "session")
-public class DashboardController {
+public class ApplicationController {
 
 	@Autowired
 	private UserRepository userRepository;
@@ -31,17 +39,22 @@ public class DashboardController {
 	@Autowired
 	private HappeningCategoryRepository happeningCategoryRepository;
 
-	public DashboardController() {
-		// TODO Auto-generated constructor stub
-	}	
+	@RequestMapping(value = { "/", "/login" }, method = RequestMethod.GET)
+	public String handleLogin(Model model, Authentication authentication) {
 
-	@Secured({ "ROLE_USER"})
-	@RequestMapping(value = { "dashboard" })
-	public String showDashboard(Model model) {
-		
-		//TODO: Show stuff for logged in user
-		// Show main screen (dashboard)
-		return "dashboard";
+		// If user already set(logged in, show dashboard page otherwise show login page
+		if (authentication != null)
+			return "dashboard";
+		else {
+			// Check if DB-Environment exists or start is the first initial startup
+			if (happeningStatusRepository.getAmountOfHappeningStatus() <= 0
+					&& userRoleRepository.getAmountOfUserRoles() <= 0) {
+				model.addAttribute("message",
+						"Welcome to Plavent! - Please start initial setup before planning happenings!");
+				model.addAttribute("noPlaventEnvironment", true);
+			}
+			return "login";
+		}
+
 	}
 }
-

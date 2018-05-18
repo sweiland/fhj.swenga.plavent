@@ -1,4 +1,4 @@
-package at.fh.swenga.plavent.dao;
+package at.fh.swenga.plavent.repo;
 
 import java.util.List;
 
@@ -10,11 +10,13 @@ import at.fh.swenga.plavent.model.Happening;
 
 @Repository
 @Transactional
-public interface HappeningDao extends JpaRepository<Happening, Integer> {
+public interface HappeningRepository extends JpaRepository<Happening, Integer> {
 
 
 	public List<Happening> findByHappeningId(int happeningID);
 	
 	public List<Happening> findByHappeningName(String happeningName);
+	
+	public List<Happening> findByHappeningHostUsername(String username);
 
 }

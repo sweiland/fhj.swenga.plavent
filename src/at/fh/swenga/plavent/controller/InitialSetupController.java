@@ -2,35 +2,45 @@ package at.fh.swenga.plavent.controller;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import at.fh.swenga.plavent.dao.HappeningCategoryDao;
-import at.fh.swenga.plavent.dao.HappeningStatusDao;
-import at.fh.swenga.plavent.dao.UserDao;
-import at.fh.swenga.plavent.dao.UserRoleDao;
 import at.fh.swenga.plavent.model.HappeningCategory;
 import at.fh.swenga.plavent.model.HappeningStatus;
 import at.fh.swenga.plavent.model.User;
 import at.fh.swenga.plavent.model.UserRole;
+import at.fh.swenga.plavent.repo.HappeningCategoryRepository;
+import at.fh.swenga.plavent.repo.HappeningStatusRepository;
+import at.fh.swenga.plavent.repo.UserRepository;
+import at.fh.swenga.plavent.repo.UserRoleRepository;
+
+/**
+ * @author Alexander Hoedl:
+ *         
+ * initialization of application data (users, roles, happenings, categories, status)
+ *
+ */
+
 
 @Controller
 public class InitialSetupController {
 
 	@Autowired
-	private UserDao userDao;
+	private UserRepository userDao;
 
 	@Autowired
-	private UserRoleDao userRoleDao;
+	private UserRoleRepository userRoleDao;
 
 	@Autowired
-	private HappeningStatusDao happeningStatusDao;
+	private HappeningStatusRepository happeningStatusDao;
 
 	@Autowired
-	private HappeningCategoryDao happeningCategoryDao;
+	private HappeningCategoryRepository happeningCategoryDao;
 
 	public InitialSetupController() {
 		// TODO Auto-generated constructor stub
@@ -40,20 +50,19 @@ public class InitialSetupController {
 	public String preparePlavent(Model model) {
 		try {
 
-		// Create Categories
-		this.createHappeningCategories();
+			// Create Categories
+			this.createHappeningCategories();
 
-		// Create HappeningStatus
-		this.createHappeningStatus();
+			// Create HappeningStatus
+			this.createHappeningStatus();
 
-		// Create UserRoles and Users
-		createUsersAndRoles();
+			// Create UserRoles and Users
+			createUsersAndRoles();
 
-		model.addAttribute("warningMessage", "Environment created - Start planning!");
-		return "login";
-		}
-		catch (Exception e) {
-			System.out.println("Error occured: "+ e.getMessage());
+			model.addAttribute("warningMessage", "Environment created - Start planning!");
+			return "login";
+		} catch (Exception e) {
+			System.out.println("Error occured: " + e.getMessage());
 			model.addAttribute("errorMessage", "Error occured: \"+ e.getMessage()!");
 			return "error";
 		}
@@ -62,55 +71,103 @@ public class InitialSetupController {
 	private void createHappeningCategories() {
 
 		// Create a default happening cateogry
-		HappeningCategory catUnAssigned = happeningCategoryDao.getCategory("Unassigned");
-		if (catUnAssigned == null)
+		HappeningCategory catUnAssigned = happeningCategoryDao.findFirstByCategoryName("Unassigned");
+		if (catUnAssigned == null) {
 			catUnAssigned = new HappeningCategory("Unassigned", "Not specified ");
-
+			happeningCategoryDao.save(catUnAssigned);
+		}
 	}
 
 	private void createHappeningStatus() {
 		// Create Happening status values
-		HappeningStatus hsActive = happeningStatusDao.getHappeningStatus("ACTIVE");
-		if (hsActive == null)
+		HappeningStatus hsActive = happeningStatusDao.findFirstByStatusName("ACTIVE");
+		if (hsActive == null) {
 			hsActive = new HappeningStatus("ACTIVE", "The happening will happen as planned!");
-
-		HappeningStatus hsDeleted = happeningStatusDao.getHappeningStatus("DELETED");
-		if (hsDeleted == null)
+			happeningStatusDao.save(hsActive);
+		}
+		HappeningStatus hsDeleted = happeningStatusDao.findFirstByStatusName("DELETED");
+		if (hsDeleted == null) {
 			hsDeleted = new HappeningStatus("DELETED", "The happening is cancelled!");
+			happeningStatusDao.save(hsDeleted);
+		}
 	}
 
-	private void createUsersAndRoles() throws NoSuchAlgorithmException {
+	/** USERS AND ROLES ARE DEPLOYED IN THE SPRING SECURITY XML FILE. FERNBACH16 **/
+	private void createUsersAndRoles() {
 
 		// Create useroles if required
-		UserRole roleAdmin = userRoleDao.getUserRole("ADMIN");
-		if (roleAdmin == null)
-			roleAdmin = new UserRole("ADMIN", "The role to manage the system", true, true, true);
-		UserRole roleHost = userRoleDao.getUserRole("HOST");
-		if (roleHost == null)
-			roleHost = new UserRole("HOST", "The role to create happening and manage them", false, true, false);
-		UserRole roleGuest = userRoleDao.getUserRole("GUEST");
-		if (roleGuest == null)
-			roleGuest = new UserRole("GUEST", "The role to be a guest at happenings", false, false, false);
+		UserRole roleAdmin = userRoleDao.findFirstByRoleName("ADMIN");
+		if (roleAdmin == null) {
+			roleAdmin = new UserRole("ROLE_ADMIN", "The role to manage the system");
+			userRoleDao.save(roleAdmin);
+		}
+		
+		UserRole roleHost = userRoleDao.findFirstByRoleName("HOST");
+		if (roleHost == null) {
+			roleHost = new UserRole("ROLE_HOST", "The role to create happening and manage them");
+			userRoleDao.save(roleHost);
+		}
+		
+		UserRole roleGuest = userRoleDao.findFirstByRoleName("GUEST");
+		if (roleGuest == null) {
+			roleGuest = new UserRole("ROLE_GUEST", "The role to be a guest at happenings");
+			userRoleDao.save(roleGuest);
+		}
 
 		// Create overall admin if required
-		MessageDigest md5 = java.security.MessageDigest.getInstance("MD5");
-		if (userDao.getUser("admin") == null) {
-			User administrator = new User("admin", new String(md5.digest("admin".getBytes())), "Administrator",
-					"Administrator", roleAdmin);
-			userDao.persist(administrator);
+		List<UserRole> roles = new LinkedList<UserRole>();
+		
+		roles.clear();
+		roles.add(roleAdmin);
+		if (userDao.findFirstByUsername("admin") == null) {
+			User administrator = new User("admin", "admin", "Administrator",
+					"Administrator", roles);
+			userDao.save(administrator);
 		}
+		
+		roles.clear();
+		roles.add(roleHost);
 
 		// Create a host user if required
-		if (userDao.getUser("host") == null) {
-			User host = new User("host", new String(md5.digest("host".getBytes())), "Host", "Host", roleHost);
-			userDao.persist(host);
+		if (userDao.findFirstByUsername("host") == null) {
+			User host = new User("host", "host", "Host", "Host", roles);
+			userDao.save(host);
 		}
+		
+		roles.clear();
+		roles.add(roleGuest);
 
 		// Create a simple guest user if required
-		if (userDao.getUser("guest") == null) {
-			User host = new User("guest", new String(md5.digest("guest".getBytes())), "Host", "Host", roleGuest);
-			userDao.persist(host);
+		if (userDao.findFirstByUsername("guest") == null) {
+			User host = new User("guest", "guest", "Host", "Host", roles);
+			userDao.save(host);
 		}
 	}
+	
+	/** DATA FACTORY FOR LATER USE !!! FERNBACH16
+	@RequestMapping("/fillDataUserManagement")
+	@Transactional
+	public String fillDataUserManagement(Model model) {
 
+		DataFactory df = new DataFactory();
+
+		User user = null;
+
+		String[] pw = {"password"};
+		
+		for (int i = 0; i < 100; i++) {
+			if (i % 10 == 0) {
+				String name = df.getBusinessName();
+				producer = producerRepository.findFirstByName(name);
+				if (producer == null) {
+					producer = new Producer(name);
+				}
+			}
+
+			User user = new User(df.getRandomWord(), df.getItem(pw), df.getFirstName(), df.getLastName(), df.getEmailAddress(), df.getNumberText(15));
+			pictureFrame.setProducer(producer);
+			UserDao.save(user);
+		}
+	}
+	**/
 }
