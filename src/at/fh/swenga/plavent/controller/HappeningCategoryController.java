@@ -3,23 +3,33 @@ package at.fh.swenga.plavent.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import at.fh.swenga.plavent.dao.HappeningCategoryRepository;
 import at.fh.swenga.plavent.model.User;
+import at.fh.swenga.plavent.repo.HappeningCategoryRepository;
+
+/**
+ * @author Stefan Heider:
+ *         
+ * description of this controller
+ *
+ */
+
+
 
 @Controller
 @Scope(proxyMode = ScopedProxyMode.TARGET_CLASS, value = "session")
-public class CategoryManagementController {
+public class HappeningCategoryController {
 
 	@Autowired
 	private HappeningCategoryRepository categoryDao;
 	
-	public CategoryManagementController() {
+	public HappeningCategoryController() {
 		// TODO Auto-generated constructor stub
 	}
 
@@ -37,7 +47,7 @@ public class CategoryManagementController {
 		return false;
 	}
 
-	
+	@Secured({ "ROLE_ADMIN" })
 	@RequestMapping(value = { "showCategoryManagement" })
 	public String showCategories(Model model) {	
 		//Set attributes

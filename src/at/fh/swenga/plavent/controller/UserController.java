@@ -22,21 +22,30 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import at.fh.swenga.plavent.dao.UserRepository;
 import at.fh.swenga.plavent.model.User;
+import at.fh.swenga.plavent.repo.UserRepository;
+
+/**
+ * @author Gregor Fernbach:
+ *         
+ * Controller of the user management
+ *
+ */
+
+
 
 @Controller
 @Scope(proxyMode = ScopedProxyMode.TARGET_CLASS, value = "session")
-public class UserManagementController {
+public class UserController {
 
 	/**
 	 * CURRENTLY WORKED ON BY FERNBACH16
 	 */
 
 	@Autowired
-	private UserRepository userDao;
+	private UserRepository userRepo;
 
-	public UserManagementController() {
+	public UserController() {
 	}
 
 	@Secured({ "ROLE_USER" })
@@ -45,9 +54,9 @@ public class UserManagementController {
 
 		// If User is ins Role 'ADMIN' show all users
 		if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
-			model.addAttribute("users", userDao.findAll());
+			model.addAttribute("users", userRepo.findAll());
 		} else {
-			model.addAttribute("users", userDao.findFirstByUsername(authentication.getName()));
+			model.addAttribute("users", userRepo.findFirstByUsername(authentication.getName()));
 		}
 
 		return "userManagement";
@@ -60,7 +69,7 @@ public class UserManagementController {
 	@GetMapping("/editUser")
 	public String editUser(Model model, @RequestParam String username, Authentication authentication) {
 
-		User user = userDao.findFirstByUsername(username);
+		User user = userRepo.findFirstByUsername(username);
 
 		if (user != null) {
 
@@ -83,11 +92,11 @@ public class UserManagementController {
 	@Secured({ "ROLE_ADMIN" })
 	@GetMapping("/deleteUser")
 	public String deleteUser(Model model, @RequestParam String username, Authentication authentication) {
-		User user = userDao.findFirstByUsername(username);
+		User user = userRepo.findFirstByUsername(username);
 		if (user == null) {
 			model.addAttribute("errorMessage", "User does not exist! <" + username + ">");
 		} else {
-			userDao.deleteByUserName(username);
+			userRepo.deleteByUserName(username);
 			model.addAttribute("warningMessage", "User " + username + "sucessfully deleted");
 		}
 		return showAllUsers(model, authentication);
@@ -153,7 +162,7 @@ public class UserManagementController {
 			return showAllUsers(model, authentication);
 
 		// Get the illness the user wants to change
-		User user = userDao.findFirstByUsername(changedUserModel.getUsername());
+		User user = userRepo.findFirstByUsername(changedUserModel.getUsername());
 		if (user == null) {
 			model.addAttribute("errorMessage", "User does not exist! <" + changedUserModel.getUsername() + ">");
 		} else {

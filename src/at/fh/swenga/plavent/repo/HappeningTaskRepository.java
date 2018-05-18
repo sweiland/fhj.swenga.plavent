@@ -1,4 +1,4 @@
-package at.fh.swenga.plavent.dao;
+package at.fh.swenga.plavent.repo;
 
 import java.util.List;
 

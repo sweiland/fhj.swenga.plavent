@@ -12,17 +12,7 @@
 		<intercept-url pattern="/login" access="permitAll" />		
 		<intercept-url pattern="/" access="permitAll" />
 		
-		<!-- Use Annotation @Secured({ "ROLE_USER"}) -->
-		<!-- 
-		<intercept-url pattern="/logout" access="permitAll" />
-		<intercept-url pattern="/editUser" access="hasRole('USER', 'ADMIN')" />
-		<intercept-url pattern="/deleteExistingUser" access="hasRole('ADMIN')" />
-		<intercept-url pattern="/showChangePasswordForm" access="hasRole('USER', 'ADMIN')" />
-		<intercept-url pattern="/showUserManagement" access="hasRole('USER', 'ADMIN')" />		
-		
-		<intercept-url pattern="/**" access="permitAll" />
-		<intercept-url pattern="/**" access="hasRole('USER')" />
-		 -->
+		<!-- HOEDLALE16: Use Annotation @Secured({ "ROLE_USER"}) instead of intercept-url -->
 		
 		<form-login login-page="/login" default-target-url="/dashboard"
 			always-use-default-target="true" />

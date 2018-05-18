@@ -19,18 +19,27 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import at.fh.swenga.plavent.dao.HappeningCategoryRepository;
-import at.fh.swenga.plavent.dao.HappeningRepository;
-import at.fh.swenga.plavent.dao.HappeningStatusRepository;
-import at.fh.swenga.plavent.dao.HappeningTaskRepository;
-import at.fh.swenga.plavent.dao.UserRepository;
 import at.fh.swenga.plavent.model.Happening;
 import at.fh.swenga.plavent.model.HappeningTask;
 import at.fh.swenga.plavent.model.User;
+import at.fh.swenga.plavent.repo.HappeningCategoryRepository;
+import at.fh.swenga.plavent.repo.HappeningRepository;
+import at.fh.swenga.plavent.repo.HappeningStatusRepository;
+import at.fh.swenga.plavent.repo.HappeningTaskRepository;
+import at.fh.swenga.plavent.repo.UserRepository;
+
+/**
+ * @author Alexander Hoedl:
+ *         
+ * description of this controller
+ *
+ */
+
+
 
 @Controller
 @Scope(proxyMode = ScopedProxyMode.TARGET_CLASS, value = "session")
-public class HappeningManagementController {
+public class HappeningController {
 
 	@Autowired
 	HappeningRepository happeningDao;
@@ -47,7 +56,7 @@ public class HappeningManagementController {
 	@Autowired
 	UserRepository userDao;
 
-	public HappeningManagementController() {
+	public HappeningController() {
 		// TODO Auto-generated constructor stub
 	}
 

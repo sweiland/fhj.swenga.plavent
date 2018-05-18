@@ -10,14 +10,22 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import at.fh.swenga.plavent.dao.HappeningCategoryRepository;
-import at.fh.swenga.plavent.dao.HappeningStatusRepository;
-import at.fh.swenga.plavent.dao.UserRepository;
-import at.fh.swenga.plavent.dao.UserRoleRepository;
 import at.fh.swenga.plavent.model.HappeningCategory;
 import at.fh.swenga.plavent.model.HappeningStatus;
 import at.fh.swenga.plavent.model.User;
 import at.fh.swenga.plavent.model.UserRole;
+import at.fh.swenga.plavent.repo.HappeningCategoryRepository;
+import at.fh.swenga.plavent.repo.HappeningStatusRepository;
+import at.fh.swenga.plavent.repo.UserRepository;
+import at.fh.swenga.plavent.repo.UserRoleRepository;
+
+/**
+ * @author Alexander Hoedl:
+ *         
+ * initialization of application data (users, roles, happenings, categories, status)
+ *
+ */
+
 
 @Controller
 public class InitialSetupController {

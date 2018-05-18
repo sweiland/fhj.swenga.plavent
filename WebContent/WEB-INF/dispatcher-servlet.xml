@@ -4,6 +4,7 @@
 	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:aop="http://www.springframework.org/schema/aop"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
 	xmlns:util="http://www.springframework.org/schema/util" xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+	xmlns:security="http://www.springframework.org/schema/security"
 
 	xsi:schemaLocation="
 		http://www.springframework.org/schema/aop 
@@ -20,7 +21,8 @@
 		http://www.springframework.org/schema/context/spring-context.xsd
 		http://www.springframework.org/schema/data/jpa
 	    http://www.springframework.org/schema/data/jpa/spring-jpa.xsd
-		">
+	    http://www.springframework.org/schema/security
+		http://www.springframework.org/schema/security/spring-security.xsd">
 
 
 	<!-- Read settings from external file and replace all ${...} in the xml -->
@@ -67,6 +69,8 @@
 	<!-- ################################################################ -->
 
 	<!-- <mvc:annotation-driven/> -->
+	<security:global-method-security
+		secured-annotations="enabled" />
 
 	<!-- if no Controller can handle a request, ask Servlet Container, if he 
 		can handle it, otherwise return 404 -->
