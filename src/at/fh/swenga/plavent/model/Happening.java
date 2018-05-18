@@ -56,6 +56,7 @@ public class Happening implements Serializable {
 	 * automatically
 	 */
 	@ManyToOne(cascade = CascadeType.MERGE,fetch = FetchType.EAGER)
+	@JoinColumn(name = "categoryId")
 	private HappeningCategory category;
 
 	/*
@@ -64,6 +65,7 @@ public class Happening implements Serializable {
 	 * automatically
 	 */
 	@ManyToOne(cascade = CascadeType.MERGE,fetch = FetchType.EAGER)
+	@JoinColumn(name = "statusId")
 	private HappeningStatus happeningStatus;
 
 	@OneToOne(fetch = FetchType.EAGER)
