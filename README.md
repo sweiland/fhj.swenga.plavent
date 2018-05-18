@@ -8,7 +8,7 @@ in the Bachelor's degree Informationsmanagement (IMA16).
 
 Team Members:
 
-Alexander Hödl
+Alexander Hšdl
 Gregor Fernbach
 Sebastian Weiland
 Stefan Heider
