@@ -19,9 +19,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import at.fh.swenga.plavent.model.Happening;
 import at.fh.swenga.plavent.model.HappeningTask;
 import at.fh.swenga.plavent.model.User;
-import at.fh.swenga.plavent.repo.HappeningCategoryRepository;
+import at.fh.swenga.plavent.repo.HappeningGuestlistRepository;
 import at.fh.swenga.plavent.repo.HappeningRepository;
-import at.fh.swenga.plavent.repo.HappeningStatusRepository;
 import at.fh.swenga.plavent.repo.HappeningTaskRepository;
 import at.fh.swenga.plavent.repo.UserRepository;
 
@@ -39,19 +38,16 @@ import at.fh.swenga.plavent.repo.UserRepository;
 public class HappeningGuestlistController {
 
 	@Autowired
-	HappeningRepository happeningDao;
+	HappeningRepository happeningRepo;
 
 	@Autowired
-	HappeningTaskRepository happeningTaskDao;
+	HappeningGuestlistRepository happeningGuestlistRepo;
+	
+	@Autowired
+	HappeningTaskRepository happeningTaskRepo;
 
 	@Autowired
-	HappeningCategoryRepository happeningCategoryDao;
-
-	@Autowired
-	HappeningStatusRepository happeningStatusDao;
-
-	@Autowired
-	UserRepository userDao;
+	UserRepository userRepo;
 
 	public HappeningGuestlistController() {
 		// TODO Auto-generated constructor stub
@@ -100,7 +96,7 @@ public class HappeningGuestlistController {
 			Authentication authentication) {
 
 		// Check if user is Owner of Happening or has role ADMIN
-		if (!isHappeningHostOrAdmin(happening, authentication)) {
+		if (!isHappeningHostOrAdmin(happening, authentication) || "DELETED".equals(happening.getHappeningStatus().getStatusName()) ) {
 			model.addAttribute("warningMessage", "Happening not found or no permission!");
 			return "forward:/showHappeningManagement";
 		}
@@ -108,7 +104,7 @@ public class HappeningGuestlistController {
 		model.addAttribute("happening", happening);
 		model.addAttribute("happeningGuests", happening.getGuestList()); // Required in a separate attribute for //
 																			// filtering
-		model.addAttribute("potentialGuests", userDao.getPotentialGuestsForHappening(happening.getHappeningId()));
+		model.addAttribute("potentialGuests", happeningGuestlistRepo.getPotentialGuestsForHappening(happening.getHappeningId()));
 		return "happeningGuestManagement";
 	}
 
@@ -124,11 +120,11 @@ public class HappeningGuestlistController {
 			return "forward:/showHappeningManagement";
 		}
 
-		User newGuest = userDao.findFirstByUsername(username);
+		User newGuest = userRepo.findFirstByUsername(username);
 		if (newGuest != null) {
 			// Assign new Guest to happening
 			happening.addGuestToList(newGuest);
-			happeningDao.save(happening);
+			happeningRepo.save(happening);
 			model.addAttribute("message", "User " + newGuest.getUsername() + " added from guestlist!");
 		} else {
 			model.addAttribute("warningMessage", "User not fonud!");
@@ -150,10 +146,10 @@ public class HappeningGuestlistController {
 		}
 
 		// TODO: Check if given user is on guestlist...
-		User guestToRemove = userDao.findFirstByUsername(username);
+		User guestToRemove = userRepo.findFirstByUsername(username);
 		if (guestToRemove != null) {
 			happening.removeFromList(guestToRemove);
-			happeningDao.save(happening);
+			happeningRepo.save(happening);
 			model.addAttribute("message", "User " + guestToRemove.getUsername() + " removed from guestlist!");
 
 		} else {
@@ -176,7 +172,7 @@ public class HappeningGuestlistController {
 		}
 
 		model.addAttribute("happening", happening);
-		model.addAttribute("potentialGuests", userDao.getPotentialGuestsForHappening(happening.getHappeningId()));
+		model.addAttribute("potentialGuests", happeningGuestlistRepo.getPotentialGuestsForHappening(happening.getHappeningId()));
 		model.addAttribute("warningMessage", "Not implemented <" + "showGuestListManagement" + ">");
 		return "happeningGuestManagement";
 	}
@@ -214,12 +210,12 @@ public class HappeningGuestlistController {
 			return "forward:/showHappeningManagement";
 		}
 		
-		User guest = userDao.findFirstByUsername(username);
+		User guest = userRepo.findFirstByUsername(username);
 		
 		//Valid guest object and guest is on guestlist of happening?
 		if(guest != null && task.getHappening().getGuestList().contains(guest)) {
 			task.setResponsibleUser(guest);
-			happeningTaskDao.save(task);
+			happeningTaskRepo.save(task);
 			model.addAttribute("warningMessage", "Not implemented <" + "showGuestListManagement" + ">");
 			return showGuestListManagement(model, task.getHappening(), authentication);
 		} else {

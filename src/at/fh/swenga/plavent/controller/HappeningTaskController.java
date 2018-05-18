@@ -20,9 +20,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import at.fh.swenga.plavent.model.Happening;
 import at.fh.swenga.plavent.model.HappeningTask;
-import at.fh.swenga.plavent.repo.HappeningCategoryRepository;
-import at.fh.swenga.plavent.repo.HappeningRepository;
-import at.fh.swenga.plavent.repo.HappeningStatusRepository;
 import at.fh.swenga.plavent.repo.HappeningTaskRepository;
 import at.fh.swenga.plavent.repo.UserRepository;
 
@@ -38,19 +35,10 @@ import at.fh.swenga.plavent.repo.UserRepository;
 public class HappeningTaskController {
 
 	@Autowired
-	HappeningRepository happeningDao;
+	HappeningTaskRepository happeningTaskRepo;
 
 	@Autowired
-	HappeningTaskRepository happeningTaskDao;
-
-	@Autowired
-	HappeningCategoryRepository happeningCategoryDao;
-
-	@Autowired
-	HappeningStatusRepository happeningStatusDao;
-
-	@Autowired
-	UserRepository userDao;
+	UserRepository userRepo;
 
 	public HappeningTaskController() {
 		// TODO Auto-generated constructor stub
@@ -97,8 +85,8 @@ public class HappeningTaskController {
 	public String showTaskListManagement(Model model, @RequestParam(value = "happeningID") Happening happening,
 			Authentication authentication) {
 
-		// Check if user is Owner of Happening or has role ADMIN
-		if (!isHappeningHostOrAdmin(happening, authentication)) {
+		// Check if happening is DELETED or current logged in user is Owner of Happening or has role ADMIN
+		if (!isHappeningHostOrAdmin(happening, authentication) || "DELETED".equals(happening.getHappeningStatus().getStatusName()) ) {
 			model.addAttribute("warningMessage", "Happening not found or no permission!");
 			return "forward:/showHappeningManagement";
 		}
@@ -119,10 +107,9 @@ public class HappeningTaskController {
 			model.addAttribute("warningMessage", "Happening not found or no permission!");
 			return "forward:/showHappeningManagement";
 		}
-
-		// Fallback - return to happening overview
-		model.addAttribute("warningMessage", "Happening not found");
-		return "forward:/showHappeningManagement";
+		
+		model.addAttribute("happening",happening);
+		return "createModifyHappeningTask"; 
 	}
 
 	@Secured({ "ROLE_HOST" })
@@ -146,7 +133,7 @@ public class HappeningTaskController {
 		newTask.setHappening(happening);
 		happening.addHappeningTask(newTask);
 
-		happeningTaskDao.save(newTask);
+		happeningTaskRepo.save(newTask);
 		return showTaskListManagement(model, happening, authentication);
 	}
 
@@ -165,7 +152,7 @@ public class HappeningTaskController {
 		model.addAttribute("happening", happening);
 		// Required in an additional attribute for filter functionality
 		model.addAttribute("happeningTasks",
-				happeningTaskDao.getFilteredTasks(happening.getHappeningId(), searchString));
+				happeningTaskRepo.getFilteredTasks(happening.getHappeningId(), searchString));
 		return "happeningTaskManagement";
 
 	}
@@ -216,7 +203,7 @@ public class HappeningTaskController {
 		}
 
 		task.getHappening().removeHappeningTaskFromList(task);
-		happeningTaskDao.delete(task);
+		happeningTaskRepo.delete(task);
 		return showTaskListManagement(model, task.getHappening(), authentication);
 
 	}

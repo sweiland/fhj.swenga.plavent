@@ -25,7 +25,7 @@ public class HappeningTask implements Serializable {
     private int taskId;
 	
 	@ManyToOne (cascade = CascadeType.MERGE ,fetch = FetchType.EAGER)
-    @JoinColumn(nullable = false)
+	@JoinColumn(name = "happeningId", nullable = false)
 	private Happening happening;
 	
 	@Column(nullable = false, length = 128)
@@ -39,6 +39,7 @@ public class HappeningTask implements Serializable {
 	private double durationInHour;
 	
 	@ManyToOne(cascade = CascadeType.PERSIST, optional=true)
+	@JoinColumn(name = "responsibleUser", nullable = true)
 	private User responsibleUser;
 	
 	@Version
@@ -48,9 +49,8 @@ public class HappeningTask implements Serializable {
 		// TODO Auto-generated constructor stub
 	}
 
-	public HappeningTask(int taskId, Happening happening, String topic, String description, double durationInHour,User responsibleUser) {
+	public HappeningTask(Happening happening, String topic, String description, double durationInHour,User responsibleUser) {
 		super();
-		this.taskId = taskId;
 		this.happening = happening;
 		this.topic = topic;
 		this.description = description;

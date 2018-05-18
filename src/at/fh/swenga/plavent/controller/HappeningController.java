@@ -21,7 +21,6 @@ import at.fh.swenga.plavent.model.Happening;
 import at.fh.swenga.plavent.repo.HappeningCategoryRepository;
 import at.fh.swenga.plavent.repo.HappeningRepository;
 import at.fh.swenga.plavent.repo.HappeningStatusRepository;
-import at.fh.swenga.plavent.repo.HappeningTaskRepository;
 import at.fh.swenga.plavent.repo.UserRepository;
 
 /**
@@ -37,23 +36,19 @@ import at.fh.swenga.plavent.repo.UserRepository;
 public class HappeningController {
 
 	@Autowired
-	HappeningRepository happeningDao;
+	HappeningRepository happeningRepo;
+
 
 	@Autowired
-	HappeningTaskRepository happeningTaskDao;
+	HappeningCategoryRepository happeningCategoryRepo;
 
 	@Autowired
-	HappeningCategoryRepository happeningCategoryDao;
+	HappeningStatusRepository happeningStatusRepo;
 
 	@Autowired
-	HappeningStatusRepository happeningStatusDao;
+	UserRepository userRepo;
 
-	@Autowired
-	UserRepository userDao;
-
-	public HappeningController() {
-		// TODO Auto-generated constructor stub
-	}
+	public HappeningController() { }
 
 	/**
 	 * Helper method to check if current logged in user is either owner of happening
@@ -85,10 +80,10 @@ public class HappeningController {
 		// ADMINS are allowed to see all happening. HOSTS just happenings shich belongs
 		// to them and are active
 		if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
-			model.addAttribute("happenings", happeningDao.findAll());
+			model.addAttribute("happenings", happeningRepo.findAll());
 		} else {
-			// TODO: Show just active ones!
-			model.addAttribute("happenings", happeningDao.findByHappeningHostUsername(authentication.getName()));
+			//Show just active ones!
+			model.addAttribute("happenings", happeningRepo.getActiveHappeningsForHost(authentication.getName()));
 		}
 
 		return "happeningManagement";
@@ -99,15 +94,15 @@ public class HappeningController {
 	public String showCreateHappeningForm(Model model, Authentication authentication) {
 
 		// Set required attributes
-		model.addAttribute("happeningCategories", happeningCategoryDao.findAll());
+		model.addAttribute("happeningCategories", happeningCategoryRepo.findAll());
 
 		// ADMins are allowed to create a happening for every host. HOSTS just for
 		// themself.
 		if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
-			// TODO: Just set Users with role HOST
-			model.addAttribute("happeningHosts", userDao.findAll());
+			//Just set Users with role HOST
+			model.addAttribute("happeningHosts", userRepo.getUsersByRolename("ROLE_HOST"));
 		} else {
-			model.addAttribute("happeningHosts", userDao.findFirstByUsername(authentication.getName()));
+			model.addAttribute("happeningHosts", userRepo.findFirstByUsername(authentication.getName()));
 		}
 
 		return "createModifyHappening";
@@ -125,15 +120,15 @@ public class HappeningController {
 		}
 
 		model.addAttribute("happening", happening);
-		model.addAttribute("happeningCategories", happeningCategoryDao.findAll());
+		model.addAttribute("happeningCategories", happeningCategoryRepo.findAll());
 
 		// ADMins are allowed to create a happening for every host. HOSTS just for
 		// themself.
 		if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
-			// TODO: Just set Users with role HOST
-			model.addAttribute("happeningHosts", userDao.findAll());
+			//Just set Users with role HOST
+			model.addAttribute("happeningHosts", userRepo.getUsersByRolename("ROLE_HOST"));
 		} else {
-			model.addAttribute("happeningHosts", userDao.findFirstByUsername(authentication.getName()));
+			model.addAttribute("happeningHosts", userRepo.findFirstByUsername(authentication.getName()));
 		}
 
 		return "createModifyHappening";
@@ -156,12 +151,12 @@ public class HappeningController {
 
 		// Set correct connection objects
 		SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyy hh:mm");
-		newHappening.setHappeningStatus(happeningStatusDao.findFirstByStatusName("ACTIVE"));
-		newHappening.setHappeningHost(userDao.findFirstByUsername(hostUsername));
+		newHappening.setHappeningStatus(happeningStatusRepo.findFirstByStatusName("ACTIVE"));
+		newHappening.setHappeningHost(userRepo.findFirstByUsername(hostUsername));
 		newHappening.setStart(format.parse(startAsString));
 		newHappening.setEnd(format.parse(endAsString));
-		newHappening.setCategory(happeningCategoryDao.findFirstByCategoryID(categoryID));
-		happeningDao.save(newHappening);
+		newHappening.setCategory(happeningCategoryRepo.findFirstByCategoryID(categoryID));
+		happeningRepo.save(newHappening);
 
 		return showHappenings(model, authentication);
 	}
@@ -184,12 +179,12 @@ public class HappeningController {
 
 		// Set correct connection objects
 		SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyy hh:mm");
-		newHappening.setHappeningStatus(happeningStatusDao.findFirstByStatusName(happeningStatus));
-		newHappening.setHappeningHost(userDao.findFirstByUsername(hostUsername));
+		newHappening.setHappeningStatus(happeningStatusRepo.findFirstByStatusName(happeningStatus));
+		newHappening.setHappeningHost(userRepo.findFirstByUsername(hostUsername));
 		newHappening.setStart(format.parse(startAsString));
 		newHappening.setEnd(format.parse(endAsString));
-		newHappening.setCategory(happeningCategoryDao.findFirstByCategoryID(categoryID));
-		happeningDao.saveAndFlush(newHappening);
+		newHappening.setCategory(happeningCategoryRepo.findFirstByCategoryID(categoryID));
+		happeningRepo.saveAndFlush(newHappening);
 
 		return showHappenings(model,authentication);
 	}
@@ -205,8 +200,8 @@ public class HappeningController {
 			return showHappenings(model, authentication);
 		}
 
-		happening.setHappeningStatus(happeningStatusDao.findFirstByStatusName("DELETED"));
-		happeningDao.save(happening);
+		happening.setHappeningStatus(happeningStatusRepo.findFirstByStatusName("DELETED"));
+		happeningRepo.save(happening);
 		return showHappenings(model, authentication);
 	}
 
@@ -215,15 +210,15 @@ public class HappeningController {
 	public String reactivateHappening(Model model, @RequestParam(value = "happeningId") Happening happening,
 			Authentication authentication) {
 
-		happening.setHappeningStatus(happeningStatusDao.findFirstByStatusName("ACTIVE"));
-		happeningDao.save(happening);
+		happening.setHappeningStatus(happeningStatusRepo.findFirstByStatusName("ACTIVE"));
+		happeningRepo.save(happening);
 		return showHappenings(model, authentication);
 	}
 
 	@Secured({ "ROLE_HOST" })
 	@PostMapping("/filterHappenings")
 	public String filterHappenings(Model model, @RequestParam String searchString) {
-		model.addAttribute("happenings", happeningDao.findByHappeningName(searchString));
+		model.addAttribute("happenings", happeningRepo.findByHappeningName(searchString));
 		return "happeningManagement";
 	}
 	// -----------------------------------------------------------------------------------------
