@@ -10,10 +10,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import at.fh.swenga.plavent.dao.HappeningCategoryDao;
-import at.fh.swenga.plavent.dao.HappeningStatusDao;
-import at.fh.swenga.plavent.dao.UserDao;
-import at.fh.swenga.plavent.dao.UserRoleDao;
+import at.fh.swenga.plavent.dao.HappeningCategoryRepository;
+import at.fh.swenga.plavent.dao.HappeningStatusRepository;
+import at.fh.swenga.plavent.dao.UserRepository;
+import at.fh.swenga.plavent.dao.UserRoleRepository;
 import at.fh.swenga.plavent.model.HappeningCategory;
 import at.fh.swenga.plavent.model.HappeningStatus;
 import at.fh.swenga.plavent.model.User;
@@ -23,16 +23,16 @@ import at.fh.swenga.plavent.model.UserRole;
 public class InitialSetupController {
 
 	@Autowired
-	private UserDao userDao;
+	private UserRepository userDao;
 
 	@Autowired
-	private UserRoleDao userRoleDao;
+	private UserRoleRepository userRoleDao;
 
 	@Autowired
-	private HappeningStatusDao happeningStatusDao;
+	private HappeningStatusRepository happeningStatusDao;
 
 	@Autowired
-	private HappeningCategoryDao happeningCategoryDao;
+	private HappeningCategoryRepository happeningCategoryDao;
 
 	public InitialSetupController() {
 		// TODO Auto-generated constructor stub
@@ -137,9 +137,9 @@ public class InitialSetupController {
 	}
 	
 	/** DATA FACTORY FOR LATER USE !!! FERNBACH16
-	@RequestMapping("/fillList")
+	@RequestMapping("/fillDataUserManagement")
 	@Transactional
-	public String fillData(Model model) {
+	public String fillDataUserManagement(Model model) {
 
 		DataFactory df = new DataFactory();
 

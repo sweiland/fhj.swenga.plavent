@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import at.fh.swenga.plavent.dao.UserDao;
+import at.fh.swenga.plavent.dao.UserRepository;
 import at.fh.swenga.plavent.model.User;
 
 @Controller
@@ -34,7 +34,7 @@ public class UserManagementController {
 	 */
 
 	@Autowired
-	private UserDao userDao;
+	private UserRepository userDao;
 
 	public UserManagementController() {
 	}

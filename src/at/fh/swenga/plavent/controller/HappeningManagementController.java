@@ -19,11 +19,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import at.fh.swenga.plavent.dao.HappeningCategoryDao;
-import at.fh.swenga.plavent.dao.HappeningDao;
-import at.fh.swenga.plavent.dao.HappeningStatusDao;
-import at.fh.swenga.plavent.dao.HappeningTaskDao;
-import at.fh.swenga.plavent.dao.UserDao;
+import at.fh.swenga.plavent.dao.HappeningCategoryRepository;
+import at.fh.swenga.plavent.dao.HappeningRepository;
+import at.fh.swenga.plavent.dao.HappeningStatusRepository;
+import at.fh.swenga.plavent.dao.HappeningTaskRepository;
+import at.fh.swenga.plavent.dao.UserRepository;
 import at.fh.swenga.plavent.model.Happening;
 import at.fh.swenga.plavent.model.HappeningTask;
 import at.fh.swenga.plavent.model.User;
@@ -33,19 +33,19 @@ import at.fh.swenga.plavent.model.User;
 public class HappeningManagementController {
 
 	@Autowired
-	HappeningDao happeningDao;
+	HappeningRepository happeningDao;
 
 	@Autowired
-	HappeningTaskDao happeningTaskDao;
+	HappeningTaskRepository happeningTaskDao;
 
 	@Autowired
-	HappeningCategoryDao happeningCategoryDao;
+	HappeningCategoryRepository happeningCategoryDao;
 
 	@Autowired
-	HappeningStatusDao happeningStatusDao;
+	HappeningStatusRepository happeningStatusDao;
 
 	@Autowired
-	UserDao userDao;
+	UserRepository userDao;
 
 	public HappeningManagementController() {
 		// TODO Auto-generated constructor stub

@@ -9,7 +9,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import at.fh.swenga.plavent.dao.HappeningCategoryDao;
+import at.fh.swenga.plavent.dao.HappeningCategoryRepository;
 import at.fh.swenga.plavent.model.User;
 
 @Controller
@@ -17,7 +17,7 @@ import at.fh.swenga.plavent.model.User;
 public class CategoryManagementController {
 
 	@Autowired
-	private HappeningCategoryDao categoryDao;
+	private HappeningCategoryRepository categoryDao;
 	
 	public CategoryManagementController() {
 		// TODO Auto-generated constructor stub
