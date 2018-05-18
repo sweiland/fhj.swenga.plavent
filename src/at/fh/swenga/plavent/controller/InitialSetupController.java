@@ -120,8 +120,8 @@ public class InitialSetupController {
 		roles.clear();
 		roles.add(roleAdmin);
 		if (userDao.findFirstByUsername("admin") == null) {
-			User administrator = new User("admin", "admin", "Administrator",
-					"Administrator", roles);
+			User administrator = new User("admin", "admin", "Peter",
+					"Apfel", "Peter.Apfel@admin.adatum.com", "06644876767", roles);
 			userDao.save(administrator);
 		}
 		
@@ -130,7 +130,7 @@ public class InitialSetupController {
 
 		// Create a host user if required
 		if (userDao.findFirstByUsername("host") == null) {
-			User host = new User("host", "host", "Host", "Host", roles);
+			User host = new User("host", "host", "Michael", "Doppler", "Micheal.Doppler@adatum.com", "0676897488",roles);
 			userDao.save(host);
 		}
 		
@@ -139,35 +139,8 @@ public class InitialSetupController {
 
 		// Create a simple guest user if required
 		if (userDao.findFirstByUsername("guest") == null) {
-			User host = new User("guest", "guest", "Host", "Host", roles);
+			User host = new User("guest", "guest", "Tommy", "Innsbrucka", "Tommy.Innsbrucka@adatum.com", "06648997998", roles);
 			userDao.save(host);
 		}
 	}
-	
-	/** DATA FACTORY FOR LATER USE !!! FERNBACH16
-	@RequestMapping("/fillDataUserManagement")
-	@Transactional
-	public String fillDataUserManagement(Model model) {
-
-		DataFactory df = new DataFactory();
-
-		User user = null;
-
-		String[] pw = {"password"};
-		
-		for (int i = 0; i < 100; i++) {
-			if (i % 10 == 0) {
-				String name = df.getBusinessName();
-				producer = producerRepository.findFirstByName(name);
-				if (producer == null) {
-					producer = new Producer(name);
-				}
-			}
-
-			User user = new User(df.getRandomWord(), df.getItem(pw), df.getFirstName(), df.getLastName(), df.getEmailAddress(), df.getNumberText(15));
-			pictureFrame.setProducer(producer);
-			UserDao.save(user);
-		}
-	}
-	**/
 }

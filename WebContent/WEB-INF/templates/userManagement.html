@@ -11,16 +11,6 @@
 <body>
 	<div class="container" role="main">
 
-		<!--  Test User ----------------------------------------------------------- -->
-
-		<div class="col-md-2">
-			<a href="fillList">
-				<button type="button" class="btn btn-success">Create Test
-					Users</button>
-			</a>
-		</div>
-	</div>
-	<!--  Test User ----------------------------------------------------------- -->
 
 	<div class="page-header">
 		<!-- include the Nav bar fragment-->
@@ -49,19 +39,17 @@
 	<div th:unless="${message} == null" th:utext="${message}"
 		class="alert alert-success" role="warning"></div>
 	<!--   message ----------------------------------------------------------- -->
-	<!--   Count ----------------------------------------------------------- -->
-	<div>
-		<span th:text="${count}">Count</span>
-	</div>
-	<!--   Count ----------------------------------------------------------- -->
+
 	<div class="row">
 		<div class="col-md-10 col-md-offset-1">
 			<table data-toggle="table" class="table table-striped">
 				<thead>
 					<tr>
-						<th data-sortable="true">UserName</th>
-						<th data-sortable="true">FirstName</th>
-						<th data-sortable="true">LastName</th>
+						<th data-sortable="true">User Name</th>
+						<th data-sortable="true">First Name</th>
+						<th data-sortable="true">Last Name</th>
+						<th data-sortable="true">eMail</th>
+						<th data-sortable="true">tel. Number</th>
 						<th class="text-right">Actions</th>
 					</tr>
 				</thead>
@@ -71,12 +59,14 @@
 						<td th:text="${user.username}"></td>
 						<td th:text="${user.firstname}"></td>
 						<td th:text="${user.lastname}"></td>
+						<td th:text="${user.eMail}"></td>
+						<td th:text="${user.telNumber}"></td>
+						<!--  functionalities ----------------------------------------------------------- -->
 						<td><a th:href="@{/editUser(username=${user.username})}"
 							class="btn btn-xs btn-success"> <span
 								class="glyphicon glyphicon-trash" aria-hidden="true"></span>
 								Edit
-						</a> 
-							<a th:href="@{/deleteUser(username=${user.username})}"
+						</a> <a th:href="@{/deleteUser(username=${user.username})}"
 							class="btn btn-xs btn-danger"> <span
 								class="glyphicon glyphicon-trash" aria-hidden="true"></span>
 								Delete
@@ -94,13 +84,6 @@
 	</div>
 
 	</div>
-	<!-- CSRF Token is used and sent -->
-		<form th:action="@{/logout}" method="post">
-			<input type="hidden" th:name="${_csrf.parameterName}"
-				th:value="${_csrf.token}" /> <!-- not really needed and can be ommited -->
-				<input class="btn btn-xs btn-danger"
-				type="submit" value="Logout" />
-		</form>
 	<!-- hoedlale16: include some fancy footer -->
 	<footer th:replace="~{includes/fragments :: footer}"></footer>
 

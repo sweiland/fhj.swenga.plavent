@@ -1,8 +1,5 @@
 package at.fh.swenga.plavent.controller;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,12 +24,10 @@ import at.fh.swenga.plavent.repo.UserRepository;
 
 /**
  * @author Gregor Fernbach:
- *         
- * Controller of the user management
+ * 
+ *         Controller of the user management
  *
  */
-
-
 
 @Controller
 @Scope(proxyMode = ScopedProxyMode.TARGET_CLASS, value = "session")
@@ -55,6 +50,7 @@ public class UserController {
 		// If User is ins Role 'ADMIN' show all users
 		if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
 			model.addAttribute("users", userRepo.findAll());
+			model.addAttribute("message", "Currently there are " + userRepo.findAll().size() + " entries");
 		} else {
 			model.addAttribute("users", userRepo.findFirstByUsername(authentication.getName()));
 		}
@@ -66,15 +62,12 @@ public class UserController {
 	 * MAIN FUNCTIONALITIES editUser deleteExistingUser showChangePasswordForm
 	 */
 	@Secured({ "ROLE_USER" })
-	@GetMapping("/editUser")
+	@GetMapping(value = "/editUser")
 	public String editUser(Model model, @RequestParam String username, Authentication authentication) {
 
 		User user = userRepo.findFirstByUsername(username);
 
 		if (user != null) {
-
-			// Check if user and logged in user is the same or logged in user is in role
-			// ADMin
 			if (user.getUsername().equalsIgnoreCase(authentication.getName())
 					|| authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
 				model.addAttribute("user", user);
@@ -87,6 +80,38 @@ public class UserController {
 			model.addAttribute("errorMessage", "Couldn't find user" + username);
 			return showAllUsers(model, authentication);
 		}
+	}
+
+	@Secured({ "ROLE_USER" })
+	@PostMapping(value = "/editUser")
+	public String editUser(@Valid User editUserModel, BindingResult bindingResult, Model model,
+			Authentication authentication) {
+
+		if (bindingResult.hasErrors()) {
+			String errorMessage = "";
+			for (FieldError fieldError : bindingResult.getFieldErrors()) {
+				errorMessage += fieldError.getField() + " is invalid<br>";
+			}
+			model.addAttribute("errorMessage", errorMessage);
+			return showAllUsers(model, authentication);
+		}
+
+		User user = userRepo.findFirstByUsername(editUserModel.getUsername());
+
+		if (user != null) {
+			if (user.getUsername().equalsIgnoreCase(authentication.getName())
+					|| authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
+				user.setFirstname(editUserModel.getFirstname());
+				user.setLastname(editUserModel.getLastname());
+				user.seteMail(editUserModel.geteMail());
+				user.setTelNumber(editUserModel.getTelNumber());
+				userRepo.save(user);
+				model.addAttribute("message", "Changed User " + editUserModel.getUsername());
+			} else {
+				model.addAttribute("warningMessage", "Not allowed to edit " + editUserModel.getUsername() + "!");
+			}
+		}
+		return showAllUsers(model, authentication);
 	}
 
 	@Secured({ "ROLE_ADMIN" })
@@ -102,57 +127,23 @@ public class UserController {
 		return showAllUsers(model, authentication);
 	}
 
-	/**
-	 * @Secured({ "ROLE_USER", "ROLE_ADMIN"
-	 * }) @GetMapping("/showChangePasswordForm") public String
-	 * showChangePasswortForm(Model model, @RequestParam String username) { if
-	 * (!isLoggedIn(model)) { return "login"; }
-	 * 
-	 * User user = userDao.findFirstByUsername(username);
-	 * 
-	 * if (user != null) { model.addAttribute("user", user); // TODO: Implement //
-	 * return "changePassword" return "todo"; } else {
-	 * model.addAttribute("errorMessage", "Couldn't find user" + username); return
-	 * showAllUsers(model); } }
-	 * 
-	 * // RequestMethod.POST => Create new User @PostMapping("/createNewUser")
-	 * public String createNewUser(@Valid User newUserModel, BindingResult
-	 * bindingResult, Model model) {
-	 * 
-	 * // Any errors? -> Create a String out of all errors and return to the page if
-	 * (errorsDetected(model, bindingResult)) return showAllUsers(model);
-	 * 
-	 * // Look for illness in the List. One available -> Error if
-	 * (userDao.findFirstByUsername(newUserModel.getUsername()) != null) {
-	 * model.addAttribute("errorMessage", "User already exists!"); } else {
-	 * userDao.save(newUserModel); //userManager.addUser(newUserModel);
-	 * model.addAttribute("message", "New user " + newUserModel.getUsername() + "
-	 * added."); } }
-	 * 
-	 * // RequestMethod.POST => Update existing
-	 * User @PostMapping("/modifyExistingUser") public String modifyUser(@Valid User
-	 * changedUserModel, BindingResult bindingResult, Model model) {
-	 * 
-	 * // Check for errors if (errorsDetected(model, bindingResult)) return
-	 * showAllUsers(model);
-	 * 
-	 * // Get the illness the user wants to change User user =
-	 * userDao.findFirstByUsername(changedUserModel.getUsername()); if (user ==
-	 * null) { model.addAttribute("errorMessage", "User does not exist! <" +
-	 * changedUserModel.getUsername() + ">"); } else {
-	 * userDao.save(changedUserModel); model.addAttribute("message", "Changed user "
-	 * + user.getUsername()); }
-	 * 
-	 * return showAllUsers(model); }
-	 * 
-	 * // Delete user @GetMapping("/deleteExistingUser") public String
-	 * deleteUser(Model model, @RequestParam String username) { User user =
-	 * userDao.findFirstByUsername(username); if (user == null) {
-	 * model.addAttribute("errorMessage", "User does not exist! <" + username +
-	 * ">");
-	 **/
+	@Secured({ "ROLE_ADMIN" })
+	@PostMapping("/createUser")
+	public String createNewUser(@Valid User newUserModel, BindingResult bindingResult, Model model,
+			Authentication authentication) {
 
-	// RequestMethod.POST => Update existing User
+		if (errorsDetected(model, bindingResult))
+			return showAllUsers(model, authentication);
+
+		if (userRepo.findFirstByUsername(newUserModel.getUsername()) != null) {
+			model.addAttribute("errorMessage", "User already exists!");
+		} else {
+			userRepo.save(newUserModel);
+			model.addAttribute("message", "New user " + newUserModel.getUsername() + " added.");
+		}
+		return showAllUsers(model, authentication);
+	}
+
 	@Secured({ "ROLE_USER" })
 	@PostMapping("/changePasswordExistingUser")
 	public String changePasswordFromUser(@Valid User changedUserModel, BindingResult bindingResult, Model model,
@@ -161,7 +152,6 @@ public class UserController {
 		if (errorsDetected(model, bindingResult))
 			return showAllUsers(model, authentication);
 
-		// Get the illness the user wants to change
 		User user = userRepo.findFirstByUsername(changedUserModel.getUsername());
 		if (user == null) {
 			model.addAttribute("errorMessage", "User does not exist! <" + changedUserModel.getUsername() + ">");
@@ -199,3 +189,53 @@ public class UserController {
 	}
 
 }
+
+/**
+ * @Secured({ "ROLE_USER", "ROLE_ADMIN"
+ * }) @GetMapping("/showChangePasswordForm") public String
+ * showChangePasswortForm(Model model, @RequestParam String username) { if
+ * (!isLoggedIn(model)) { return "login"; }
+ * 
+ * User user = userDao.findFirstByUsername(username);
+ * 
+ * if (user != null) { model.addAttribute("user", user); // TODO: Implement //
+ * return "changePassword" return "todo"; } else {
+ * model.addAttribute("errorMessage", "Couldn't find user" + username); return
+ * showAllUsers(model); } }
+ * 
+ * // RequestMethod.POST => Create new User @PostMapping("/createNewUser")
+ * public String createNewUser(@Valid User newUserModel, BindingResult
+ * bindingResult, Model model) {
+ * 
+ * // Any errors? -> Create a String out of all errors and return to the page if
+ * (errorsDetected(model, bindingResult)) return showAllUsers(model);
+ * 
+ * // Look for illness in the List. One available -> Error if
+ * (userDao.findFirstByUsername(newUserModel.getUsername()) != null) {
+ * model.addAttribute("errorMessage", "User already exists!"); } else {
+ * userDao.save(newUserModel); //userManager.addUser(newUserModel);
+ * model.addAttribute("message", "New user " + newUserModel.getUsername() + "
+ * added."); } }
+ * 
+ * // RequestMethod.POST => Update existing
+ * User @PostMapping("/modifyExistingUser") public String modifyUser(@Valid User
+ * changedUserModel, BindingResult bindingResult, Model model) {
+ * 
+ * // Check for errors if (errorsDetected(model, bindingResult)) return
+ * showAllUsers(model);
+ * 
+ * // Get the illness the user wants to change User user =
+ * userDao.findFirstByUsername(changedUserModel.getUsername()); if (user ==
+ * null) { model.addAttribute("errorMessage", "User does not exist! <" +
+ * changedUserModel.getUsername() + ">"); } else {
+ * userDao.save(changedUserModel); model.addAttribute("message", "Changed user "
+ * + user.getUsername()); }
+ * 
+ * return showAllUsers(model); }
+ * 
+ * // Delete user @GetMapping("/deleteExistingUser") public String
+ * deleteUser(Model model, @RequestParam String username) { User user =
+ * userDao.findFirstByUsername(username); if (user == null) {
+ * model.addAttribute("errorMessage", "User does not exist! <" + username +
+ * ">");
+ **/
