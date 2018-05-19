@@ -13,31 +13,32 @@ import javax.persistence.Version;
 @Entity
 @Table(name = "HappeningCategory")
 public class HappeningCategory implements Serializable {
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int categoryID;
-	
-	@Column(nullable = false, unique=true, length = 64)
+
+	@Column(nullable = false, unique = true, length = 64)
 	private String categoryName;
 
 	@Column(nullable = true, length = 512)
 	private String description;
-	
+
+	@Column(nullable = false)
+	private boolean enabled;
+
 	@Version
 	long version;
-	
+
 	public HappeningCategory() {
-		// TODO Auto-generated constructor stub
 	}
-	
-	public HappeningCategory(String categoryName, String description) {
+
+	public HappeningCategory(String categoryName, String description, boolean enabled) {
 		super();
 		this.categoryName = categoryName;
 		this.description = description;
+		this.enabled = enabled;
 	}
-
-
 
 	public int getCategoryID() {
 		return categoryID;
@@ -61,6 +62,14 @@ public class HappeningCategory implements Serializable {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public boolean isEnabled() {
+		return enabled;
+	}
+
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
 	}
 
 	@Override
@@ -88,8 +97,7 @@ public class HappeningCategory implements Serializable {
 	@Override
 	public String toString() {
 		return "HappeningCategory [categoryID=" + categoryID + ", categoryName=" + categoryName + ", description="
-				+ description + "]";
+				+ description + ", enabled=" + enabled + "]";
 	}
-	
-	
+
 }

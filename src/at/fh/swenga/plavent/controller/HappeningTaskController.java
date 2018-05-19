@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import at.fh.swenga.plavent.model.Happening;
 import at.fh.swenga.plavent.model.HappeningTask;
+import at.fh.swenga.plavent.model.User;
 import at.fh.swenga.plavent.repo.HappeningTaskRepository;
 import at.fh.swenga.plavent.repo.UserRepository;
 
@@ -41,7 +42,6 @@ public class HappeningTaskController {
 	UserRepository userRepo;
 
 	public HappeningTaskController() {
-		// TODO Auto-generated constructor stub
 	}
 
 	private boolean errorsDetected(Model model, BindingResult bindingResult) {
@@ -85,8 +85,10 @@ public class HappeningTaskController {
 	public String showTaskListManagement(Model model, @RequestParam(value = "happeningID") Happening happening,
 			Authentication authentication) {
 
-		// Check if happening is DELETED or current logged in user is Owner of Happening or has role ADMIN
-		if (!isHappeningHostOrAdmin(happening, authentication) || "DELETED".equals(happening.getHappeningStatus().getStatusName()) ) {
+		// Check if happening is DELETED or current logged in user is Owner of Happening
+		// or has role ADMIN
+		if (!isHappeningHostOrAdmin(happening, authentication)
+				|| "DELETED".equals(happening.getHappeningStatus().getStatusName())) {
 			model.addAttribute("warningMessage", "Happening not found or no permission!");
 			return "forward:/showHappeningManagement";
 		}
@@ -107,9 +109,9 @@ public class HappeningTaskController {
 			model.addAttribute("warningMessage", "Happening not found or no permission!");
 			return "forward:/showHappeningManagement";
 		}
-		
-		model.addAttribute("happening",happening);
-		return "createModifyHappeningTask"; 
+
+		model.addAttribute("happening", happening);
+		return "createModifyHappeningTask";
 	}
 
 	@Secured({ "ROLE_HOST" })
@@ -128,12 +130,17 @@ public class HappeningTaskController {
 		if (errorsDetected(model, bindingResult))
 			return showTaskListManagement(model, happening, authentication);
 
-		// Link Task with user and happening
-		// newTask.setResponsibleUser(userDao.findFirstByUsername(username));
 		newTask.setHappening(happening);
 		happening.addHappeningTask(newTask);
-
 		happeningTaskRepo.save(newTask);
+
+		// Assign/Link Task with user and happening
+		User responsibleUser = userRepo.findFirstByUsername(username);
+		if (responsibleUser != null) {
+			newTask.setResponsibleUser(responsibleUser);
+			happeningTaskRepo.save(newTask);
+		}
+
 		return showTaskListManagement(model, happening, authentication);
 	}
 
@@ -176,8 +183,10 @@ public class HappeningTaskController {
 
 	@Secured({ "ROLE_HOST" })
 	@PostMapping("/modifyExistingHappeningTask")
-	public String modifyExistingHappeningTask(Model model, @RequestParam(value = "happeningID") Happening happening,
-			Authentication authentication) {
+	public String modifyExistingHappeningTask(Model model, @Valid HappeningTask modifiedTask,
+			@RequestParam(value = "happeningID") Happening happening,
+			@RequestParam(value = "responsibleUsername") String username, Authentication authentication,
+			BindingResult bindingResult) {
 
 		// Check if user is Owner of Happening or has role ADMIN
 		if (!isHappeningHostOrAdmin(happening, authentication)) {
@@ -185,11 +194,30 @@ public class HappeningTaskController {
 			return "forward:/showHappeningManagement";
 		}
 
-		// TODO: Parameter newTask
-		// Auslesen des Happening
-		// Hinzufügen des Tasks
-		model.addAttribute("warningMessage", "Not implemented <" + "modifyExistingHappeningTask" + ">");
-		return showTaskListManagement(model, happening, authentication);
+		// Any errors? -> Create a String out of all errors and return to the page
+		if (errorsDetected(model, bindingResult))
+			return showTaskListManagement(model, happening, authentication);
+		
+		
+		HappeningTask task = happeningTaskRepo.findByTaskIdAndHappeningHappeningId(modifiedTask.getTaskId(), happening.getHappeningId());
+		if(task != null) {
+			task.setTopic(modifiedTask.getTopic());
+			task.setDurationInHour(modifiedTask.getDurationInHour());
+			task.setDescription(modifiedTask.getDescription());
+			// Assign/Link Task with user and happening
+			User responsibleUser = userRepo.findFirstByUsername(username);
+			if (responsibleUser != null) {
+				task.setResponsibleUser(responsibleUser);
+			}
+			happeningTaskRepo.saveAndFlush(task);
+			happening.removeHappeningTaskFromList(modifiedTask);
+			happening.addHappeningTask(task);
+			
+			return showTaskListManagement(model, happening, authentication);
+		} else {
+			model.addAttribute("warningMessage", "Task not found!");
+			return showTaskListManagement(model, happening, authentication);
+		}		
 	}
 
 	@Secured({ "ROLE_HOST" })

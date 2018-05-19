@@ -35,7 +35,6 @@
 							</div>
 						</div>
 
-						<!-- TODO werte und stuff setzen! -->
 						<!--  ----------------  taskId ---------------- -->
 						<div th:if="${happeningTask} != null" class="form-group">
 							<label for="inputId" class="col-md-2 control-label">Task-ID</label>
@@ -67,15 +66,29 @@
 						<div class="form-group">
 							<label for="inputResponsibleUser" class="col-md-2 control-label">Responsible</label> 
 							<div class="col-md-10">
-							
-								<!-- TODO: Handling wenn responsibleUser null ist -->
-							
-								<select id="inputResponsibleUser" class="form-control" name="responsibleUsername"
-								th:value="${happeningTask} ? ${happeningTask.responsibleUser.username}">
-									<option th:if="${happeningTask == null}" selected="selected" th:value="${happening.happeningHost.username}" th:text="${happening.happeningHost.username}"></option>
-									<option th:if="${happeningTask != null}" th:value="${happening.happeningHost.username}" th:text="${happening.happeningHost.username}"></option>
-									<option th:each="guest : ${happening.guestList}" th:value="${guest.username}" th:text="${guest.username}" ></option>
-								</select>
+								<!-- Handling bei neuem Task! -->
+								<th:block th:if="${happeningTask == null}">
+									<select id="inputResponsibleUser" class="form-control" name="responsibleUsername"
+									th:value="${happening.happeningHost.username}">
+										<!-- TODO: Host ist nicht in der Guestlist, dH wenn der Task einem Gast gehört kann diese nie mehr dem Owner gegeben werden! -->
+										<!-- TODO: Eigenes Attribut "responsibleUsers" fuellen und daraus die Optionen anzeigen... -->
+										<option selected="selected" th:value="${happening.happeningHost.username}" th:text="${happening.happeningHost.username}"></option>
+										<option th:each="guest : ${happening.guestList}" th:value="${guest.username}" th:text="${guest.username}" ></option>
+									</select>
+								
+								</th:block>
+								
+								<!-- Handling bei Edit bestehenden Task -->
+								<th:block th:if="${happeningTask != null}">
+									<select id="inputResponsibleUser" class="form-control" name="responsibleUsername"
+									th:value="${happeningTask.responsibleUser} ? ${happeningTask.responsibleUser.username}">
+										<!-- TODO: Host ist nicht in der Guestlist, dH wenn der Task einem Gast gehört kann diese nie mehr dem Owner gegeben werden! -->
+										<!-- TODO: Eigenes Attribut "responsibleUsers" fuellen und daraus die Optionen anzeigen... -->
+										<option th:if="${happeningTask.responsibleUser == null}" selected="selected" th:value="${happening.happeningHost.username}" th:text="${happening.happeningHost.username}"></option>
+										<option th:if="${happeningTask.responsibleUser != null}" selected="selected" th:value="${happeningTask.responsibleUser.username}" th:text="${happeningTask.responsibleUser.username}"></option>
+										<option th:each="guest : ${happening.guestList}" th:value="${guest.username}" th:text="${guest.username}" ></option>
+									</select>
+								</th:block>
 							</div>
 						</div>
 						
@@ -83,8 +96,8 @@
 						<div class="form-group">
 							<label for="inputDescription" class="col-md-2 control-label">Description</label> 
 							<div class="col-md-10">
-						  		<textarea class="form-control" rows="5" id="description" name="description" required="required"
-						  		th:value="${happeningTask} ? ${happeningTask.description}"></textarea>
+						  		<textarea class="form-control" rows="5" id="description" name="description"
+						  		th:text="${happeningTask} ? ${happeningTask.description}"></textarea>
 						  	</div>
 						</div> 		
 					
@@ -93,7 +106,7 @@
 						<div class="form-group">
 							<div class="col-md-10 col-md-offset-2">
 								<button type="submit" class="btn btn-primary">Submit</button>
-								<a href="showTaskListManagement" class="btn btn-default"> Cancel </a>
+								<a th:href="@{showTaskListManagement(happeningID=${happening.happeningId})}" class="btn btn-default"> Cancel </a>
 							</div>
 						</div>
 

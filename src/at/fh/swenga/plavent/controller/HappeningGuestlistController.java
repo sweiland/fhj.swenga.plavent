@@ -50,7 +50,6 @@ public class HappeningGuestlistController {
 	UserRepository userRepo;
 
 	public HappeningGuestlistController() {
-		// TODO Auto-generated constructor stub
 	}
 
 	private boolean errorsDetected(Model model, BindingResult bindingResult) {
@@ -145,9 +144,9 @@ public class HappeningGuestlistController {
 			return "forward:/showHappeningManagement";
 		}
 
-		// TODO: Check if given user is on guestlist...
+		//Check if given user exists and is on guestlist...
 		User guestToRemove = userRepo.findFirstByUsername(username);
-		if (guestToRemove != null) {
+		if (guestToRemove != null && happeningGuestlistRepo.getGuestList(happening.getHappeningId()).contains(guestToRemove)) {
 			happening.removeFromList(guestToRemove);
 			happeningRepo.save(happening);
 			model.addAttribute("message", "User " + guestToRemove.getUsername() + " removed from guestlist!");

@@ -24,4 +24,11 @@ public interface HappeningGuestlistRepository extends JpaRepository<User, Intege
 			"						 FROM Guestlist g " +
 			"                         WHERE g.happeningId = :happeningID)", nativeQuery = true)
 	public List<User> getPotentialGuestsForHappening(@Param("happeningID") int happeningId);
+	
+	
+	@Query(value = "SELECT u.* " + 
+		   			"FROM Guestlist g " + 
+		   			"INNER JOIN User u ON(u.username = g.username) " + 
+		   			"WHERE g.happeningId = :happeningID)", nativeQuery = true)	
+	public List<User> getGuestList(@Param("happeningID") int happeningId);
 }

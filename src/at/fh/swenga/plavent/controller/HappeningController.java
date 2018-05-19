@@ -2,6 +2,10 @@ package at.fh.swenga.plavent.controller;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+
+import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -11,6 +15,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -38,7 +44,6 @@ public class HappeningController {
 	@Autowired
 	HappeningRepository happeningRepo;
 
-
 	@Autowired
 	HappeningCategoryRepository happeningCategoryRepo;
 
@@ -48,7 +53,8 @@ public class HappeningController {
 	@Autowired
 	UserRepository userRepo;
 
-	public HappeningController() { }
+	public HappeningController() {
+	}
 
 	/**
 	 * Helper method to check if current logged in user is either owner of happening
@@ -70,6 +76,19 @@ public class HappeningController {
 		}
 	}
 
+	private boolean errorsDetected(Model model, BindingResult bindingResult) {
+		// Any errors? -> Create a String out of all errors and return to the page
+		if (bindingResult.hasErrors()) {
+			String errorMessage = "";
+			for (FieldError fieldError : bindingResult.getFieldErrors()) {
+				errorMessage += fieldError.getField() + " is invalid<br>";
+			}
+			model.addAttribute("errorMessage", errorMessage);
+			return true;
+		}
+		return false;
+	}
+
 	// -----------------------------------------------------------------------------------------
 	// --- GENERAL HAPPENING MANAGEMENT ---
 	// -----------------------------------------------------------------------------------------
@@ -82,7 +101,7 @@ public class HappeningController {
 		if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
 			model.addAttribute("happenings", happeningRepo.findAll());
 		} else {
-			//Show just active ones!
+			// Show just active ones!
 			model.addAttribute("happenings", happeningRepo.getActiveHappeningsForHost(authentication.getName()));
 		}
 
@@ -94,12 +113,13 @@ public class HappeningController {
 	public String showCreateHappeningForm(Model model, Authentication authentication) {
 
 		// Set required attributes
+		//TOOD: Just show active (enabled) ones
 		model.addAttribute("happeningCategories", happeningCategoryRepo.findAll());
 
 		// ADMins are allowed to create a happening for every host. HOSTS just for
 		// themself.
 		if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
-			//Just set Users with role HOST
+			// Just set Users with role HOST
 			model.addAttribute("happeningHosts", userRepo.getUsersByRolename("ROLE_HOST"));
 		} else {
 			model.addAttribute("happeningHosts", userRepo.findFirstByUsername(authentication.getName()));
@@ -120,12 +140,14 @@ public class HappeningController {
 		}
 
 		model.addAttribute("happening", happening);
+		
+		//TOOD: Just show active (enabled) ones
 		model.addAttribute("happeningCategories", happeningCategoryRepo.findAll());
 
 		// ADMins are allowed to create a happening for every host. HOSTS just for
 		// themself.
 		if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
-			//Just set Users with role HOST
+			// Just set Users with role HOST
 			model.addAttribute("happeningHosts", userRepo.getUsersByRolename("ROLE_HOST"));
 		} else {
 			model.addAttribute("happeningHosts", userRepo.findFirstByUsername(authentication.getName()));
@@ -136,10 +158,10 @@ public class HappeningController {
 
 	@Secured({ "ROLE_HOST" })
 	@PostMapping("/createNewHappening")
-	public String createNewHappening(Happening newHappening, @RequestParam(value = "host") String hostUsername,
+	public String createNewHappening(@Valid Happening newHappening, @RequestParam(value = "host") String hostUsername,
 			@RequestParam(value = "startDate") String startAsString,
 			@RequestParam(value = "endDate") String endAsString, @RequestParam(value = "categoryID") int categoryID,
-			Model model, Authentication authentication) throws ParseException {
+			Model model, Authentication authentication, BindingResult bindingResult) throws ParseException {
 
 		// Check if user is newOwner of Happening is logged in user or logged in user is
 		// ADMIN
@@ -149,12 +171,36 @@ public class HappeningController {
 			return showHappenings(model, authentication);
 		}
 
+		if (errorsDetected(model, bindingResult)) {
+			return showHappenings(model, authentication);
+		}
+
 		// Set correct connection objects
-		SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyy hh:mm");
+		Calendar now = Calendar.getInstance();
+		now.set(Calendar.HOUR_OF_DAY, 0);
+		now.set(Calendar.MINUTE, 0);
+		now.set(Calendar.SECOND, 0);
+		now.set(Calendar.MILLISECOND, 0);
+
+		SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy hh:mm");
+		Calendar start = Calendar.getInstance();
+		start.setTime(format.parse(startAsString));
+
+		Calendar end = Calendar.getInstance();
+		end.setTime(format.parse(endAsString));
+
+		// Check if start date before "trimmed now" (Just date, time does not matter)
+		// Check if end-Date is after start date
+		if (start.before(now) || end.before(start)) {
+			model.addAttribute("warningMessage",
+					"Happening not allwed to start in past Or End is not allowed to be before start!");
+			return showHappenings(model, authentication);
+		}
+
 		newHappening.setHappeningStatus(happeningStatusRepo.findFirstByStatusName("ACTIVE"));
 		newHappening.setHappeningHost(userRepo.findFirstByUsername(hostUsername));
-		newHappening.setStart(format.parse(startAsString));
-		newHappening.setEnd(format.parse(endAsString));
+		newHappening.setStart(start);
+		newHappening.setEnd(end);
 		newHappening.setCategory(happeningCategoryRepo.findFirstByCategoryID(categoryID));
 		happeningRepo.save(newHappening);
 
@@ -178,15 +224,34 @@ public class HappeningController {
 		}
 
 		// Set correct connection objects
-		SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyy hh:mm");
+		Calendar now = Calendar.getInstance();
+		now.set(Calendar.HOUR_OF_DAY, 0);
+		now.set(Calendar.MINUTE, 0);
+		now.set(Calendar.SECOND, 0);
+		now.set(Calendar.MILLISECOND, 0);
+
+		SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy hh:mm");
+		Calendar start = Calendar.getInstance();
+		start.setTime(format.parse(startAsString));
+
+		Calendar end = Calendar.getInstance();
+		end.setTime(format.parse(endAsString));
+
+		// Check if start date before "trimmed now" (Just date, time does not matter)
+		// Check if end-Date is after start date
+		if (start.before(now) || end.before(start)) {
+			model.addAttribute("warningMessage",
+					"Happening not allwed to start in past Or End is not allowed to be before start!");
+			return showHappenings(model, authentication);
+		}
+
+		// Set correct connection objects
 		newHappening.setHappeningStatus(happeningStatusRepo.findFirstByStatusName(happeningStatus));
 		newHappening.setHappeningHost(userRepo.findFirstByUsername(hostUsername));
-		newHappening.setStart(format.parse(startAsString));
-		newHappening.setEnd(format.parse(endAsString));
 		newHappening.setCategory(happeningCategoryRepo.findFirstByCategoryID(categoryID));
 		happeningRepo.saveAndFlush(newHappening);
 
-		return showHappenings(model,authentication);
+		return showHappenings(model, authentication);
 	}
 
 	@Secured({ "ROLE_HOST" })

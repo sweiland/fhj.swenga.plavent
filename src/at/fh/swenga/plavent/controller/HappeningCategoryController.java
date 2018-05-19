@@ -59,5 +59,8 @@ public class HappeningCategoryController {
 	//showCreateCategoryForm
 	//filterCategories
 	
+	//deleteCategory ==> Just update 'enabled' flag, do not delete them!
+	//reactivateCategory => 'Update enabled flag to actiate them again
+	
 
 }

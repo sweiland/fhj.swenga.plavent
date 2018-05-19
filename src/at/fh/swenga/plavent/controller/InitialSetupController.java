@@ -1,6 +1,7 @@
 package at.fh.swenga.plavent.controller;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -53,7 +54,6 @@ public class InitialSetupController {
 	
 
 	public InitialSetupController() {
-		// TODO Auto-generated constructor stub
 	}
 
 	@RequestMapping(value = { "preparePlavent" })
@@ -84,10 +84,10 @@ public class InitialSetupController {
 
 	private void createHappeningCategories() {
 
-		// Create a default happening cateogry
+		// Create a default happening category
 		HappeningCategory catUnAssigned = happeningCategoryRepo.findFirstByCategoryName("Unassigned");
 		if (catUnAssigned == null) {
-			catUnAssigned = new HappeningCategory("Unassigned", "Not specified ");
+			catUnAssigned = new HappeningCategory("Unassigned", "Not specified",true);
 			happeningCategoryRepo.save(catUnAssigned);
 		}
 	}
@@ -164,7 +164,7 @@ public class InitialSetupController {
 			List<User> guests = userRepo.getUsersByRolename("GUEST");
 			guests.remove(host); // Remove host itself which is the host and not the guest of the happening!
 
-			Happening happening = new Happening("Tutorial", new Date(), new Date(), "Example Happening", "FH Joanneum",
+			Happening happening = new Happening("Tutorial", Calendar.getInstance(), Calendar.getInstance(), "Example Happening", "FH Joanneum",
 					catUnassinged, statusActive, host, guests, new ArrayList<HappeningTask>());
 			happeningRepo.save(happening);
 			
