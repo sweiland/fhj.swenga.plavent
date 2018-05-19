@@ -12,7 +12,7 @@
 	<div class="container" role="main">
 
 		<div class="page-header">
-			<h1>PlaVent</h1>
+			<img src="./img/logo.png" alt="PlaVent" height="150px">
 		</div>
 		<!--  Error message ----------------------------------------------------------- -->
 		<div th:unless="${errorMessage} == null" th:utext="${errorMessage}"
@@ -38,7 +38,7 @@
 					If not: just show button for initial setup -->
 				<th:block th:if="${noPlaventEnvironment}")>
 					<form>
-					  <a th:href="@{/preparePlavent}" class="btn btn-primary"> 
+					  <a th:href="@{/preparePlavent}" class="btn btn-pill btn-primary"> 
 						<span class="glyphicon" aria-hidden="true"></span>Start Initial Setup</a>
 					</form>
 				</th:block>
@@ -78,8 +78,8 @@
 							<!-- --------------  buttons ---------------- -->
 							<div class="form-group">
 								<div class="col-md-10 col-md-offset-2">
-									<td><input name="submit" type="submit" value="submit" class="btn btn-primary"></td>
-									<a href="createUser" class="btn btn-default"> Register </a>
+									<td><input name="submit" type="submit" value="submit" class="btn btn-pill btn-primary"></td>
+									<a href="createUser" class="btn btn-pill btn-secondary"> Register </a>
 								</div>
 							</div>
 	

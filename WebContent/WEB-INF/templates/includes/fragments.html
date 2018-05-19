@@ -8,31 +8,34 @@
 </nav>
 
 <header th:fragment="header (header)">
-	<div class="container-fluid">
-		<form class="navbar-form navbar-right" method="post" th:action="@{/logout}">
+
+</header>
+
+<footer th:fragment="footer" class="card-footer text-muted">
+<!-- TODO: Bei vielen Zeilen sollte automatisch im Body immer Seite 1..n erfolgen damit die Scrollbar nie kommt... -->
+	<div class="container-fluid text-center footer footer-copyright navbar-fixed-bottom">
+		
+		FERNBACH - HEIDER - HÖDL - WEILAND<br>
+		FH JOANNEUM - Informationsmanagement 2016
+	</div>
+		<div class="container-fluid">
+		<form class="navbar-form navbar-left" method="post" th:action="@{/logout}">
 			<div class="input-group">
 				<span class="input-group-btn">
-					<button class="btn btn-default" type="submit">Logout</button>
+					<button class="btn btn-ghost-danger" type="submit">Logout</button>
 				</span>
 			</div>
 		</form>
 		
 		<h1 th:text="${(header)}"></h1>
 	</div>
-</header>
-
-<footer th:fragment="footer" class="card-footer text-muted">
-<!-- TODO: Bei vielen Zeilen sollte automatisch im Body immer Seite 1..n erfolgen damit die Scrollbar nie kommt... -->
-	<div class="container-fluid text-center footer navbar-fixed-bottom">
-		FERNBACH - HEIDER - HÖDL - WEILAND<br>
-		FH JOANNEUM - Informationsmanagement 2016
-	</div>
 </footer>
 
-<nav th:fragment="MgmtNavBar (buttonText,buttonLink,searchLink)" class="navbar navbar-default">
+<nav th:fragment="MgmtNavBar (buttonText,buttonLink,searchLink)" class="navbar navbar-expand-lg navbar-light bg-light">
+	<a class="navbar-brand" href="#">PlaVent</a>
 	<div class="container-fluid">
 		<!-- Button to add new element-->
-		<a th:href="${(buttonLink)}" class="btn btn-default navbar-btn" th:text="${(buttonText)}">
+		<a th:href="${(buttonLink)}" class="btn btn-ghost-primary navbar-btn" th:text="${(buttonText)}">
 			New
 		</a>
 	
@@ -41,7 +44,7 @@
 			<div class="input-group">
 				<input type="text" class="form-control" placeholder="Search for..." name="searchString">
 				<span class="input-group-btn">
-					<button class="btn btn-default" type="submit">Filter</button>
+					<button class="btn btn-ghost-primary" type="submit">Filter</button>
 				</span>
 			</div>
 		</form>
