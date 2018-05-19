@@ -15,46 +15,46 @@ import javax.persistence.Table;
 import javax.persistence.Version;
 import javax.validation.constraints.Min;
 
-
 @Entity
 @Table(name = "HappeningTask")
 public class HappeningTask implements Serializable {
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int taskId;
-	
-	@ManyToOne (cascade = CascadeType.MERGE ,fetch = FetchType.EAGER)
-    @JoinColumn(nullable = false)
+	private int taskId;
+
+	@ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
+	@JoinColumn(name = "happeningId", nullable = false)
 	private Happening happening;
-	
+
 	@Column(nullable = false, length = 128)
 	private String topic;
-	
-	@Column(nullable = true, length= 512)
+
+	@Column(nullable = true, length = 512)
 	private String description;
-	
-	@Column(nullable = false,  precision=2)
-	@Min(value = 0L, message = "The duration must be positive") //Nach oben hin offen, task koennta ja mehr als einen Tag dauern...
+
+	@Column(nullable = false, precision = 2)
+	@Min(value = 0L, message = "The duration must be positive") // Nach oben hin offen, task koennta ja mehr als einen
+																// Tag dauern...
 	private double durationInHour;
-	
-	@ManyToOne(cascade = CascadeType.PERSIST, optional=true)
+
+	@ManyToOne(cascade = CascadeType.PERSIST, optional = true)
+	@JoinColumn(name = "responsibleUser", nullable = true)
 	private User responsibleUser;
-	
+
 	@Version
 	long version;
-	
+
 	public HappeningTask() {
-		// TODO Auto-generated constructor stub
 	}
 
-	public HappeningTask(int taskId, Happening happening, String topic, String description, double durationInHour,User responsibleUser) {
+	public HappeningTask(Happening happening, String topic, String description, double durationInHour,
+			User responsibleUser) {
 		super();
-		this.taskId = taskId;
 		this.happening = happening;
 		this.topic = topic;
 		this.description = description;
-		
+
 		this.durationInHour = durationInHour;
 		this.responsibleUser = responsibleUser;
 	}
@@ -131,11 +131,9 @@ public class HappeningTask implements Serializable {
 
 	@Override
 	public String toString() {
-		return "Task [taskId=" + taskId + ", happeningID=" + happening.getHappeningId() + ", topic=" + topic + ", description="
-				+ description + ", durationInHour=" + durationInHour +", responsibleUser=" + responsibleUser.getUsername() + "]";
+		return "Task [taskId=" + taskId + ", happeningID=" + happening.getHappeningId() + ", topic=" + topic
+				+ ", description=" + description + ", durationInHour=" + durationInHour + ", responsibleUser="
+				+ responsibleUser.getUsername() + "]";
 	}
-	
-	
-	
 
 }

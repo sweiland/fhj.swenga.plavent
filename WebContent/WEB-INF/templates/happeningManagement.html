@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+	<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:th="http://www.thymeleaf.org">
 
@@ -69,18 +69,24 @@
 							<td th:text="${happening.happeningHost.lastname +' '+#strings.substring(happening.happeningHost.firstname,0,1) +'.'}"></td>
 							
 							<td>
-								<a th:href="@{/showGuestListManagement(happeningID=${happening.happeningId})}"
-									class="btn btn-xs btn-success"> <span
-										class="glyphicon" aria-hidden="true"></span>
-										Guests</a>
-								<a th:href="@{/showTaskListManagement(happeningID=${happening.happeningId})}"
-									class="btn btn-xs btn-success"> <span
-										class="glyphicon" aria-hidden="true"></span>
-										Tasks</a>
+								
+							    <!-- Just show buttons for active Happenings -->
+							    <th:block th:if="${happening.happeningStatus.statusName == 'ACTIVE'}">
+									<a th:href="@{/showGuestListManagement(happeningID=${happening.happeningId})}"
+										class="btn btn-xs btn-success"> <span
+											class="glyphicon" aria-hidden="true"></span>
+											Guests</a>
+									<a th:href="@{/showTaskListManagement(happeningID=${happening.happeningId})}"
+										class="btn btn-xs btn-success"> <span
+											class="glyphicon" aria-hidden="true"></span>
+											Tasks</a>
+								</th:block>
+								
 								<a th:href="@{/showModifyExistingHappingForm(happeningId=${happening.happeningId})}"
 									class="btn btn-xs btn-danger"> <span
 										class="glyphicon" aria-hidden="true"></span>
 										Edit</a>
+								
 							</td>
 						</tr>
 						<!--  list all items ----------------------------------------------------------- -->

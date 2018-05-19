@@ -13,22 +13,21 @@ import javax.persistence.Version;
 @Entity
 @Table(name = "Status")
 public class HappeningStatus implements Serializable {
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int statusID;
-	
-	@Column(nullable = false, unique=true, length = 64)
+
+	@Column(nullable = false, unique = true, length = 64)
 	private String statusName;
 
 	@Column(nullable = true, length = 512)
 	private String description;
-	
+
 	@Version
 	long version;
-	
+
 	public HappeningStatus() {
-		// TODO Auto-generated constructor stub
 	}
 
 	public HappeningStatus(String statusName, String description) {

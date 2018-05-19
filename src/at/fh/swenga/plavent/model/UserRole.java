@@ -16,64 +16,47 @@ import javax.persistence.Version;
 @Entity
 @Table(name = "UserRole")
 public class UserRole implements Serializable {
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int roleID;
-	
-	@Column(nullable = false, unique=true, length = 64)
+
+	@Column(nullable = false, unique = true, length = 64)
 	private String roleName;
 
 	@Column(nullable = true, length = 512)
 	private String description;
-	
+
 	@ManyToMany(mappedBy = "roleList", fetch = FetchType.EAGER)
 	private List<User> userList;
-	
+
 	@Version
 	long version;
-	
+
 	public UserRole() {
-		// TODO Auto-generated constructor stub
 	}
 
-	public UserRole(String roleName, String description,List<User> userList) {
+	public UserRole(String roleName, String description, List<User> userList) {
 		super();
 		this.roleName = roleName;
 		this.description = description;
 		this.userList = userList;
 	}
-	
+
 	public UserRole(String roleName, String description) {
 		super();
 		this.roleName = roleName;
 		this.description = description;
 	}
-	
-
-	public boolean isAdminRole() {
-		return roleName.equalsIgnoreCase("ADMIN"); //TODO: possible later not required anymore!!!
-	}
-	
-	public boolean isHostRole() {
-		return roleName.equalsIgnoreCase("HOST"); //TODO: possible later not required anymore!!!
-	}
-	
-	public boolean isGuestRole() {
-		return roleName.equalsIgnoreCase("GUEST"); //TODO: possible later not required anymore!!!
-	}
-	
 
 	public void addUser(User u) {
 		userList.add(u);
 	}
-	
+
 	public boolean removeUser(User u) {
 		return userList.remove(u);
 	}
 
-	
-	
 	/**
 	 * @return the userList
 	 */
@@ -82,12 +65,12 @@ public class UserRole implements Serializable {
 	}
 
 	/**
-	 * @param userList the userList to set
+	 * @param userList
+	 *            the userList to set
 	 */
 	public void setUserList(List<User> userList) {
 		this.userList = userList;
 	}
-
 
 	public int getRoleID() {
 		return roleID;
@@ -111,10 +94,11 @@ public class UserRole implements Serializable {
 
 	public void setDescription(String description) {
 		this.description = description;
-	}	
+	}
 
-	
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
@@ -127,7 +111,9 @@ public class UserRole implements Serializable {
 		return result;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
@@ -154,7 +140,9 @@ public class UserRole implements Serializable {
 		return true;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	@Override

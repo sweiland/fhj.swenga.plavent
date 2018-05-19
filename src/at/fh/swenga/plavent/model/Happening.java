@@ -1,7 +1,7 @@
 	package at.fh.swenga.plavent.model;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.util.Calendar;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -21,6 +21,8 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Version;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
@@ -34,20 +36,25 @@ public class Happening implements Serializable {
 	private int happeningId;
 
 	@Column(nullable = false, length = 64)
+	@Size(min = 2, max = 64, message = "Happeningname must be between 2 and 64 characters")
+	@NotBlank
 	private String happeningName;
 
 	@Column(nullable = false)
 	@Temporal(TemporalType.TIMESTAMP)
-	private Date start;
+	//@FutureOrPresent //Not working, so we handle it in the controller...
+	private Calendar start;
 
 	@Column(nullable = false)
 	@Temporal(TemporalType.TIMESTAMP)
-	private Date end;
+	private Calendar end;
 
 	@Column(nullable = true, length = 512)
+	@Size(min = 0, max = 128, message = "Description must be between 0 and 128 characters")
 	private String description;
 
 	@Column(nullable = false, length = 128)
+	@Size(min = 2, max = 128, message = "Location must be between 2 and 128 characters")
 	private String location;
 
 	/*
@@ -56,6 +63,7 @@ public class Happening implements Serializable {
 	 * automatically
 	 */
 	@ManyToOne(cascade = CascadeType.MERGE,fetch = FetchType.EAGER)
+	@JoinColumn(name = "categoryId")
 	private HappeningCategory category;
 
 	/*
@@ -64,6 +72,7 @@ public class Happening implements Serializable {
 	 * automatically
 	 */
 	@ManyToOne(cascade = CascadeType.MERGE,fetch = FetchType.EAGER)
+	@JoinColumn(name = "statusId")
 	private HappeningStatus happeningStatus;
 
 	@OneToOne(fetch = FetchType.EAGER)
@@ -93,11 +102,9 @@ public class Happening implements Serializable {
 	@Version
 	long version;
 
-	public Happening() {
-		// TODO Auto-generated constructor stub
-	}
+	public Happening() {}
 
-	public Happening(String happeningName, Date start, Date end, String description, String location,
+	public Happening(String happeningName, Calendar start, Calendar end, String description, String location,
 			HappeningCategory category, HappeningStatus happeningStatus, User happeningHost, List<User> guestList, List<HappeningTask> tasks) {
 		super();
 		this.happeningName = happeningName;
@@ -128,19 +135,19 @@ public class Happening implements Serializable {
 		this.happeningName = happeningName;
 	}
 
-	public Date getStart() {
+	public Calendar getStart() {
 		return start;
 	}
 
-	public void setStart(Date start) {
+	public void setStart(Calendar start) {
 		this.start = start;
 	}
 
-	public Date getEnd() {
+	public Calendar getEnd() {
 		return end;
 	}
 
-	public void setEnd(Date end) {
+	public void setEnd(Calendar end) {
 		this.end = end;
 	}
 
@@ -236,10 +243,6 @@ public class Happening implements Serializable {
 	
 	public void addHappeningTask(HappeningTask task) {
 		taskList.add(task);
-	}
-
-	public boolean removeHappeningTaskFromList(int taskId) {
-		return taskList.remove(new HappeningTask(taskId,null,null,null,0,null));
 	}
 	
 	public boolean removeHappeningTaskFromList(HappeningTask task) {

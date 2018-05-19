@@ -72,7 +72,7 @@
 							<label for="inputDescription" class="col-md-2 control-label">Description</label>
 							<div class="col-md-10">
 								<input class="form-control" type="text" name="description"
-									required="required" th:value="${happening} ? ${happening.description}"
+									th:value="${happening} ? ${happening.description}"
 									th:readonly="${happening} ? ${happening.happeningStatus.statusName == 'DELETED'}">
 							</div>
 						</div>

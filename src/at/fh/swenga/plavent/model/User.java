@@ -15,11 +15,10 @@ import javax.persistence.Version;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
-
 @Entity
 @Table(name = "User")
 public class User {
-	
+
 	@Id
 	@Column(name = "username") // Take care with changes: 1:1 Relation(Host) & N:M Relation(Guests) to
 	// Happening!
@@ -37,29 +36,28 @@ public class User {
 	private String eMail;
 	@Column(nullable = true, length = 15)
 	private String telNumber;
-	
+
+	@Column(nullable = false)
+	private boolean enabled;
+
 	/*
 	 * cascade = CascadeType.PERSIST: Changes the default setting for this
 	 * relationship, so the EntityManager saves unmanaged related object
 	 * automatically
 	 */
 	@ManyToMany(fetch = FetchType.EAGER)
-	@JoinTable(name = "User_UserRole",
-		joinColumns = { @JoinColumn(name = "username") },
-		inverseJoinColumns = { @JoinColumn(name = "roleId") })
+	@JoinTable(name = "User_UserRole", joinColumns = { @JoinColumn(name = "username") }, inverseJoinColumns = {
+			@JoinColumn(name = "roleId") })
 	@Fetch(value = FetchMode.SUBSELECT)
 	private List<UserRole> roleList;
 
-	// TODO: add all required attributes
-
 	@ManyToMany(mappedBy = "guestList", fetch = FetchType.EAGER)
 	private List<Happening> happenings;
-	
+
 	@Version
 	long version;
-	
+
 	public User() {
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
@@ -70,8 +68,8 @@ public class User {
 	 * @param eMail
 	 * @param telNumber
 	 */
-	public User(String username, String password, String firstname, String lastname, String eMail,
-			String telNumber, List<UserRole> roles, List<Happening> happenings) {
+	public User(String username, String password, String firstname, String lastname, String eMail, String telNumber,
+			List<UserRole> roles, List<Happening> happenings) {
 		super();
 		this.username = username;
 		this.password = password;
@@ -81,10 +79,11 @@ public class User {
 		this.telNumber = telNumber;
 		this.roleList = roles;
 		this.happenings = happenings;
+		this.enabled = true;
 	}
-	
-	public User(String username, String password, String firstname, String lastname, String eMail,
-			String telNumber, List<UserRole> roles) {
+
+	public User(String username, String password, String firstname, String lastname, String eMail, String telNumber,
+			List<UserRole> roles) {
 		super();
 		this.username = username;
 		this.password = password;
@@ -93,8 +92,9 @@ public class User {
 		this.eMail = eMail;
 		this.telNumber = telNumber;
 		this.roleList = roles;
+		this.enabled = true;
 	}
-	
+
 	public User(String username, String password, String firstname, String lastname, List<UserRole> roles) {
 		super();
 		this.username = username;
@@ -102,6 +102,7 @@ public class User {
 		this.firstname = firstname;
 		this.lastname = lastname;
 		this.roleList = roles;
+		this.enabled = true;
 	}
 
 	/**
@@ -112,7 +113,8 @@ public class User {
 	}
 
 	/**
-	 * @param username the username to set
+	 * @param username
+	 *            the username to set
 	 */
 	public void setUsername(String username) {
 		this.username = username;
@@ -126,7 +128,8 @@ public class User {
 	}
 
 	/**
-	 * @param password the password to set
+	 * @param password
+	 *            the password to set
 	 */
 	public void setPassword(String password) {
 		this.password = password;
@@ -140,7 +143,8 @@ public class User {
 	}
 
 	/**
-	 * @param firstname the firstname to set
+	 * @param firstname
+	 *            the firstname to set
 	 */
 	public void setFirstname(String firstname) {
 		this.firstname = firstname;
@@ -154,7 +158,8 @@ public class User {
 	}
 
 	/**
-	 * @param lastname the lastname to set
+	 * @param lastname
+	 *            the lastname to set
 	 */
 	public void setLastname(String lastname) {
 		this.lastname = lastname;
@@ -168,7 +173,8 @@ public class User {
 	}
 
 	/**
-	 * @param eMail the eMail to set
+	 * @param eMail
+	 *            the eMail to set
 	 */
 	public void seteMail(String eMail) {
 		this.eMail = eMail;
@@ -182,7 +188,8 @@ public class User {
 	}
 
 	/**
-	 * @param telNumber the telNumber to set
+	 * @param telNumber
+	 *            the telNumber to set
 	 */
 	public void setTelNumber(String telNumber) {
 		this.telNumber = telNumber;
@@ -196,16 +203,17 @@ public class User {
 	}
 
 	/**
-	 * @param roleList the roleList to set
+	 * @param roleList
+	 *            the roleList to set
 	 */
 	public void setRoleList(List<UserRole> roleList) {
 		this.roleList = roleList;
 	}
-	
+
 	public void addUserRole(UserRole role) {
 		roleList.add(role);
 	}
-	
+
 	public boolean removeUserRole(UserRole role) {
 		return roleList.remove(role);
 	}
@@ -218,21 +226,32 @@ public class User {
 	}
 
 	/**
-	 * @param happenings the happenings to set
+	 * @param happenings
+	 *            the happenings to set
 	 */
 	public void setHappenings(List<Happening> happenings) {
 		this.happenings = happenings;
 	}
-	
+
 	public void addHappening(Happening h) {
 		happenings.add(h);
 	}
-	
+
 	public boolean removeHappening(Happening h) {
 		return happenings.remove(h);
 	}
 
-	/* (non-Javadoc)
+	public boolean isEnabled() {
+		return enabled;
+	}
+
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
@@ -243,7 +262,9 @@ public class User {
 		return result;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
@@ -263,7 +284,9 @@ public class User {
 		return true;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
@@ -271,9 +294,5 @@ public class User {
 		return "UserNew [username=" + username + ", password=" + password + ", firstname=" + firstname + ", lastname="
 				+ lastname + ", eMail=" + eMail + ", telNumber=" + telNumber + "]";
 	}
-	
-	
-	
-	
 
 }
