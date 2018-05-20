@@ -19,10 +19,6 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 	@Query("Select u from User u")
 	public List<User> findAllBy();
 	
-
-	@Query("Delete from User u where u.username = :username")
-	public void deleteByUserName(@Param ("username") String username);
-
 	@Query(value = "SELECT u.* " + 
 				   	"FROM User u " +
 					"WHERE u.username != (SELECT h.username " + 
@@ -43,4 +39,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 			"JOIN UserRole ur ON(ur.roleID = uur.roleId) " + 
 			"WHERE LOWER(ur.roleName) LIKE LOWER(CONCAT('%',:rolename ,'%'))", nativeQuery = true)
 	public List<User> getUsersByRolename(@Param("rolename") String rolename);
+	
+	@Query("Delete from User u where u.username = :username")
+	public void deleteByUserName(@Param ("username") String username);
 }
