@@ -19,9 +19,6 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 	@Query("Select u from User u")
 	public List<User> findAllBy();
 	
-	@Query("Delete from User u where u.username = :username")
-	public void deleteByUserName(@Param ("username") String username);
-	
 	@Query(value = "SELECT u.* " + 
 				   	"FROM User u " +
 					"WHERE u.username != (SELECT h.username " + 

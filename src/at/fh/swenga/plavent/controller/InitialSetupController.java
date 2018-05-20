@@ -59,7 +59,7 @@ public class InitialSetupController {
 			// Create UserRoles and Users
 			createUsersAndRoles();
 
-			model.addAttribute("warningMessage", "Environment created - Start planning!");
+			model.addAttribute("message", "Environment created - Start planning!");
 			return "login";
 		} catch (Exception e) {
 			System.out.println("Error occured: " + e.getMessage());
