@@ -1,4 +1,4 @@
-	<!DOCTYPE html>
+<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:th="http://www.thymeleaf.org">
 
@@ -23,37 +23,24 @@
 		<!-- include the serach bar fragment for users-->
 		<nav th:replace="~{includes/fragments :: MgmtNavBar (buttonText='New Happening',buttonLink='showCreateHappeningForm',searchLink='filterHappenings')}"></nav>
 
-		<!--  Error message ----------------------------------------------------------- -->
-		<div th:unless="${errorMessage} == null" th:utext="${errorMessage}"
-			class="alert alert-danger" role="alert"></div>
-		<!--  Error message ----------------------------------------------------------- -->
-
-		<!--  Warning message ----------------------------------------------------------- -->
-		<div th:unless="${warningMessage} == null"
-			th:utext="${warningMessage}" class="alert alert-warning"
-			role="warning"></div>
-		<!--  Warning message ----------------------------------------------------------- -->
-
-		<!--   message ----------------------------------------------------------- -->
-		<div th:unless="${message} == null" th:utext="${message}"
-			class="alert alert-success" role="warning"></div>
-		<!--   message ----------------------------------------------------------- -->
+				<!-- include message boxes (moved to fragments) -->
+		<div th:replace="~{includes/fragments :: msgs}"></div>
 
 		<div class="row">
 			<!-- <div class="col-md-10 col-md-offset-1"> -->
 			<div class="col-md-12">
 			  <!-- hoedlale16: Generates a sortable table with bootstrap-style -->
-				<table data-toggle="table" class="table table-striped">
-					<thead>
+				<table data-toggle="table" class="table table-hover table-striped">
+					<thead class="thead-light">
 						<tr>
-							<th data-sortable="true">HappeningName</th>
+							<th data-sortable="true">Happening Name</th>
 							<th data-sortable="true">Status</th>
 							<th data-sortable="true">Category</th>
-							<th data-sortable="true">StartTime</th>
-							<th data-sortable="true">EndTime</th>
+							<th data-sortable="true">Start Time</th>
+							<th data-sortable="true">End Time</th>
 							<th data-sortable="true">Location</th>
 							<th data-sortable="true">Host</th>
-							<th class="text-right">Actions</th>
+							<th>Actions</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -68,25 +55,25 @@
 							<td th:text="${happening.location}"></td>
 							<td th:text="${happening.happeningHost.lastname +' '+#strings.substring(happening.happeningHost.firstname,0,1) +'.'}"></td>
 							
-							<td>
+							<td><div class="btn-group" role="group">
 								
 							    <!-- Just show buttons for active Happenings -->
 							    <th:block th:if="${happening.happeningStatus.statusName == 'ACTIVE'}">
 									<a th:href="@{/showGuestListManagement(happeningID=${happening.happeningId})}"
-										class="btn btn-xs btn-success"> <span
+										class="btn btn-xs btn-pill btn-success"> <span
 											class="glyphicon" aria-hidden="true"></span>
 											Guests</a>
 									<a th:href="@{/showTaskListManagement(happeningID=${happening.happeningId})}"
-										class="btn btn-xs btn-success"> <span
+										class="btn btn-xs btn-pill btn-success"> <span
 											class="glyphicon" aria-hidden="true"></span>
 											Tasks</a>
 								</th:block>
 								
 								<a th:href="@{/showModifyExistingHappingForm(happeningId=${happening.happeningId})}"
-									class="btn btn-xs btn-danger"> <span
+									class="btn btn-xs btn-pill btn-danger"> <span
 										class="glyphicon" aria-hidden="true"></span>
 										Edit</a>
-								
+								</div>
 							</td>
 						</tr>
 						<!--  list all items ----------------------------------------------------------- -->
