@@ -19,9 +19,15 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 	@Query("Select u from User u")
 	public List<User> findAllBy();
 	
-	@Query("Delete from User u where u.username = :username")
-	public void deleteByUserName(@Param ("username") String username);
-	
+	@Query(value = "SELECT u.* " + 
+				   	"FROM User u " +
+					"WHERE u.username != (SELECT h.username " + 
+					"					 FROM Happening h " + 
+					"                     WHERE h.happeningId = :happeningID) " + 
+					"  AND u.username NOT IN (SELECT g.username " +
+					"						 FROM Guestlist g " +
+					"                         WHERE g.happeningId = :happeningID)", nativeQuery = true)
+	public List<User> getPotentialGuestsForHappening(@Param("happeningID") int happeningId);
 	
 	@Query("Select u From User u where LOWER(u.username) LIKE LOWER(CONCAT('%',:username ,'%'))" )
 	public List<User> getFilteredUsers(@Param("username") String username);
@@ -33,4 +39,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 			"JOIN UserRole ur ON(ur.roleID = uur.roleId) " + 
 			"WHERE LOWER(ur.roleName) LIKE LOWER(CONCAT('%',:rolename ,'%'))", nativeQuery = true)
 	public List<User> getUsersByRolename(@Param("rolename") String rolename);
+	
+	@Query("Delete from User u where u.username = :username")
+	public void deleteByUserName(@Param ("username") String username);
 }

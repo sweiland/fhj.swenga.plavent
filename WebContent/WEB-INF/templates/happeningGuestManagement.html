@@ -41,6 +41,18 @@
 						</span>
 					</div>
 				</form>
+				
+				<!-- From to generate a GuestlistPDF - Just enabled when there are guests to generate-->
+				<form class="navbar-form navbar-left" method="post" th:action="@{/generateGuestListPDF}">
+					
+					<input type="hidden" name="happeningID" th:value="${happening.happeningId}">
+					
+					<div class="input-group">  					
+						<span class="input-group-btn">
+							<button class="btn btn-default" type="submit"  th:disabled="${#lists.isEmpty(happening.guestList)}">Print Guestlist</button>
+						</span>
+					</div>
+					</form>
 			
 				<!-- HTML form with search textbox and submit button-->
 				<form class="navbar-form navbar-right" role="search" method="post" th:action="@{filterHappeningGuestList}">

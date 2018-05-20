@@ -16,7 +16,8 @@ public interface UserRoleRepository extends JpaRepository<UserRole, Integer> {
 
 	public UserRole findFirstByRoleID(int roleId);
 	
-	public UserRole findFirstByRoleName(String name);
+	@Query("Select u from UserRole u where u.roleName = :name")
+	public UserRole findFirstByRoleName(@Param("name") String name);
 	
 	@Query(value = "SELECT ur.* " + 
 			"FROM UserRole ur " + 

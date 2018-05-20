@@ -68,11 +68,10 @@
 							<div class="col-md-10">
 								<!-- Handling bei neuem Task! -->
 								<th:block th:if="${happeningTask == null}">
-									<select id="inputResponsibleUser" class="form-control" name="responsibleUsername"
-									th:value="${happening.happeningHost.username}">
-										<!-- TODO: Host ist nicht in der Guestlist, dH wenn der Task einem Gast gehört kann diese nie mehr dem Owner gegeben werden! -->
-										<!-- TODO: Eigenes Attribut "responsibleUsers" fuellen und daraus die Optionen anzeigen... -->
-										<option selected="selected" th:value="${happening.happeningHost.username}" th:text="${happening.happeningHost.username}"></option>
+									<option th:if="${happening == null}" disabled="disabled" selected="selected" > Choose...</option>						
+									<select id="inputResponsibleUser" class="form-control" name="responsibleUsername">				
+										<option selected="selected">N/A</option> <!-- Option "No User" -->
+										<option th:value="${happening.happeningHost.username}" th:text="${happening.happeningHost.username}"></option>
 										<option th:each="guest : ${happening.guestList}" th:value="${guest.username}" th:text="${guest.username}" ></option>
 									</select>
 								
@@ -80,13 +79,30 @@
 								
 								<!-- Handling bei Edit bestehenden Task -->
 								<th:block th:if="${happeningTask != null}">
-									<select id="inputResponsibleUser" class="form-control" name="responsibleUsername"
-									th:value="${happeningTask.responsibleUser} ? ${happeningTask.responsibleUser.username}">
-										<!-- TODO: Host ist nicht in der Guestlist, dH wenn der Task einem Gast gehört kann diese nie mehr dem Owner gegeben werden! -->
-										<!-- TODO: Eigenes Attribut "responsibleUsers" fuellen und daraus die Optionen anzeigen... -->
-										<option th:if="${happeningTask.responsibleUser == null}" selected="selected" th:value="${happening.happeningHost.username}" th:text="${happening.happeningHost.username}"></option>
-										<option th:if="${happeningTask.responsibleUser != null}" selected="selected" th:value="${happeningTask.responsibleUser.username}" th:text="${happeningTask.responsibleUser.username}"></option>
-										<option th:each="guest : ${happening.guestList}" th:value="${guest.username}" th:text="${guest.username}" ></option>
+									<select id="inputResponsibleUser" class="form-control" name="responsibleUsername">
+						
+										<!-- Variante: Currently no responsible User set! -->
+										<th:block th:if="${happeningTask.responsibleUser == null}">
+											<option selected="selected">N/A</option> <!-- Option "No User" -->
+											<option th:value="${happening.happeningHost.username}" th:text="${happening.happeningHost.username}"></option>
+											<option th:each="guest : ${happening.guestList}" th:value="${guest.username}" th:text="${guest.username}" ></option>
+										</th:block>
+										
+										<!--  Variante: Responsible User already set! -->
+										<th:block th:if="${happeningTask.responsibleUser != null}">
+											<option>N/A</option> <!-- Option "No User" -->
+											<option 
+												th:selected="${happening.happeningHost.username == happeningTask.responsibleUser.username}"
+												th:value="${happening.happeningHost.username}" 
+												th:text="${happening.happeningHost.username}">
+											</option>											
+											<option th:each="guest : ${happening.guestList}" 
+												th:selected="${guest.username == happeningTask.responsibleUser.username}"
+												th:value="${guest.username}" 
+												th:text="${guest.username}" >
+											</option>
+											
+										</th:block>
 									</select>
 								</th:block>
 							</div>

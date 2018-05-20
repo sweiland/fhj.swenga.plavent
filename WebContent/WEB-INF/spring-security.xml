@@ -19,6 +19,7 @@
 		<logout logout-success-url="/login" logout-url="/logout" />
 	</http>
 
+	<!-- TODO: Spring security with database -->
 	<!-- 
 	<context:property-placeholder location="classpath:db.properties" />
 

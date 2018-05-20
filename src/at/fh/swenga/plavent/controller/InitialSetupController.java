@@ -73,7 +73,7 @@ public class InitialSetupController {
 			// Needs to be the last call because requires all other methods before!!!
 			createTutorialHappening();
 
-			model.addAttribute("warningMessage", "Environment created - Start planning!");
+			model.addAttribute("message", "Environment created - Start planning!");
 			return "login";
 		} catch (Exception e) {
 			System.out.println("Error occured: " + e.getMessage());
@@ -147,7 +147,7 @@ public class InitialSetupController {
 
 		// Create a simple guest user if required
 		if (userRepo.findFirstByUsername("guest") == null) {
-			User guest = new User("guest", "guest", "Host", "Host", new ArrayList<UserRole>());
+			User guest = new User("guest", "guest", "Gust", "Guest", new ArrayList<UserRole>());
 			guest.addUserRole(roleGuest);
 			guest.addUserRole(roleHost);
 			userRepo.save(guest);
