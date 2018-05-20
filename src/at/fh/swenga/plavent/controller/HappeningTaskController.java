@@ -93,6 +93,7 @@ public class HappeningTaskController {
 			return "forward:/showHappeningManagement";
 		}
 
+		//TODO: Pageable stuff einbauen
 		model.addAttribute("happening", happening); // Enthaelt die GaesteList & Tasks
 		model.addAttribute("happeningTasks", happening.getTaskList()); // Extern benoetigt fuer filterfunction
 		return "happeningTaskManagement";
@@ -156,6 +157,7 @@ public class HappeningTaskController {
 			return "forward:/showHappeningManagement";
 		}
 
+		//TODO: Pageable stuff einbauen
 		model.addAttribute("happening", happening);
 		// Required in an additional attribute for filter functionality
 		model.addAttribute("happeningTasks",

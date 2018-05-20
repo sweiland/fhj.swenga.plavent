@@ -108,7 +108,15 @@
 								<a th:href="@{/unassignExistingGuest(happeningID=${happening.happeningId}, username=${guest.username})}"  
 									class="btn btn-xs btn-danger"> <span 
 										class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-										Unassign</a>
+										Remove Guest</a>
+										
+								<a th:href="@{/showGuestTaskDetailsForm(happeningID=${happening.happeningId}, username=${guest.username})}"  
+									class="btn btn-xs btn-primary"> <span 
+										class="glyphicon" aria-hidden="true"></span>
+										Details</a>
+												
+										
+										
 							</td>
 						</tr>
 						<!--  list all items ----------------------------------------------------------- -->
