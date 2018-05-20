@@ -11,6 +11,8 @@
 	<http auto-config="true">
 		<intercept-url pattern="/login" access="permitAll" />		
 		<intercept-url pattern="/" access="permitAll" />
+		<intercept-url pattern="/registerUser" access="permitAll" />		
+		
 		
 		<!-- HOEDLALE16: Use Annotation @Secured({ "ROLE_USER"}) instead of intercept-url -->
 		
