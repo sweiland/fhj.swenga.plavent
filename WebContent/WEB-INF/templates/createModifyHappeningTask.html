@@ -68,7 +68,6 @@
 							<div class="col-md-10">
 								<!-- Handling bei neuem Task! -->
 								<th:block th:if="${happeningTask == null}">
-									<option th:if="${happening == null}" disabled="disabled" selected="selected" > Choose...</option>						
 									<select id="inputResponsibleUser" class="form-control" name="responsibleUsername">				
 										<option selected="selected">N/A</option> <!-- Option "No User" -->
 										<option th:value="${happening.happeningHost.username}" th:text="${happening.happeningHost.username}"></option>

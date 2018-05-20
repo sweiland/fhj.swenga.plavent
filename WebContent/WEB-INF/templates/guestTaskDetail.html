@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<div th:include="~{includes/bootstrap :: bootstrapMeta}" th:remove="tag" />
+<title>PlaVent</title>
+<div th:include="~{includes/bootstrap :: bootstrapCSS}" th:remove="tag" />
+<link
+	href="http://www.malot.fr/bootstrap-datetimepicker/bootstrap-datetimepicker/css/bootstrap-datetimepicker.css"
+	rel="stylesheet">
+</head>
+
+<body>
+	<div class="container" role="main">
+		<div class="row">
+			<div class="col-md-8 col-md-offset-2">
+				<fieldset class="form-horizontal">
+					<legend th:text="${happeningGuest.username}"></legend>
+														
+					<!--  ----------------  happening ---------------- -->
+					<div class="form-group">
+						<label for="inputHappeningId" class="col-md-2 control-label">Happening</label>
+						<div class="col-md-10">
+							<input class="form-control" type="text" name="happeningName"
+								th:value="${happening.happeningName}"
+								readonly>
+						</div>
+					</div>
+					
+					<!--  ----------------  Guest ---------------- -->
+					<div class="form-group">
+						<label for="inputGuest" class="col-md-2 control-label">Guest</label>
+						<div class="col-md-10">
+							<input class="form-control" type="text" name="guestname" readonly
+								th:value="${happeningGuest.firstname + ' ' + happeningGuest.lastname}">
+						</div>
+					</div>
+
+					<!--  ----------------  Assigned Tasks ---------------- -->						
+					<div class="form-group">
+						<label for="inputAssignedTasks" class="col-md-2 control-label">Assigned Tasks</label>
+						<form class="col-md-10" method="post" th:action="@{/unassignTaskToGuest}">
+							<!-- Send connected happeningID and username to show this page after action again -->
+							<input type="hidden" name="responsibleGuest" th:value="${happeningGuest.username}" />
+							
+							<div class="col-md-8">
+								<select id="inputResponsibleUser" class="form-control" name="taskId"
+									th:disabled="${assignedTasks} ? ${#lists.isEmpty(assignedTasks)}">
+												
+									<option th:each="task : ${assignedTasks}" th:value="${task.taskId}" th:text="${task.topic}" ></option>
+								</select>
+							</div>
+
+							<!-- --------------  buttons ---------------- -->
+							<div class="form-group col-md-2">
+								<button type="submit" class="btn btn-primary"
+									th:disabled="${assignedTasks} ? ${#lists.isEmpty(assignedTasks)}">Remove Assignment</button>
+							</div>
+						</form>
+					</div>
+					
+					<!--  ----------------  Unassigned Tasks ---------------- -->						
+					<div class="form-group">
+						<label for="inputUnassignedTasks" class="col-md-2 control-label">Unassigned Tasks</label>
+						<form class="col-md-10" method="post" th:action="@{/assignTaskToGuest}">
+							<!-- Send connected happeningID and username to show this page after action again -->
+							<input type="hidden" name="responsibleGuest" th:value="${happeningGuest.username}" />
+							
+							<div class="col-md-8">
+								<select id="inputResponsibleUser" class="form-control" name="taskId"
+									th:disabled="${unassignedTasks} ? ${#lists.isEmpty(unassignedTasks)}">
+												
+									<option th:each="task : ${unassignedTasks}" th:value="${task.taskId}" th:text="${task.topic}" ></option>
+								</select>
+							</div>
+
+							<!-- --------------  buttons ---------------- -->
+							<div class="form-group col-md-2">
+								<button type="submit" class="btn btn-primary"
+									th:disabled="${unassignedTasks} ? ${#lists.isEmpty(unassignedTasks)}">Assign</button>
+							</div>							
+						</form>
+					</div>
+				</fieldset>
+				<div class="col-md-10 col-md-offset-2">
+					<a th:href="@{/showGuestListManagement(happeningID=${happening.happeningId})}" class="btn btn-primary"> Close </a>	
+				</div>
+			</div>
+		</div>
+
+	</div>
+	<!--  End of container -->
+	<div th:include="~{includes/bootstrap :: bootstrapJS}" th:remove="tag" />
+
+	<!-- JS for Datetime picker -->
+	<script type="text/javascript"
+		src="http://www.malot.fr/bootstrap-datetimepicker/bootstrap-datetimepicker/js/bootstrap-datetimepicker.js"></script>
+
+	<script>
+		$(function() {
+
+			$(".form_datetime").datetimepicker({
+				format : "dd.mm.yyyy",
+				autoclose : true,
+				todayBtn : true,
+				pickerPosition : "bottom-left",
+				minView : 2
+			});
+
+		});
+	</script>
+
+</body>
+
+</html>

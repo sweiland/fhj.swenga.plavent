@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import at.fh.swenga.plavent.model.HappeningTask;
+import at.fh.swenga.plavent.model.User;
 
 @Repository
 @Transactional
@@ -24,5 +25,13 @@ public interface HappeningTaskRepository extends JpaRepository<HappeningTask, In
 
 	@Query("Select t From HappeningTask t WHERE t.happening.happeningId  = :happeningId AND  LOWER(t.topic) LIKE LOWER(CONCAT('%',:searchstring,'%'))" )
 	public List<HappeningTask> getFilteredTasks(@Param("happeningId") int happeningId, @Param("searchstring") String searchstring);
+	
+	
+	public List<HappeningTask> findByResponsibleUserUsernameAndHappeningHappeningId(String username, int happeningId);
+	
+	@Query("Select t FROM HappeningTask t WHERE t.happening.happeningId = :happeningId AND t.responsibleUser IS NULL")
+	public List<HappeningTask> getAllUnassignedTasks(@Param("happeningId") int happeningId);
 
+	@Query("Select t FROM HappeningTask t WHERE t.happening.happeningId = :happeningId AND t.responsibleUser = :user")
+	public List<HappeningTask> getAllAssignedTasks(@Param("happeningId") int happeningId, @Param("user") User user);
 }

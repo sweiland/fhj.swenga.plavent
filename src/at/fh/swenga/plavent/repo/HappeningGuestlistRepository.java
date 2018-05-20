@@ -8,7 +8,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import at.fh.swenga.plavent.model.HappeningTask;
 import at.fh.swenga.plavent.model.User;
 
 @Repository
@@ -31,4 +30,10 @@ public interface HappeningGuestlistRepository extends JpaRepository<User, Intege
 		   			"INNER JOIN User u ON(u.username = g.username) " + 
 		   			"WHERE g.happeningId = :happeningID", nativeQuery = true)	
 	public List<User> getGuestList(@Param("happeningID") int happeningId);
+	
+	@Query(value = "SELECT u.* " + 
+   			"FROM Guestlist g " + 
+   			"INNER JOIN User u ON(u.username = g.username) " + 
+   			"WHERE g.happeningId = :happeningID AND u.username = :username", nativeQuery = true)	
+	public User getGuestFromGuestList(@Param("happeningID") int happeningId, @Param("username") String username);
 }
