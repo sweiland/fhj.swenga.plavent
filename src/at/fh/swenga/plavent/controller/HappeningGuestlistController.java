@@ -1,5 +1,7 @@
 package at.fh.swenga.plavent.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
@@ -42,7 +44,7 @@ public class HappeningGuestlistController {
 
 	@Autowired
 	HappeningGuestlistRepository happeningGuestlistRepo;
-	
+
 	@Autowired
 	HappeningTaskRepository happeningTaskRepo;
 
@@ -95,15 +97,19 @@ public class HappeningGuestlistController {
 			Authentication authentication) {
 
 		// Check if user is Owner of Happening or has role ADMIN
-		if (!isHappeningHostOrAdmin(happening, authentication) || "DELETED".equals(happening.getHappeningStatus().getStatusName()) ) {
+		if (!isHappeningHostOrAdmin(happening, authentication)
+				|| "DELETED".equals(happening.getHappeningStatus().getStatusName())) {
 			model.addAttribute("warningMessage", "Happening not found or no permission!");
 			return "forward:/showHappeningManagement";
 		}
 
+		// TODO: Pageable stuff einbauen
 		model.addAttribute("happening", happening);
 		model.addAttribute("happeningGuests", happening.getGuestList()); // Required in a separate attribute for //
 																			// filtering
-		model.addAttribute("potentialGuests", happeningGuestlistRepo.getPotentialGuestsForHappening(happening.getHappeningId()));
+		model.addAttribute("potentialGuests",
+				happeningGuestlistRepo.getPotentialGuestsForHappening(happening.getHappeningId()));
+
 		return "happeningGuestManagement";
 	}
 
@@ -144,12 +150,29 @@ public class HappeningGuestlistController {
 			return "forward:/showHappeningManagement";
 		}
 
-		//Check if given user exists and is on guestlist...
+		// Check if given user exists and is on guestlist...
 		User guestToRemove = userRepo.findFirstByUsername(username);
-		if (guestToRemove != null && happeningGuestlistRepo.getGuestList(happening.getHappeningId()).contains(guestToRemove)) {
+		if (guestToRemove != null
+				&& happeningGuestlistRepo.getGuestList(happening.getHappeningId()).contains(guestToRemove)) {
+
+			/*
+			 * Check for tasks which are under control of deleted guest (User is responsible
+			 * for task). In this case, remove assignment and inform via web-page
+			 */
+			List<HappeningTask> respTasks = happeningTaskRepo
+					.findByResponsibleUserUsernameAndHappeningHappeningId(username, happening.getHappeningId());
+			if (!respTasks.isEmpty()) {
+				for (HappeningTask task : respTasks) {
+					task.setResponsibleUser(null);
+					happeningTaskRepo.save(task);
+				}
+				model.addAttribute("message",
+						"Removed Task-Assignement for <" + respTasks.size() + "> tasks of user <" + username + ">");
+			}
+
 			happening.removeFromList(guestToRemove);
 			happeningRepo.save(happening);
-			model.addAttribute("message", "User " + guestToRemove.getUsername() + " removed from guestlist!");
+			model.addAttribute("warningMessage", "User " + guestToRemove.getUsername() + " removed from guestlist!");
 
 		} else {
 			model.addAttribute("warningMessage", "User or Happening not fonud!");
@@ -170,38 +193,45 @@ public class HappeningGuestlistController {
 			return "forward:/showHappeningManagement";
 		}
 
+		// TODO: Pageable stuff einbauen
 		model.addAttribute("happening", happening);
-		model.addAttribute("potentialGuests", happeningGuestlistRepo.getPotentialGuestsForHappening(happening.getHappeningId()));
-		model.addAttribute("warningMessage", "Not implemented <" + "showGuestListManagement" + ">");
+		model.addAttribute("potentialGuests",
+				happeningGuestlistRepo.getPotentialGuestsForHappening(happening.getHappeningId()));
 		return "happeningGuestManagement";
 	}
 
 	// Show form to assign Task to a guest
 	@Secured({ "ROLE_HOST" })
-	@GetMapping("/showAssignTaskToGuestForm")
-	public String showAssignTaskToGuestForm(Model model, @RequestParam(value = "taskID") HappeningTask task,
-			Authentication authentication) {
+	@RequestMapping(value = { "showGuestTaskDetailsForm" })
+	public String showGuestTaskDetailsForm(Model model, @RequestParam(value = "happeningID") Happening happening,
+			@RequestParam(value = "username") String username, Authentication authentication) {
 
 		// Check if user is Owner of Happening or has role ADMIN
-		if (!isHappeningHostOrAdmin(task.getHappening(), authentication)) {
+		if (!isHappeningHostOrAdmin(happening, authentication)) {
 			model.addAttribute("warningMessage", "Happening not found or no permission!");
 			return "forward:/showHappeningManagement";
 		}
 
-		// TODO: Implement "assign Task to Guest" stuff
-		// Not a separate form, we use the happeningGuestListManagemnet but with an additional attribute wich shows the drop down to assign...
-		model.addAttribute("happeningTask", task);
-		model.addAttribute("potentialResponsibleGuests", task.getHappening().getGuestList());
+		User guest = happeningGuestlistRepo.getGuestFromGuestList(happening.getHappeningId(), username);
 
-		model.addAttribute("warningMessage", "Not implemented <" + "showGuestListManagement" + ">");
-		return showGuestListManagement(model, task.getHappening(), authentication);
-		// return "assignTaskToGuest";
+		if (guest == null) {
+			model.addAttribute("warningMessage", "Guest not found on guestlist!");
+			showGuestListManagement(model, happening, authentication);
+		} else {
+			model.addAttribute("happening", happening);
+			model.addAttribute("happeningGuest", guest);
+			model.addAttribute("assignedTasks",
+					happeningTaskRepo.getAllAssignedTasks(happening.getHappeningId(), guest));
+			model.addAttribute("unassignedTasks", happeningTaskRepo.getAllUnassignedTasks(happening.getHappeningId()));
+		}
+
+		return "guestTaskDetail";
 	}
 
 	// Assign given Task to Guest
 	@Secured({ "ROLE_HOST" })
-	@PostMapping("/assignTaskToGuest")
-	public String assignTaskToGuest(Model model, @RequestParam(value = "taskID") HappeningTask task,
+	@PostMapping("/unassignTaskToGuest")
+	public String unassignTaskToGuest(Model model, @RequestParam(value = "taskId") HappeningTask task,
 			@RequestParam(value = "responsibleGuest") String username, Authentication authentication) {
 
 		// Check if user is Owner of Happening or has role ADMIN
@@ -209,15 +239,40 @@ public class HappeningGuestlistController {
 			model.addAttribute("warningMessage", "Happening not found or no permission!");
 			return "forward:/showHappeningManagement";
 		}
-		
+
 		User guest = userRepo.findFirstByUsername(username);
-		
-		//Valid guest object and guest is on guestlist of happening?
-		if(guest != null && task.getHappening().getGuestList().contains(guest)) {
+
+		// Valid guest object and guest is on guestlist of happening and given task is managed by guest...
+		if (guest != null && task.getHappening().getGuestList().contains(guest)
+				&& happeningTaskRepo.getAllAssignedTasks(task.getHappening().getHappeningId(), guest).contains(task)) {
+			task.setResponsibleUser(null);
+			happeningTaskRepo.save(task);
+			return showGuestTaskDetailsForm(model, task.getHappening(), username, authentication);
+		} else {
+			model.addAttribute("warningMessage", "Guest not found or not on guestlist!");
+			return "forward:/showHappeningManagement";
+		}
+	}
+
+	// Assign given Task to Guest
+	@Secured({ "ROLE_HOST" })
+	@PostMapping("/assignTaskToGuest")
+	public String assignTaskToGuest(Model model, @RequestParam(value = "taskId") HappeningTask task,
+			@RequestParam(value = "responsibleGuest") String username, Authentication authentication) {
+
+		// Check if user is Owner of Happening or has role ADMIN
+		if (!isHappeningHostOrAdmin(task.getHappening(), authentication)) {
+			model.addAttribute("warningMessage", "Happening not found or no permission!");
+			return "forward:/showHappeningManagement";
+		}
+
+		User guest = userRepo.findFirstByUsername(username);
+
+		// Valid guest object and guest is on guestlist of happening?
+		if (guest != null && task.getHappening().getGuestList().contains(guest)) {
 			task.setResponsibleUser(guest);
 			happeningTaskRepo.save(task);
-			model.addAttribute("warningMessage", "Not implemented <" + "showGuestListManagement" + ">");
-			return showGuestListManagement(model, task.getHappening(), authentication);
+			return showGuestTaskDetailsForm(model, task.getHappening(), username, authentication);
 		} else {
 			model.addAttribute("warningMessage", "Guest not found or not on guestlist!");
 			return "forward:/showHappeningManagement";
@@ -236,7 +291,7 @@ public class HappeningGuestlistController {
 		}
 
 		// TODO PDF generieren
-		model.addAttribute("warningMessage", "Not implemented <" + "generateGuestListPDF" + ">");
+		model.addAttribute("warningMessage", "TODO Not implemented <" + "generateGuestListPDF" + ">");
 		return showGuestListManagement(model, happening, authentication);
 	}
 	// -----------------------------------------------------------------------------------------

@@ -105,6 +105,7 @@ public class HappeningController {
 			model.addAttribute("happenings", happeningRepo.getActiveHappeningsForHost(authentication.getName()));
 		}
 
+		//TODO: Pageable stuff einbauen
 		return "happeningManagement";
 	}
 
@@ -289,6 +290,8 @@ public class HappeningController {
 	@Secured({ "ROLE_HOST" })
 	@PostMapping("/filterHappenings")
 	public String filterHappenings(Model model, @RequestParam String searchString) {
+		
+		//TODO: Pageable stuff einbauen
 		model.addAttribute("happenings", happeningRepo.findByHappeningName(searchString));
 		return "happeningManagement";
 	}
