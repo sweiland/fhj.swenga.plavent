@@ -147,7 +147,7 @@ public class InitialSetupController {
 
 		// Create a simple guest user if required
 		if (userRepo.findFirstByUsername("guest") == null) {
-			User guest = new User("guest", "guest", "Host", "Host", new ArrayList<UserRole>());
+			User guest = new User("guest", "guest", "Gust", "Guest", new ArrayList<UserRole>());
 			guest.addUserRole(roleGuest);
 			guest.addUserRole(roleHost);
 			userRepo.save(guest);

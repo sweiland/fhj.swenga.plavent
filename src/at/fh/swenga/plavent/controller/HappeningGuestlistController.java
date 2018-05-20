@@ -188,7 +188,8 @@ public class HappeningGuestlistController {
 			return "forward:/showHappeningManagement";
 		}
 
-		// TODO: set relevante attributes for form
+		// TODO: Implement "assign Task to Guest" stuff
+		// Not a separate form, we use the happeningGuestListManagemnet but with an additional attribute wich shows the drop down to assign...
 		model.addAttribute("happeningTask", task);
 		model.addAttribute("potentialResponsibleGuests", task.getHappening().getGuestList());
 

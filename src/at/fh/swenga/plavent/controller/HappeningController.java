@@ -3,7 +3,7 @@ package at.fh.swenga.plavent.controller;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
+import java.util.Optional;
 
 import javax.validation.Valid;
 
@@ -113,7 +113,7 @@ public class HappeningController {
 	public String showCreateHappeningForm(Model model, Authentication authentication) {
 
 		// Set required attributes
-		//TOOD: Just show active (enabled) ones
+		// TOOD: Just show active (enabled) ones
 		model.addAttribute("happeningCategories", happeningCategoryRepo.findAll());
 
 		// ADMins are allowed to create a happening for every host. HOSTS just for
@@ -140,8 +140,8 @@ public class HappeningController {
 		}
 
 		model.addAttribute("happening", happening);
-		
-		//TOOD: Just show active (enabled) ones
+
+		// TOOD: Just show active (enabled) ones
 		model.addAttribute("happeningCategories", happeningCategoryRepo.findAll());
 
 		// ADMins are allowed to create a happening for every host. HOSTS just for
@@ -223,13 +223,8 @@ public class HappeningController {
 			return showHappenings(model, authentication);
 		}
 
-		// Set correct connection objects
-		Calendar now = Calendar.getInstance();
-		now.set(Calendar.HOUR_OF_DAY, 0);
-		now.set(Calendar.MINUTE, 0);
-		now.set(Calendar.SECOND, 0);
-		now.set(Calendar.MILLISECOND, 0);
-
+		
+		
 		SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy hh:mm");
 		Calendar start = Calendar.getInstance();
 		start.setTime(format.parse(startAsString));
@@ -237,20 +232,31 @@ public class HappeningController {
 		Calendar end = Calendar.getInstance();
 		end.setTime(format.parse(endAsString));
 
-		// Check if start date before "trimmed now" (Just date, time does not matter)
-		// Check if end-Date is after start date
-		if (start.before(now) || end.before(start)) {
-			model.addAttribute("warningMessage",
-					"Happening not allwed to start in past Or End is not allowed to be before start!");
+		// In Modify just check if end-Date is after start date - Events are allowed to
+		// start in the past
+		if (end.before(start)) {
+			model.addAttribute("warningMessage", "End of happening is not allowed to be before start!");
 			return showHappenings(model, authentication);
 		}
+		
+		Optional<Happening> happeningOptional = happeningRepo.findById(newHappening.getHappeningId());
+		if(! happeningOptional.isPresent()) {
+			model.addAttribute("warningMessage", "Happening not found or no permission!");
+			return showHappenings(model, authentication);
+		}
+		//Validataion checks done, set new parametsers and update data
+		Happening happening = happeningOptional.get();
 
-		// Set correct connection objects
-		newHappening.setHappeningStatus(happeningStatusRepo.findFirstByStatusName(happeningStatus));
-		newHappening.setHappeningHost(userRepo.findFirstByUsername(hostUsername));
-		newHappening.setCategory(happeningCategoryRepo.findFirstByCategoryID(categoryID));
-		happeningRepo.saveAndFlush(newHappening);
-
+		happening.setHappeningName(newHappening.getHappeningName());
+		happening.setStart(start);
+		happening.setEnd(end);
+		happening.setDescription(newHappening.getDescription());
+		happening.setLocation(newHappening.getLocation());
+		happening.setHappeningStatus(happeningStatusRepo.findFirstByStatusName(happeningStatus));
+		happening.setHappeningHost(userRepo.findFirstByUsername(hostUsername));
+		happening.setCategory(happeningCategoryRepo.findFirstByCategoryID(categoryID));
+		
+		happeningRepo.save(happening);
 		return showHappenings(model, authentication);
 	}
 

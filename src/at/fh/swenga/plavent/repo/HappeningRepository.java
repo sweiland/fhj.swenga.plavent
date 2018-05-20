@@ -6,12 +6,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import at.fh.swenga.plavent.model.Happening;
 
 @Repository
-@Transactional
+@Transactional(isolation = Isolation.READ_COMMITTED)
 public interface HappeningRepository extends JpaRepository<Happening, Integer> {
 
 
