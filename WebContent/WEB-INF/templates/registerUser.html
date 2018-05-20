@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<div th:include="~{includes/bootstrap :: bootstrapMeta}" th:remove="tag" />
+<title>PlaVent</title>
+<div th:include="~{includes/bootstrap :: bootstrapCSS}" th:remove="tag" />
+<link
+	href="http://www.malot.fr/bootstrap-datetimepicker/bootstrap-datetimepicker/css/bootstrap-datetimepicker.css"
+	rel="stylesheet">
+</head>
+
+<body>
+	<div class="container" role="main">
+		<div class="row">
+			<div class="col-md-8 col-md-offset-2">
+
+				<!--  fernbach16: Form calls /edituser or /adduser, depending if an user is set already. -->
+				<form class="form-horizontal" method="post"
+					th:action="@{/registerUser}">
+					<fieldset>
+						<legend th:text="${user}? 'Change user' : 'New user'">Register a new
+							User</legend>
+
+						<!--  ----------------  username ---------------- -->
+						<div class="form-group">
+							<label for="inputName" class="col-md-2 control-label">Username</label>
+							<div class="col-md-10">
+								<input class="form-control" type="text" name="username"
+									required="required" th:value="${user} ? ${user.username}"
+									th:readonly="${user}">
+							</div>
+						</div>
+						
+						<!--  ----------------  password ---------------- -->
+						<div th:if="${user} == null" class="form-group">
+							<label for="inputSymptoms" class="col-md-2 control-label">Password</label>
+							<div class="col-md-10">
+								<input class="form-control" type="password" name="password"
+									required="required" th:value="${user} ? ${user.password}">
+							</div>
+						</div>
+
+						<!--  ----------------  firstname ---------------- -->
+						<div class="form-group">
+							<label for="inputSymptoms" class="col-md-2 control-label">Firstname</label>
+							<div class="col-md-10">
+								<input class="form-control" type="text" name="firstname"
+									required="required" th:value="${user} ? ${user.firstname}">
+							</div>
+						</div>
+						
+						<!--  ----------------  lastname ---------------- -->
+						<div class="form-group">
+							<label for="inputSymptoms" class="col-md-2 control-label">Lastname</label>
+							<div class="col-md-10">
+								<input class="form-control" type="text" name="lastname"
+									required="required" th:value="${user} ? ${user.lastname}">
+							</div>
+						</div>
+						
+						<!--  ----------------  eMail ---------------- -->
+						<div class="form-group">
+							<label for="inputEMail" class="col-md-2 control-label">eMail</label>
+							<div class="col-md-10">
+								<input class="form-control" type="text" name="eMail"
+									required="required" th:value="${user} ? ${user.eMail}">
+							</div>
+						</div>
+						
+						<!--  ----------------  telephone Number ---------------- -->
+						<div class="form-group">
+							<label for="inputTelNumber" class="col-md-2 control-label">Tel. Number</label>
+							<div class="col-md-10">
+								<input class="form-control" type="text" name="telNumber"
+									required="required" th:value="${user} ? ${user.telNumber}">
+							</div>
+						</div>
+
+
+						<!-- --------------  buttons ---------------- -->
+						<div class="form-group">
+							<div class="col-md-10 col-md-offset-2">
+								<button type="submit" class="btn btn-primary">Submit</button>
+								<a href="login" class="btn btn-default"> Cancel </a>
+							</div>
+						</div>
+
+					</fieldset>
+				</form>
+			</div>
+		</div>
+
+	</div>
+	<!--  End of container -->
+	<div th:include="~{includes/bootstrap :: bootstrapJS}" th:remove="tag" />
+</body>
+
+</html>
