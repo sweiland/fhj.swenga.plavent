@@ -1,5 +1,7 @@
 package at.fh.swenga.plavent.controller;
 
+import java.util.List;
+
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -192,6 +194,56 @@ public class UserController {
 			model.addAttribute("message", "Registered User " + newUserModel.getUsername());
 		}
 		return showRegisterIssues(model, authentication);
+	}
+
+	@Secured({ "ROLE_ADMIN" })
+	@GetMapping("/createUser")
+	public String createNewUser(Model model, Authentication authentication) {
+
+		if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN")))
+			return "createModifyUser";
+		else {
+			model.addAttribute("warningMessage", "Not allowed to create new Users ");
+			return showAllUsers(model, authentication);
+		}
+	}
+
+	@Secured({ "ROLE_ADMIN" })
+	@PostMapping("/createUser")
+	public String createNewUser(@Valid User newUser, BindingResult bindingResult, Model model,
+			Authentication authentication) {
+
+		if (bindingResult.hasErrors()) {
+			String errorMessage = "";
+			for (FieldError fieldError : bindingResult.getFieldErrors()) {
+				errorMessage += fieldError.getField() + " is invalid<br>";
+			}
+			model.addAttribute("errorMessage", errorMessage);
+			return showRegisterIssues(model, authentication);
+		}
+
+		if (userRepo.findFirstByUsername(newUser.getUsername()) != null) {
+			model.addAttribute("errorMessage", "User already exists!");
+		}
+
+		else {
+			User user = new User();
+			user.setUsername(newUser.getUsername());
+			user.setPassword(newUser.getPassword());
+			user.setFirstname(newUser.getFirstname());
+			user.setLastname(newUser.getLastname());
+			user.seteMail(newUser.geteMail());
+			user.setTelNumber(newUser.getTelNumber());
+
+			UserRole role = userRoleRepo.findFirstByRoleName("GUEST");
+			if (role != null)
+				user.addUserRole(role);
+	
+			userRepo.save(newUser);
+			model.addAttribute("message", "New user " + newUser.getUsername() + "added.");
+
+		}
+		return showAllUsers(model, authentication);
 	}
 
 	@Secured({ "ROLE_USER" })
