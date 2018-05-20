@@ -73,7 +73,7 @@ public class InitialSetupController {
 			// Needs to be the last call because requires all other methods before!!!
 			createTutorialHappening();
 
-			model.addAttribute("warningMessage", "Environment created - Start planning!");
+			model.addAttribute("message", "Environment created - Start planning!");
 			return "login";
 		} catch (Exception e) {
 			System.out.println("Error occured: " + e.getMessage());

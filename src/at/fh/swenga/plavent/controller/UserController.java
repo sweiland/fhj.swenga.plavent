@@ -16,11 +16,12 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import at.fh.swenga.plavent.model.User;
+import at.fh.swenga.plavent.model.UserRole;
 import at.fh.swenga.plavent.repo.UserRepository;
+import at.fh.swenga.plavent.repo.UserRoleRepository;
 
 /**
  * @author Gregor Fernbach:
@@ -40,6 +41,9 @@ public class UserController {
 	@Autowired
 	private UserRepository userRepo;
 
+	@Autowired
+	private UserRoleRepository userRoleRepo;
+
 	public UserController() {
 	}
 
@@ -56,6 +60,12 @@ public class UserController {
 		}
 
 		return "userManagement";
+	}
+
+	@RequestMapping(value = { "showRegisterProblem" })
+	public String showRegisterIssues(Model model, Authentication authentication) {
+
+		return "login";
 	}
 
 	/**
@@ -115,33 +125,73 @@ public class UserController {
 	}
 
 	@Secured({ "ROLE_ADMIN" })
-	@GetMapping("/deleteUser")
-	public String deleteUser(Model model, @RequestParam String username, Authentication authentication) {
-		User user = userRepo.findFirstByUsername(username);
+	@RequestMapping("/deleteUser")
+	public String deleteUser(@Valid User editUserModel, Model model, BindingResult bindingResult,
+			Authentication authentication) {
+
+		if (bindingResult.hasErrors()) {
+			String errorMessage = "";
+			for (FieldError fieldError : bindingResult.getFieldErrors()) {
+				errorMessage += fieldError.getField() + " is invalid<br>";
+			}
+			model.addAttribute("errorMessage", errorMessage);
+			return showAllUsers(model, authentication);
+		}
+
+		User user = userRepo.findFirstByUsername(editUserModel.getUsername());
 		if (user == null) {
-			model.addAttribute("errorMessage", "User does not exist! <" + username + ">");
+			model.addAttribute("errorMessage", "User does not exist! <" + editUserModel.getUsername() + ">");
+		}
+		if (user.getUsername().equalsIgnoreCase(authentication.getName())) {
+			model.addAttribute("errorMessage",
+					"You cannot delete yourself, dear <" + editUserModel.getUsername() + ">");
 		} else {
-			userRepo.deleteByUserName(username);
-			model.addAttribute("warningMessage", "User " + username + "sucessfully deleted");
+			userRepo.delete(user);
+			model.addAttribute("message", "User " + editUserModel.getUsername() + "sucessfully deleted");
 		}
 		return showAllUsers(model, authentication);
 	}
 
-	@Secured({ "ROLE_ADMIN" })
-	@PostMapping("/createUser")
-	public String createNewUser(@Valid User newUserModel, BindingResult bindingResult, Model model,
+	@GetMapping("/registerUser")
+	public String registerUser(Model model, Authentication authentication) {
+
+		return "registerUser";
+
+	}
+
+	@PostMapping("/registerUser")
+	public String registerUser(@Valid User newUserModel, BindingResult bindingResult, Model model,
 			Authentication authentication) {
 
-		if (errorsDetected(model, bindingResult))
-			return showAllUsers(model, authentication);
+		if (bindingResult.hasErrors()) {
+			String errorMessage = "";
+			for (FieldError fieldError : bindingResult.getFieldErrors()) {
+				errorMessage += fieldError.getField() + " is invalid<br>";
+			}
+			model.addAttribute("errorMessage", errorMessage);
+			return showRegisterIssues(model, authentication);
+		}
 
 		if (userRepo.findFirstByUsername(newUserModel.getUsername()) != null) {
-			model.addAttribute("errorMessage", "User already exists!");
+			model.addAttribute("warningMessage", "Your User could not be registered!");
 		} else {
-			userRepo.save(newUserModel);
-			model.addAttribute("message", "New user " + newUserModel.getUsername() + " added.");
+
+			User user = new User();
+			user.setUsername(newUserModel.getUsername());
+			user.setPassword(newUserModel.getPassword());
+			user.setFirstname(newUserModel.getFirstname());
+			user.setLastname(newUserModel.getLastname());
+			user.seteMail(newUserModel.geteMail());
+			user.setTelNumber(newUserModel.getTelNumber());
+
+			UserRole role = userRoleRepo.findFirstByRoleName("GUEST");
+			if (role != null)
+				user.addUserRole(role);
+
+			userRepo.save(user);
+			model.addAttribute("message", "Registered User " + newUserModel.getUsername());
 		}
-		return showAllUsers(model, authentication);
+		return showRegisterIssues(model, authentication);
 	}
 
 	@Secured({ "ROLE_USER" })
