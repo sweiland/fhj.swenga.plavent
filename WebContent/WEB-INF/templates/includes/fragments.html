@@ -34,12 +34,10 @@
 
 <nav th:fragment="MgmtNavBar (buttonText,buttonLink,searchLink)"
 	class="navbar navbar-expand-lg navbar-light bg-light">
-	<a class="navbar-brand" href="#">PlaVent</a>
 	<div class="container-fluid">
 		<!-- Button to add new element-->
 		<a th:href="${(buttonLink)}"
-			class="btn btn-pill btn-primary navbar-btn"
-			th:text="${(buttonText)}">New</a>
+			class="btn btn-pill btn-primary navbar-btn" th:text="${(buttonText)}">New</a>
 
 		<!-- HTML form with search textbox and submit button-->
 		<form class="navbar-form navbar-right" role="search" method="post"

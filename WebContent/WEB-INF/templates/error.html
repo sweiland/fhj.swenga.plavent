@@ -4,14 +4,25 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <title>Error Page</title>
+<div th:include="~{includes/bootstrap :: bootstrapMeta}" th:remove="tag" />
+<div th:include="~{includes/bootstrap :: bootstrapCSS}" th:remove="tag" />
 </head>
 <body>
-	<h1>Error</h1>
-	<!--  Spring information to get access -->
-	Exception: <span th:text="${#request.getAttribute('javax.servlet.error.exception')}"></span><br/>
-	Status Code: <span th:text="${#request.getAttribute('javax.servlet.error.status_code')}"></span><br/>
-	Request-URI: <span th:text="${#request.getAttribute('javax.servlet.error.request_uri')}"></span><br/>
-	Servlet Name: <span th:text="${#request.getAttribute('javax.servlet.error.servlet_name')}"></span><br/>
-	<a href="./">back</a>
+	<div class="card container" role="main">
+		<div class="card-body">
+			<h1>Error</h1>
+			<!--  Spring information to get access -->
+			Exception: <span
+				th:text="${#request.getAttribute('javax.servlet.error.exception')}"></span><br />
+			Status Code: <span
+				th:text="${#request.getAttribute('javax.servlet.error.status_code')}"></span><br />
+			Request-URI: <span
+				th:text="${#request.getAttribute('javax.servlet.error.request_uri')}"></span><br />
+			Servlet Name: <span
+				th:text="${#request.getAttribute('javax.servlet.error.servlet_name')}"></span><br />
+			<a class="btn btn-pill btn-primary" href="./">Back to Safety!</a>
+		</div>
+	</div>
+	<footer th:replace="~{includes/fragments :: footer}"></footer>
 </body>
 </html>

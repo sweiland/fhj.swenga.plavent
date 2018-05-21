@@ -11,117 +11,121 @@
 	rel="stylesheet">
 </head>
 
-<body>
+<body class="app flex-row align-items-center">
 	<div class="container" role="main">
 		<div class="row">
-			<div class="col-md-8 col-md-offset-2">
+			<div class="card col-md-8 col-md-offset-2">
 
 				<!--  hoedlale16: Form calls /edituser or /adduser, depending if an user is set already. -->
 				<form class="form-horizontal" method="post"
 					th:action="${happeningTask} ? @{/modifyExistingHappeningTask} : @{/createNewHappeningTask}">
-					<fieldset>
-						<legend th:text="${happeningTask} ? 'Change happening task' : 'New happening task'"></legend>
-						
+					<fieldset class="card-body">
+						<h1
+							th:text="${happeningTask} ? 'Change happening task' : 'New happening task'"></h1>
+
 						<!-- Send connected happeningID to assing task with form -->
-						<input type="hidden" name="happeningID" th:value="${happening.happeningId}" />
-												
+						<input type="hidden" name="happeningID"
+							th:value="${happening.happeningId}" />
+
 						<!--  ----------------  happening ---------------- -->
 						<div class="form-group">
-							<label for="inputId" class="col-md-2 control-label">Happening</label>
-							<div class="col-md-10">
-								<input class="form-control" type="text" name="happeningName"
-									th:value="${happening.happeningName}"
-									readonly>
-							</div>
+							<input class="form-control" type="text" name="happeningName"
+								th:value="${happening.happeningName}" readonly
+								placeholder="Happening">
 						</div>
 
 						<!--  ----------------  taskId ---------------- -->
 						<div th:if="${happeningTask} != null" class="form-group">
-							<label for="inputId" class="col-md-2 control-label">Task-ID</label>
-							<div class="col-md-10">
-								<input class="form-control" type="text" name="taskId" readonly
-									required="required" th:value="${happeningTask} ? ${happeningTask.taskId}">
-							</div>
+							<input class="form-control" type="text" name="taskId" readonly
+								required="required"
+								th:value="${happeningTask} ? ${happeningTask.taskId}"
+								placeholder="Task-ID">
 						</div>
-						
+
 						<!--  ----------------  topic ---------------- -->
 						<div class="form-group">
-							<label for="inputTopic" class="col-md-2 control-label">Topic</label>
-							<div class="col-md-10">
-								<input class="form-control" type="text" name="topic"
-									required="required" th:value="${happeningTask} ? ${happeningTask.topic}">
-							</div>
+							<input class="form-control" type="text" name="topic"
+								required="required"
+								th:value="${happeningTask} ? ${happeningTask.topic}"
+								placeholder="Topic">
 						</div>
-						
+
 						<!--  ----------------  durationInHour ---------------- -->
 						<div class="form-group">
-							<label for="inputTopic" class="col-md-2 control-label">Duration [h]</label>
-							<div class="col-md-10">
-								<input class="form-control" type="number" name="durationInHour"
-									required="required" th:value="${happeningTask} ? ${happeningTask.durationInHour}">
-							</div>
+							<input class="form-control" type="number" name="durationInHour"
+								required="required"
+								th:value="${happeningTask} ? ${happeningTask.durationInHour}"
+								placeholder="1">
 						</div>
-						
+
 						<!--  ----------------  responsibleUser ---------------- -->
 						<div class="form-group">
-							<label for="inputResponsibleUser" class="col-md-2 control-label">Responsible</label> 
-							<div class="col-md-10">
-								<!-- Handling bei neuem Task! -->
-								<th:block th:if="${happeningTask == null}">
-									<select id="inputResponsibleUser" class="form-control" name="responsibleUsername">				
-										<option selected="selected">N/A</option> <!-- Option "No User" -->
-										<option th:value="${happening.happeningHost.username}" th:text="${happening.happeningHost.username}"></option>
-										<option th:each="guest : ${happening.guestList}" th:value="${guest.username}" th:text="${guest.username}" ></option>
-									</select>
-								
-								</th:block>
-								
-								<!-- Handling bei Edit bestehenden Task -->
-								<th:block th:if="${happeningTask != null}">
-									<select id="inputResponsibleUser" class="form-control" name="responsibleUsername">
-						
-										<!-- Variante: Currently no responsible User set! -->
-										<th:block th:if="${happeningTask.responsibleUser == null}">
-											<option selected="selected">N/A</option> <!-- Option "No User" -->
-											<option th:value="${happening.happeningHost.username}" th:text="${happening.happeningHost.username}"></option>
-											<option th:each="guest : ${happening.guestList}" th:value="${guest.username}" th:text="${guest.username}" ></option>
-										</th:block>
-										
-										<!--  Variante: Responsible User already set! -->
-										<th:block th:if="${happeningTask.responsibleUser != null}">
-											<option>N/A</option> <!-- Option "No User" -->
-											<option 
-												th:selected="${happening.happeningHost.username == happeningTask.responsibleUser.username}"
-												th:value="${happening.happeningHost.username}" 
-												th:text="${happening.happeningHost.username}">
-											</option>											
-											<option th:each="guest : ${happening.guestList}" 
-												th:selected="${guest.username == happeningTask.responsibleUser.username}"
-												th:value="${guest.username}" 
-												th:text="${guest.username}" >
-											</option>
-											
-										</th:block>
-									</select>
-								</th:block>
-							</div>
+							<!-- Handling bei neuem Task! -->
+							<th:block th:if="${happeningTask == null}">
+								<select id="inputResponsibleUser"
+									class="custom-select form-control" name="responsibleUsername">
+									<option disabled="disabled">Responsible User</option>
+									<option selected="selected">N/A</option>
+									<!-- Option "No User" -->
+									<option th:value="${happening.happeningHost.username}"
+										th:text="${happening.happeningHost.username}"></option>
+									<option th:each="guest : ${happening.guestList}"
+										th:value="${guest.username}" th:text="${guest.username}"></option>
+								</select>
+
+							</th:block>
+
+							<!-- Handling bei Edit bestehenden Task -->
+							<th:block th:if="${happeningTask != null}">
+								<select id="inputResponsibleUser"
+									class="custom-select form-control" name="responsibleUsername">
+
+									<!-- Variante: Currently no responsible User set! -->
+									<th:block th:if="${happeningTask.responsibleUser == null}">
+										<option disabled="disabled">Responsible User</option>
+										<option selected="selected">N/A</option>
+										<!-- Option "No User" -->
+										<option th:value="${happening.happeningHost.username}"
+											th:text="${happening.happeningHost.username}"></option>
+										<option th:each="guest : ${happening.guestList}"
+											th:value="${guest.username}" th:text="${guest.username}"></option>
+									</th:block>
+
+									<!--  Variante: Responsible User already set! -->
+									<th:block th:if="${happeningTask.responsibleUser != null}">
+										<option disabled="disabled">Responsible User</option>
+										<option>N/A</option>
+										<!-- Option "No User" -->
+										<option
+											th:selected="${happening.happeningHost.username == happeningTask.responsibleUser.username}"
+											th:value="${happening.happeningHost.username}"
+											th:text="${happening.happeningHost.username}"></option>
+										<option th:each="guest : ${happening.guestList}"
+											th:selected="${guest.username == happeningTask.responsibleUser.username}"
+											th:value="${guest.username}" th:text="${guest.username}">
+										</option>
+
+									</th:block>
+								</select>
+							</th:block>
 						</div>
-						
+
 						<!--  ----------------  description ---------------- -->
 						<div class="form-group">
-							<label for="inputDescription" class="col-md-2 control-label">Description</label> 
-							<div class="col-md-10">
-						  		<textarea class="form-control" rows="5" id="description" name="description"
-						  		th:text="${happeningTask} ? ${happeningTask.description}"></textarea>
-						  	</div>
-						</div> 		
-					
+							<textarea class="form-control" rows="5" id="description"
+								name="description"
+								th:text="${happeningTask} ? ${happeningTask.description}"
+								placeholder="Description"></textarea>
+						</div>
+
 
 						<!-- --------------  buttons ---------------- -->
 						<div class="form-group">
-							<div class="col-md-10 col-md-offset-2">
-								<button type="submit" class="btn btn-primary">Submit</button>
-								<a th:href="@{showTaskListManagement(happeningID=${happening.happeningId})}" class="btn btn-default"> Cancel </a>
+							<div class="btn-group">
+								<button type="submit" class="btn btn-pill btn-primary">Submit</button>
+								<a
+									th:href="@{showTaskListManagement(happeningID=${happening.happeningId})}"
+									class="btn btn-pill btn-secondary"> Cancel </a>
 							</div>
 						</div>
 
@@ -129,7 +133,8 @@
 				</form>
 			</div>
 		</div>
-
+		<!-- weilands16: include our footer -->
+		<footer th:replace="~{includes/fragments :: footer}"></footer>
 	</div>
 	<!--  End of container -->
 	<div th:include="~{includes/bootstrap :: bootstrapJS}" th:remove="tag" />

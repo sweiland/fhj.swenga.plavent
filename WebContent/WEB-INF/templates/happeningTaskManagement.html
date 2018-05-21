@@ -9,104 +9,84 @@
 </head>
 
 <body>
-	<div class="container" role="main">
+	<div class="card container" role="main">
+		<div class="card-body">
+			<div class="page-header">
+				<!-- include the Nav bar fragment-->
+				<nav
+					th:replace="~{includes/fragments :: header (header='PlaVent - User Management')}"></nav>
+			</div>
 
-		<div class="page-header">
 			<!-- include the Nav bar fragment-->
-			<nav th:replace="~{includes/fragments :: header (header='PlaVent - User Management')}"></nav>
-		</div>
+			<nav th:replace="~{includes/fragments :: navigation }"></nav>
 
-		<!-- include the Nav bar fragment-->
-		<nav th:replace="~{includes/fragments :: navigation }"></nav>
-		
-		<!-- include Header information of given happening-->
-		<div th:replace="~{includes/happeningFragments :: happeningHeader (happening=${#request.getAttribute('happening')}) }"></div>
-		
-		
-		<!-- include the serach bar fragment for users-->
-		<!-- <nav th:replace="~{includes/fragments :: MgmtNavBar (buttonText='New Task',
-		buttonLink='/showCreateHappeningTaskForm?happeningID=${task.happening.happeningId}',searchLink='filterHappeningTaskList')}"></nav>
-		 -->
-		 
-		<nav class="navbar navbar-default">
-			<div class="container-fluid">
-				<a th:href="@{/showCreateHappeningTaskForm(happeningID=${#request.getAttribute('happening').happeningId})}"  
-					class="btn btn-default navbar-btn">New Task</a>
-			
+			<!-- include Header information of given happening-->
+			<div
+				th:replace="~{includes/happeningFragments :: happeningHeader (happening=${#request.getAttribute('happening')}) }"></div>
+
+			<nav class="navbar navbar-expand-lg navbar-light bg-light">
+				<a
+					th:href="@{/showCreateHappeningTaskForm(happeningID=${#request.getAttribute('happening').happeningId})}"
+					class="btn btn-pill btn-primary navbar-btn">New Task</a>
+
 				<!-- HTML form with search textbox and submit button-->
-				<form class="navbar-form navbar-right" role="search" method="post" th:action="@{filterHappeningTaskList}">
+				<form class="navbar-form navbar-right" role="search" method="post"
+					th:action="@{filterHappeningTaskList}">
 					<div class="input-group">
-						<input type="hidden" name="happeningID" th:value="${happening.happeningId}">
-						<input type="text" class="form-control" placeholder="Search for..." name="searchString">
-						<span class="input-group-btn">
-							<button class="btn btn-default" type="submit">Filter</button>
+						<input type="hidden" name="happeningID"
+							th:value="${happening.happeningId}"> <input type="text"
+							class="form-control" placeholder="Search for..."
+							name="searchString"> <span class="input-group-append">
+							<button class="btn btn-pill btn-primary" type="submit">Filter</button>
 						</span>
 					</div>
 				</form>
-			</div>
-		</nav>
-		
-																							
-		<!--  Error message ----------------------------------------------------------- -->
-		<div th:unless="${errorMessage} == null" th:utext="${errorMessage}"
-			class="alert alert-danger" role="alert"></div>
-		<!--  Error message ----------------------------------------------------------- -->
+			</nav>
+			<div class="row">
+				<div class="col-md-12">
+					<!-- hoedlale16: Generates a sortable table with bootstrap-style -->
+					<table data-toggle="table" class="table table-hover table-striped">
+						<thead class="thead-light">
+							<tr>
+								<th data-sortable="true">Topic</th>
+								<th data-sortable="true">Duration [h]</th>
+								<th data-sortable="true">Responsible</th>
+								<th data-sortable="true">Description</th>
+								<th>Actions</th>
+							</tr>
+						</thead>
+						<tbody>
+							<!--  list all items ----------------------------------------------------------- -->
+							<!-- hoedlale16: Fill table content -->
+							<tr th:each="task : ${#request.getAttribute('happeningTasks')}">
+								<td th:text="${task.topic}"></td>
+								<td th:text="${task.durationInHour}"></td>
+								<td
+									th:text="${task.responsibleUser} ? ${task.responsibleUser.lastname +' '+#strings.substring(task.responsibleUser.firstname,0,1) +'.'} : 'n/a'"></td>
 
-		<!--  Warning message ----------------------------------------------------------- -->
-		<div th:unless="${warningMessage} == null"
-			th:utext="${warningMessage}" class="alert alert-warning"
-			role="warning"></div>
-		<!--  Warning message ----------------------------------------------------------- -->
+								<td th:text="${task.description}"></td>
 
-		<!--   message ----------------------------------------------------------- -->
-		<div th:unless="${message} == null" th:utext="${message}"
-			class="alert alert-success" role="warning"></div>
-		<!--   message ----------------------------------------------------------- -->
-
-		<div class="row">
-			<div class="col-md-12">
-			  <!-- hoedlale16: Generates a sortable table with bootstrap-style -->
-				<table data-toggle="table" class="table table-striped">
-					<thead>
-						<tr>
-							<th data-sortable="true">Topic</th>
-							<th data-sortable="true">Duration [h]</th>
-							<th data-sortable="true">Responsible</th>
-							<th data-sortable="true">Description</th>
-							<th class="text-right">Actions</th>
-						</tr>
-					</thead>
-					<tbody>
-						<!--  list all items ----------------------------------------------------------- -->
-						<!-- hoedlale16: Fill table content -->
-						<tr th:each="task : ${#request.getAttribute('happeningTasks')}">
-							<td th:text="${task.topic}"></td>
-							<td th:text="${task.durationInHour}"></td>
-							<td th:text="${task.responsibleUser} ? ${task.responsibleUser.lastname +' '+#strings.substring(task.responsibleUser.firstname,0,1) +'.'} : 'n/a'"></td>
-							
-							<td th:text="${task.description}"></td>
-														
-							<td>
-								<a th:href="@{/showModifyHappeningTaskForm(taskId=${task.taskId})}"
-									class="btn btn-xs btn-success"> <span
-										class="glyphicon" aria-hidden="true"></span>
-										Edit</a>
-										
-								<a th:href="@{/deleteExistingTask(taskId=${task.taskId})}"  
-									class="btn btn-xs btn-danger"> <span 
-										class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-										Delete</a>
-							</td>
-						</tr>
-						<!--  list all items ----------------------------------------------------------- -->
-					</tbody>
-				</table>
+								<td><div class="btn-group">
+										<a
+											th:href="@{/showModifyHappeningTaskForm(taskId=${task.taskId})}"
+											class="btn btn-pill btn-success"> <span class="glyphicon"
+											aria-hidden="true"></span> Edit
+										</a> <a th:href="@{/deleteExistingTask(taskId=${task.taskId})}"
+											class="btn btn-pill btn-danger"> <span
+											class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+											Delete
+										</a>
+									</div></td>
+							</tr>
+							<!--  list all items ----------------------------------------------------------- -->
+						</tbody>
+					</table>
+				</div>
 			</div>
 		</div>
 	</div>
-	
-	<!-- hoedlale16: include some fancy footer -->		
-	<footer th:replace="~{includes/fragments :: footer}"></footer>		
+	<!-- hoedlale16: include some fancy footer -->
+	<footer th:replace="~{includes/fragments :: footer}"></footer>
 
 	<!--  End of container -->
 	<div th:include="~{includes/bootstrap :: bootstrapJS}" th:remove="tag" />

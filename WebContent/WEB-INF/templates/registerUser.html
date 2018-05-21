@@ -12,20 +12,20 @@
 </head>
 
 <body class="app flex-row align-items-center">
-	<div class="container justify-content-center" role="main">
-		<div class="row">
+	<div class="card container justify-content-center" role="main">
+		<div class="card-body row">
 			<div class="col-md-8 col-md-offset-2">
 
 				<!--  fernbach16: Form calls /edituser or /adduser, depending if an user is set already. -->
 				<form class="form-horizontal" method="post"
 					th:action="@{/registerUser}">
 					<fieldset>
-						<legend class="display-4" th:text="${user}? 'Change user' : 'New user'">Register
-							a new User</legend>
+						<h1 th:text="${user}? 'Change user' : 'New user'">Register
+							a new User</h1>
 
 						<!--  ----------------  username ---------------- -->
 
-						<div class="input-group input-group-lg">
+						<div class="input-group">
 							<div class="input-group-prepend">
 								<span class="input-group-text" id="basic-addon1">@</span>
 							</div>
@@ -36,35 +36,35 @@
 						</div>
 
 						<!--  ----------------  password ---------------- -->
-						<div th:if="${user} == null" class="input-group input-group-lg">
+						<div th:if="${user} == null" class="form-group">
 							<input class="form-control" type="password" name="password"
 								placeholder="Password" required="required"
 								th:value="${user} ? ${user.password}">
 						</div>
 
 						<!--  ----------------  firstname ---------------- -->
-						<div class="input-group input-group-lg">
+						<div class="form-group">
 							<input class="form-control" type="text" name="firstname"
 								required="required" th:value="${user} ? ${user.firstname}"
 								placeholder="First Name">
 						</div>
 
 						<!--  ----------------  lastname ---------------- -->
-						<div class="input-group input-group-lg">
+						<div class="form-group">
 							<input class="form-control" type="text" name="lastname"
 								required="required" th:value="${user} ? ${user.lastname}"
 								placeholder="Last Name">
 						</div>
 
 						<!--  ----------------  eMail ---------------- -->
-						<div class="input-group input-group-lg">
+						<div class="form-group">
 							<input class="form-control" type="text" name="eMail"
 								required="required" th:value="${user} ? ${user.eMail}"
 								placeholder="Email">
 						</div>
 
 						<!--  ----------------  telephone Number ---------------- -->
-						<div class="input-group input-group-lg">
+						<div class="form-group">
 							<input class="form-control" type="text" name="telNumber"
 								required="required" th:value="${user} ? ${user.telNumber}"
 								placeholder="phone">
@@ -73,8 +73,8 @@
 
 						<!-- --------------  buttons ---------------- -->
 						<div class="btn-group">
-							<button type="submit" class="btn btn-pill btn-lg btn-primary">Submit</button>
-							<a href="login" class="btn btn-pill btn-lg btn-secondary">Cancel</a>
+							<button type="submit" class="btn btn-pill btn-primary">Submit</button>
+							<a href="login" class="btn btn-pill btn-secondary">Cancel</a>
 						</div>
 
 					</fieldset>

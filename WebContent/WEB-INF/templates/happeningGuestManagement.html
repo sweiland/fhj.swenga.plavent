@@ -9,126 +9,121 @@
 </head>
 
 <body>
-	<div class="container" role="main">
+	<div class="card container" role="main">
+		<div class="card-body">
+			<div class="page-header">
+				<!-- include the Nav bar fragment-->
+				<nav
+					th:replace="~{includes/fragments :: header (header='PlaVent - User Management')}"></nav>
+			</div>
 
-		<div class="page-header">
 			<!-- include the Nav bar fragment-->
-			<nav th:replace="~{includes/fragments :: header (header='PlaVent - User Management')}"></nav>
-		</div>
+			<nav th:replace="~{includes/fragments :: navigation }"></nav>
 
-		<!-- include the Nav bar fragment-->
-		<nav th:replace="~{includes/fragments :: navigation }"></nav>
-		
-		<!-- include Header information of given happening-->
-		<div th:replace="~{includes/happeningFragments :: happeningHeader (happening=${#request.getAttribute('happening')}) }"></div>
-		
-		<!-- Customized Subnavbar because of Drop-Down selection -->
-		<nav>
-			<div class="container-fluid">
+			<!-- include Header information of given happening-->
+			<div
+				th:replace="~{includes/happeningFragments :: happeningHeader (happening=${#request.getAttribute('happening')}) }"></div>
+
+			<!-- Customized Subnavbar because of Drop-Down selection -->
+			<nav class="navbar navbar-default">
 				<!-- HTML Form to assign a guest-->
-				<form class="navbar-form navbar-left" method="post" th:action="@{/assignNewGuestToHappening}">
-					
-					<input type="hidden" name="happeningID" th:value="${happening.happeningId}">
-					
+				<form class="navbar-form col-md-5" method="post"
+					th:action="@{/assignNewGuestToHappening}">
+
+					<input type="hidden" name="happeningID"
+						th:value="${happening.happeningId}">
+
 					<div class="input-group">
-	  					<select id="inputNewGuest" class="form-control" name="newGuestUsername" required="required">
-							<option disabled="disabled" selected="selected" > Choose...</option>
-							<option th:each="user : ${potentialGuests}" th:value="${user.username}" th:text="${user.username}" ></option>
-						</select>
-	  					
-						<span class="input-group-btn">
-							<button class="btn btn-default" type="submit">Assign guest</button>
+						<select id="inputNewGuest" class="custom-select form-control"
+							name="newGuestUsername" required="required">
+							<option disabled="disabled" selected="selected">
+								Choose...</option>
+							<option th:each="user : ${potentialGuests}"
+								th:value="${user.username}" th:text="${user.username}"></option>
+						</select> <span class="input-group-btn">
+							<button class="btn btn-pill btn-primary" type="submit">Assign
+								guest</button>
 						</span>
 					</div>
 				</form>
-				
+
 				<!-- From to generate a GuestlistPDF - Just enabled when there are guests to generate-->
-				<form class="navbar-form navbar-left" method="post" th:action="@{/generateGuestListPDF}">
-					
-					<input type="hidden" name="happeningID" th:value="${happening.happeningId}">
-					
-					<div class="input-group">  					
+				<form class="navbar-form col-md-2" method="post"
+					th:action="@{/generateGuestListPDF}">
+
+					<input type="hidden" name="happeningID"
+						th:value="${happening.happeningId}">
+
+					<div class="input-group">
 						<span class="input-group-btn">
-							<button class="btn btn-default" type="submit"  th:disabled="${#lists.isEmpty(happening.guestList)}">Print Guestlist</button>
-						</span>
-					</div>
-					</form>
-			
-				<!-- HTML form with search textbox and submit button-->
-				<form class="navbar-form navbar-right" role="search" method="post" th:action="@{filterHappeningGuestList}">
-					<div class="input-group">					
-						<input type="hidden" name="happeningID" th:value="${happening.happeningId}">
-						<input type="text" class="form-control" placeholder="Search for..." name="searchString">
-						<span class="input-group-btn">
-							<button class="btn btn-default" type="submit">Filter</button>
+							<button class="btn btn-pill btn-primary" type="submit"
+								th:disabled="${#lists.isEmpty(happening.guestList)}">Print
+								Guestlist</button>
 						</span>
 					</div>
 				</form>
-			</div>
-		</nav>
-		<!--  Error message ----------------------------------------------------------- -->
-		<div th:unless="${errorMessage} == null" th:utext="${errorMessage}"
-			class="alert alert-danger" role="alert"></div>
-		<!--  Error message ----------------------------------------------------------- -->
 
-		<!--  Warning message ----------------------------------------------------------- -->
-		<div th:unless="${warningMessage} == null"
-			th:utext="${warningMessage}" class="alert alert-warning"
-			role="warning"></div>
-		<!--  Warning message ----------------------------------------------------------- -->
+				<!-- HTML form with search textbox and submit button-->
+				<form class="navbar-form col-md-5" role="search" method="post"
+					th:action="@{filterHappeningGuestList}">
+					<div class="input-group">
+						<input type="hidden" name="happeningID"
+							th:value="${happening.happeningId}"> <input type="text"
+							class="form-control" placeholder="Search for..."
+							name="searchString"> <span class="input-group-btn">
+							<button class="btn btn-pill btn-primary" type="submit">Filter</button>
+						</span>
+					</div>
+				</form>
+			</nav>
+			<!-- include message boxes (moved to fragments) -->
+			<div th:replace="~{includes/fragments :: msgs}"></div>
 
-		<!--   message ----------------------------------------------------------- -->
-		<div th:unless="${message} == null" 
-			th:utext="${message}" class="alert alert-success" 
-			role="warning"></div>
-		<!--   message ----------------------------------------------------------- -->
+			<div class="row">
+				<div class="col-md-12">
+					<!-- hoedlale16: Generates a sortable table with bootstrap-style -->
+					<table data-toggle="table" class="table table-striped table-hover">
+						<thead class="thead-light">
+							<tr>
+								<th data-sortable="true">Username</th>
+								<th data-sortable="true">Name</th>
+								<th data-sortable="true">Contact (E-Mail)</th>
+								<th>Actions</th>
+							</tr>
+						</thead>
+						<tbody>
+							<!--  list all items ----------------------------------------------------------- -->
+							<!-- hoedlale16: Fill table content -->
+							<tr th:each="guest : ${#request.getAttribute('happeningGuests')}">
+								<td th:text="${guest.username}"></td>
+								<td
+									th:text="${guest.lastname +' '+#strings.substring(guest.firstname,0,1) +'.'}"></td>
 
-		<div class="row">
-			<div class="col-md-12">
-			  <!-- hoedlale16: Generates a sortable table with bootstrap-style -->
-				<table data-toggle="table" class="table table-striped">
-					<thead>
-						<tr>
-							<th data-sortable="true">Username</th>
-							<th data-sortable="true">Name</th>
-							<th data-sortable="true">Contact (E-Mail)</th>
-							<th class="text-right">Actions</th>
-						</tr>
-					</thead>
-					<tbody>
-						<!--  list all items ----------------------------------------------------------- -->
-						<!-- hoedlale16: Fill table content -->
-						<tr th:each="guest : ${#request.getAttribute('happeningGuests')}">
-							<td th:text="${guest.username}"></td>
-							<td th:text="${guest.lastname +' '+#strings.substring(guest.firstname,0,1) +'.'}"></td>
-							
-							<td th:text="${guest.eMail} ? ${guest.eMail} : 'n/a'"></td>
-							<td>
-								<!-- TODO: Link to taskmanagement to assign task -->		
-								<a th:href="@{/unassignExistingGuest(happeningID=${happening.happeningId}, username=${guest.username})}"  
-									class="btn btn-xs btn-danger"> <span 
-										class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-										Remove Guest</a>
-										
-								<a th:href="@{/showGuestTaskDetailsForm(happeningID=${happening.happeningId}, username=${guest.username})}"  
-									class="btn btn-xs btn-primary"> <span 
-										class="glyphicon" aria-hidden="true"></span>
-										Details</a>
-												
-										
-										
-							</td>
-						</tr>
-						<!--  list all items ----------------------------------------------------------- -->
-					</tbody>
-				</table>
+								<td th:text="${guest.eMail} ? ${guest.eMail} : 'n/a'"></td>
+								<td><div class="btn-group">
+										<!-- TODO: Link to taskmanagement to assign task -->
+										<a
+											th:href="@{/unassignExistingGuest(happeningID=${happening.happeningId}, username=${guest.username})}"
+											class="btn btn-pill btn-danger"> <span
+											class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+											Remove Guest
+										</a> <a
+											th:href="@{/showGuestTaskDetailsForm(happeningID=${happening.happeningId}, username=${guest.username})}"
+											class="btn btn-pill btn-primary"> <span class="glyphicon"
+											aria-hidden="true"></span> Details
+										</a>
+									</div></td>
+							</tr>
+							<!--  list all items ----------------------------------------------------------- -->
+						</tbody>
+					</table>
+				</div>
 			</div>
 		</div>
 	</div>
-	</div>
-	
-	<!-- hoedlale16: include some fancy footer -->		
-	<footer th:replace="~{includes/fragments :: footer}"></footer>		
+
+	<!-- hoedlale16: include some fancy footer -->
+	<footer th:replace="~{includes/fragments :: footer}"></footer>
 
 	<!--  End of container -->
 	<div th:include="~{includes/bootstrap :: bootstrapJS}" th:remove="tag" />
