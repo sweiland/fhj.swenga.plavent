@@ -9,92 +9,82 @@
 </head>
 
 <body>
-	<div class="container" role="main">
+	<div class="container card" role="main">
 
+		<div class="card-body">
+			<div class="page-header">
+				<!-- include the Nav bar fragment-->
+				<nav
+					th:replace="~{includes/fragments :: header (header='PlaVent - User Management')}"></nav>
+			</div>
 
-		<div class="page-header">
 			<!-- include the Nav bar fragment-->
-			<nav
-				th:replace="~{includes/fragments :: header (header='PlaVent - User Management')}"></nav>
-		</div>
+			<nav th:replace="~{includes/fragments :: navigation }"></nav>
 
-		<!-- include the Nav bar fragment-->
-		<nav th:replace="~{includes/fragments :: navigation }"></nav>
+			<!-- include the search bar fragment for users-->
+			<div sec:authorize="hasRole('ROLE_ADMIN')">
+				<nav
+					th:replace="~{includes/fragments :: MgmtNavBar (buttonText='Create New User',buttonLink='createUser',searchLink='filterUsers')}"></nav>
+			</div>
+			<!-- include message boxes (moved to fragments) -->
+			<div th:replace="~{includes/fragments :: msgs}"></div>
 
-		<!-- include the serach bar fragment for users-->
-		<div sec:authorize="hasRole('ROLE_ADMIN')">
-			<nav
-				th:replace="~{includes/fragments :: MgmtNavBar (buttonText='Create New User',buttonLink='createUser',searchLink='filterUsers')}"></nav>
-		</div>
-		<!--  Error message ----------------------------------------------------------- -->
-		<div th:unless="${errorMessage} == null" th:utext="${errorMessage}"
-			class="alert alert-danger" role="alert"></div>
-		<!--  Error message ----------------------------------------------------------- -->
+			<div class="row">
+				<div class="col-md-12">
+					<table data-toggle="table" class="table table-striped table-hover">
+						<thead class="thead-light">
+							<tr>
+								<th data-sortable="true">@Username</th>
+								<th data-sortable="true">First Name</th>
+								<th data-sortable="true">Last Name</th>
+								<th data-sortable="true">Email</th>
+								<th data-sortable="true">phone</th>
+								<th>Actions</th>
+							</tr>
+						</thead>
+						<tbody>
+							<!--  list all user items ----------------------------------------------------------- -->
+							<tr th:each="user : ${#request.getAttribute('users')}">
+								<td th:text="${user.username}"></td>
+								<td th:text="${user.firstname}"></td>
+								<td th:text="${user.lastname}"></td>
+								<td th:text="${user.eMail}"></td>
+								<td th:text="${user.telNumber}"></td>
+								<!--  functionalities ----------------------------------------------------------- -->
+								<td><div class="btn-group" role="group">
+										<a th:href="@{/editUser(username=${user.username})}"
+											class="btn btn-pill btn-xs btn-success"> <span
+											class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+											Edit
+										</a> <a
+											th:href="@{/showChangePasswordForm(username=${user.username})}"
+											class="btn btn-pill btn-xs btn-success"> <span
+											class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+											Change Password
+										</a><a th:href="@{/deleteUser(username=${user.username})}"
+											class="btn btn-pill btn-xs btn-danger"> <span
+											class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+											Delete
+										</a>
+									</div></td>
 
-		<!--  Warning message ----------------------------------------------------------- -->
-		<div th:unless="${warningMessage} == null"
-			th:utext="${warningMessage}" class="alert alert-warning"
-			role="warning"></div>
-		<!--  Warning message ----------------------------------------------------------- -->
-
-		<!--   message ----------------------------------------------------------- -->
-		<div th:unless="${message} == null" th:utext="${message}"
-			class="alert alert-success" role="warning"></div>
-		<!--   message ----------------------------------------------------------- -->
-
-		<div class="row">
-			<div class="col-md-10 col-md-offset-1">
-				<table data-toggle="table" class="table table-striped">
-					<thead>
-						<tr>
-							<th data-sortable="true">User Name</th>
-							<th data-sortable="true">First Name</th>
-							<th data-sortable="true">Last Name</th>
-							<th data-sortable="true">eMail</th>
-							<th data-sortable="true">tel. Number</th>
-							<th class="text-right">Actions</th>
-						</tr>
-					</thead>
-					<tbody>
-						<!--  list all user items ----------------------------------------------------------- -->
-						<tr th:each="user : ${#request.getAttribute('users')}">
-							<td th:text="${user.username}"></td>
-							<td th:text="${user.firstname}"></td>
-							<td th:text="${user.lastname}"></td>
-							<td th:text="${user.eMail}"></td>
-							<td th:text="${user.telNumber}"></td>
-							<!--  functionalities ----------------------------------------------------------- -->
-							<td><a th:href="@{/editUser(username=${user.username})}"
-								class="btn btn-xs btn-success"> <span
-									class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-									Edit
-							</a> <a th:href="@{/deleteUser(username=${user.username})}"
-								class="btn btn-xs btn-danger"> <span
-									class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-									Delete
-							</a> <a
-								th:href="@{/showChangePasswordForm(username=${user.username})}"
-								class="btn btn-xs btn-success"> <span
-									class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-									Change Password
-							</a></td>
-
-						</tr>
-						<!--  list all user items --------------------------------------------------------- -->
-					</tbody>
-				</table>
-				<div sec:authorize="hasRole('ROLE_ADMIN')">
-					<div class="col-md-4 col-md-offset-1">
-						<h1>User Roles</h1>
-						<div class="tree">
-							<ul>
-								<li th:each="userRole : ${roleList}"><a href="#"
-									th:text="${userRole.roleName}"></a>
-									<ul>
-										<li th:each="user : ${userRole.userList}"><a href="#"
-											th:text="${user.username}"> </a></li>
-									</ul></li>
-							</ul>
+							</tr>
+							<!--  list all user items --------------------------------------------------------- -->
+						</tbody>
+					</table>
+					<div sec:authorize="hasRole('ROLE_ADMIN')">
+						<div class="col-md-4 col-md-offset-1">
+							<h1>User Roles</h1>
+							<div class="tree">
+								<ul>
+									<li th:each="userRole : ${roleList}"><a href="#"
+										th:text="${userRole.roleName}"></a>
+										<ul>
+											<li th:each="user : ${userRole.userList}"><a href="#"
+												th:text="${user.username}"> </a></li>
+										</ul></li>
+								</ul>
+							</div>
 						</div>
 					</div>
 				</div>

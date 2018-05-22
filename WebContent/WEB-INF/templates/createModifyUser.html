@@ -11,72 +11,57 @@
 	rel="stylesheet">
 </head>
 
-<body>
-	<div class="container" role="main">
+<body class="app flex-row align-items-center">
+	<div class="container  justify-content-center" role="main">
 		<div class="row">
-			<div class="col-md-8 col-md-offset-2">
+			<div class="card col-md-8 col-md-offset-2">
 
 				<!--  fernbach16: Form calls /edituser or /adduser, depending if an user is set already. -->
 				<form class="form-horizontal" method="post"
 					th:action="${user} ? @{/editUser} : @{/createUser}">
-					<fieldset>
-						<legend th:text="${user}? 'Change user' : 'New user'">New
-							user</legend>
+					<fieldset class="card-body">
+						<h1 th:text="${user}? 'Change user' : 'New user'">New user</h1>
 
 						<!--  ----------------  username ---------------- -->
 						<div class="form-group">
-							<label for="inputName" class="col-md-2 control-label">Username</label>
-							<div class="col-md-10">
-								<input class="form-control" type="text" name="username"
-									required="required" th:value="${user} ? ${user.username}"
-									th:readonly="${user}">
-							</div>
+							<input class="form-control" type="text" name="username"
+								required="required" th:value="${user} ? ${user.username}"
+								th:readonly="${user}" placeholder="Username">
 						</div>
 
 						<!--  ----------------  password ---------------- -->
 						<div th:if="${user} == null" class="form-group">
-							<label for="inputSymptoms" class="col-md-2 control-label">Password</label>
-							<div class="col-md-10">
-								<input class="form-control" type="password" name="password"
-									required="required" th:value="${user} ? ${user.password}">
-							</div>
+							<input class="form-control" type="password" name="password"
+								required="required" th:value="${user} ? ${user.password}"
+								placeholder="Password">
 						</div>
 
 						<!--  ----------------  firstname ---------------- -->
 						<div class="form-group">
-							<label for="inputSymptoms" class="col-md-2 control-label">Firstname</label>
-							<div class="col-md-10">
-								<input class="form-control" type="text" name="firstname"
-									required="required" th:value="${user} ? ${user.firstname}">
-							</div>
+							<input class="form-control" type="text" name="firstname"
+								required="required" th:value="${user} ? ${user.firstname}"
+								placeholder="First Name">
 						</div>
 
 						<!--  ----------------  lastname ---------------- -->
 						<div class="form-group">
-							<label for="inputSymptoms" class="col-md-2 control-label">Lastname</label>
-							<div class="col-md-10">
-								<input class="form-control" type="text" name="lastname"
-									required="required" th:value="${user} ? ${user.lastname}">
-							</div>
+							<input class="form-control" type="text" name="lastname"
+								required="required" th:value="${user} ? ${user.lastname}"
+								placeholder="Last Name">
 						</div>
 
 						<!--  ----------------  eMail ---------------- -->
 						<div class="form-group">
-							<label for="inputEMail" class="col-md-2 control-label">eMail</label>
-							<div class="col-md-10">
-								<input class="form-control" type="text" name="eMail"
-									required="required" th:value="${user} ? ${user.eMail}">
-							</div>
+							<input class="form-control" type="email" name="eMail"
+								required="required" th:value="${user} ? ${user.eMail}"
+								placeholder="Email">
 						</div>
 
 						<!--  ----------------  telephone Number ---------------- -->
 						<div class="form-group">
-							<label for="inputTelNumber" class="col-md-2 control-label">Tel.
-								Number</label>
-							<div class="col-md-10">
-								<input class="form-control" type="text" name="telNumber"
-									required="required" th:value="${user} ? ${user.telNumber}">
-							</div>
+							<input class="form-control" type="text" name="telNumber"
+								required="required" th:value="${user} ? ${user.telNumber}"
+								placeholder="Phone Number">
 						</div>
 						<!-- --------------  User Role ---------------- 
 						<div sec:authorize="hasRole('ROLE_ADMIN')">
@@ -92,17 +77,12 @@
 								</select>
 							</div>
 						</div> -->
-						</div>
-
 						<!-- --------------  buttons ---------------- -->
-						<div class="form-group">
-							<div class="col-md-10 col-md-offset-2">
-								<button type="submit" class="btn btn-primary">Submit</button>
-								<a href="showUserManagement" class="btn btn-default"> Cancel
-								</a>
-							</div>
+						<div class="input-group btn-group">
+							<button type="submit" class="btn btn-pill btn-primary">Submit</button>
+							<a href="showUserManagement" class="btn btn-pill btn-secondary">
+								Cancel </a>
 						</div>
-
 					</fieldset>
 				</form>
 			</div>

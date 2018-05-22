@@ -56,7 +56,7 @@ public class UserController {
 		// If User is ins Role 'ADMIN' show all users
 		if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
 			model.addAttribute("users", userRepo.findAll());
-			model.addAttribute("message", "Currently there are " + userRepo.findAll().size() + " entries");
+			model.addAttribute("message", "Currently there are <strong>" + userRepo.findAll().size() + "</strong> entries");
 		} else {
 			model.addAttribute("users", userRepo.findFirstByUsername(authentication.getName()));
 		}

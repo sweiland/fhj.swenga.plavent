@@ -1,24 +1,25 @@
 <!-- Fragement to main menu -->
 <nav th:fragment="navigation" class="navbar navbar-default">
-	<div class="container-fluid">
-		<a sec:authorize="hasRole('USER')"  href="showUserManagement" class="btn btn-default navbar-btn">User Management</a>
-		<a sec:authorize="hasRole('HOST')"  href="showHappeningManagement" class="btn btn-default navbar-btn">Happening Management</a>
-		<a sec:authorize="hasRole('ADMIN')" href="showCategoryManagement" class="btn btn-default navbar-btn">Category Management</a> 
-		<a sec:authorize="hasRole('USER')"  href="dashboard" class="btn btn-default navbar-btn">Dashboard</a>
+	<div class="btn-group" role="group">
+		<a sec:authorize="hasRole('USER')" href="showUserManagement"
+			class="btn btn-pill btn-primary navbar-btn">User Management</a> <a
+			sec:authorize="hasRole('USER')" href="dashboard"
+			class="btn btn-pill btn-primary navbar-btn">Dashboard</a> <a
+			sec:authorize="hasRole('HOST')" href="showHappeningManagement"
+			class="btn btn-pill btn-secondary navbar-btn">Happening
+			Management</a> <a sec:authorize="hasRole('ADMIN')"
+			href="showCategoryManagement"
+			class="btn btn-pill btn-success navbar-btn">Category Management</a>
 	</div>
+	<form class="navbar-form navbar-left" method="post"
+		th:action="@{/logout}">
+		<button class="btn btn-pill btn-danger navbar-btn" type="submit">Logout</button>
+	</form>
 </nav>
 
 <!-- Fragment for main header  -->
 <header th:fragment="header (header)">
 	<div class="container-fluid">
-		<form class="navbar-form navbar-right" method="post" th:action="@{/logout}">
-			<div class="input-group">
-				<span class="input-group-btn">
-					<button class="btn btn-default" type="submit">Logout</button>
-				</span>
-			</div>
-		</form>
-		
 		<h1 th:text="${(header)}"></h1>
 	</div>
 </header>
@@ -36,29 +37,49 @@
 </nav>
 
 
-<footer th:fragment="footer" class="card-footer text-muted">
-<!-- TODO: Bei vielen Zeilen sollte automatisch im Body immer Seite 1..n erfolgen damit die Scrollbar nie kommt... -->
-	<div class="container-fluid text-center footer navbar-fixed-bottom">
-		FERNBACH - HEIDER - HÖDL - WEILAND<br>
-		FH JOANNEUM - Informationsmanagement 2016
+<footer th:fragment="footer" class="fixed-bottom card-footer text-muted">
+	<!-- TODO: Bei vielen Zeilen sollte automatisch im Body immer Seite 1..n erfolgen damit die Scrollbar nie kommt... -->
+	<div
+		class="container-fluid text-center footer footer-copyright navbar-fixed-bottom">
+		FERNBACH - HEIDER - HÃ–DL - WEILAND<br> FH JOANNEUM -
+		Informationsmanagement 2016
 	</div>
+
 </footer>
 
-<nav th:fragment="MgmtNavBar (buttonText,buttonLink,searchLink)" class="navbar navbar-default">
+<nav th:fragment="MgmtNavBar (buttonText,buttonLink,searchLink)"
+	class="navbar navbar-expand-lg navbar-light bg-light">
 	<div class="container-fluid">
 		<!-- Button to add new element-->
-		<a th:href="${(buttonLink)}" class="btn btn-default navbar-btn" th:text="${(buttonText)}">
-			New
-		</a>
-	
+		<a th:href="${(buttonLink)}"
+			class="btn btn-pill btn-primary navbar-btn" th:text="${(buttonText)}">New</a>
+
 		<!-- HTML form with search textbox and submit button-->
-		<form class="navbar-form navbar-right" role="search" method="post" th:action="${(searchLink)}">
+		<form class="navbar-form navbar-right" role="search" method="post"
+			th:action="${(searchLink)}">
 			<div class="input-group">
-				<input type="text" class="form-control" placeholder="Search for..." name="searchString">
-				<span class="input-group-btn">
-					<button class="btn btn-default" type="submit">Filter</button>
+				<input type="text" class="form-control" placeholder="Search for..."
+					name="searchString"> <span class="input-group-append">
+					<button class="btn btn-pill btn-primary" type="submit">Filter</button>
 				</span>
 			</div>
 		</form>
 	</div>
 </nav>
+
+<div th:fragment="msgs">
+	<!--  Error message ----------------------------------------------------------- -->
+	<div th:unless="${errorMessage} == null" th:utext="${errorMessage}"
+		class="alert alert-danger" role="alert"></div>
+	<!--  Error message ----------------------------------------------------------- -->
+
+	<!--  Warning message ----------------------------------------------------------- -->
+	<div th:unless="${warningMessage} == null" th:utext="${warningMessage}"
+		class="alert alert-warning" role="warning"></div>
+	<!--  Warning message ----------------------------------------------------------- -->
+
+	<!--   message ----------------------------------------------------------- -->
+	<div th:unless="${message} == null" th:utext="${message}"
+		class="alert alert-info" role="alert"></div>
+	<!--   message ----------------------------------------------------------- -->
+</div>

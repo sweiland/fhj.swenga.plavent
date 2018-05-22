@@ -3,38 +3,41 @@
 	xmlns:th="http://www.thymeleaf.org">
 
 <head>
-<div th:include="~{includes/bootstrap :: bootstrapMeta}" th:remove="tag" />
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <title>PlaVent - Error!</title>
+<div th:include="~{includes/bootstrap :: bootstrapMeta}" th:remove="tag" />
 <div th:include="~{includes/bootstrap :: bootstrapCSS}" th:remove="tag" />
 </head>
 <body>
-	<div class="container" role="main">
-
-		<div class="page-header">
+	<div class="card container" role="main">
+		<div class="card-body">
+			<div class="page-header">
+				<!-- include the Nav bar fragment-->
+				<nav th:replace="~{includes/fragments :: header (header='PlaVent - ERROR')}"></nav>
+			</div>
+	
 			<!-- include the Nav bar fragment-->
-			<nav th:replace="~{includes/fragments :: header (header='PlaVent - ERROR')}"></nav>
-		</div>
-
-		<!-- include the Nav bar fragment-->
-		<nav th:replace="~{includes/fragments :: navigation }"></nav>
-		
-		<div class="row">
-			<div class="col-md-12">
-				<h1>Sorry bro, a error occured:</h1>
-				<!--  Spring information to get access -->
-				<b>Exception:</b> 
-					<span th:text="${#request.getAttribute('javax.servlet.error.exception')}"></span><br/><br>
-				<b>Status Code:</b> 
-					<span th:text="${#request.getAttribute('javax.servlet.error.status_code')}"></span><br/>
-				<b>Request-URI:</b> 
-					<span th:text="${#request.getAttribute('javax.servlet.error.request_uri')}"></span><br/>
-				<b>Servlet Name:</b> 
-					<span th:text="${#request.getAttribute('javax.servlet.error.servlet_name')}"></span><br/>
-				<div class="form-group">
-					<a href="./" class="btn btn-default">Back</a>
-				</div>	
+			<nav th:replace="~{includes/fragments :: navigation }"></nav>
+			
+			<div class="row">
+				<div class="col-md-12">
+					<h1>Sorry bro, a error occured:</h1>
+					<!--  Spring information to get access -->
+					<b>Exception:</b> 
+						<span th:text="${#request.getAttribute('javax.servlet.error.exception')}"></span><br/><br>
+					<b>Status Code:</b> 
+						<span th:text="${#request.getAttribute('javax.servlet.error.status_code')}"></span><br/>
+					<b>Request-URI:</b> 
+						<span th:text="${#request.getAttribute('javax.servlet.error.request_uri')}"></span><br/>
+					<b>Servlet Name:</b> 
+						<span th:text="${#request.getAttribute('javax.servlet.error.servlet_name')}"></span><br/>
+					<div class="form-group">
+						<a class="btn btn-pill btn-primary" href="./">Back to Safety!</a>
+					</div>	
+				</div>
 			</div>
 		</div>
 	</div>
+	<footer th:replace="~{includes/fragments :: footer}"></footer>
 </body>
 </html>

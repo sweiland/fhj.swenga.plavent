@@ -4,10 +4,17 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <title>TODO</title>
+<div th:include="~{includes/bootstrap :: bootstrapMeta}" th:remove="tag" />
+<div th:include="~{includes/bootstrap :: bootstrapCSS}" th:remove="tag" />
 </head>
 <body>
-	<h1>TODO</h1>
-	Ups, I think here is some implementation missing..
-	<a href="./dashboard">back</a>
+	<div class="card container" role="main">
+		<div class="card-body">
+			<h1>TODO</h1>
+			Oops, I think here is some implementation missing.. <a
+				href="./dashboard">back</a>
+		</div>
+	</div>
+	<footer th:replace="~{includes/fragments :: footer}"></footer>
 </body>
 </html>

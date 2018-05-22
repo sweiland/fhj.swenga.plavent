@@ -8,87 +8,72 @@
 <div th:include="~{includes/bootstrap :: bootstrapCSS}" th:remove="tag" />
 </head>
 
-<body>
-	<div class="container" role="main">
+<body class="app flex-row align-items-center">
+	<div class="card container justify-content-center" role="main">
+		<div class="card-body">
+			<div class="page-header">
+				<img src="./img/logo.png" alt="PlaVent" height="150px">
+			</div>
+			<div class="row">
+				<div class="col-md-10 col-md-offset-1">
 
-		<div class="page-header">
-			<h1>PlaVent</h1>
-		</div>
-		<!--  Error message ----------------------------------------------------------- -->
-		<div th:unless="${errorMessage} == null" th:utext="${errorMessage}"
-			class="alert alert-danger" role="alert"></div>
-		<!--  Error message ----------------------------------------------------------- -->
-
-		<!--  Warning message ----------------------------------------------------------- -->
-		<div th:unless="${warningMessage} == null"
-			th:utext="${warningMessage}" class="alert alert-warning"
-			role="warning"></div>
-		<!--  Warning message ----------------------------------------------------------- -->
-
-		<!--   message ----------------------------------------------------------- -->
-		<div th:unless="${message} == null" th:utext="${message}"
-			class="alert alert-success" role="warning"></div>
-		<!--   message ----------------------------------------------------------- -->
-
-
-		<div class="row">
-			<div class="col-md-10 col-md-offset-1">
-			
-				<!-- Check if PlaVent Environment exists.
+					<!-- Check if PlaVent Environment exists.
 					If not: just show button for initial setup -->
-				<th:block th:if="${noPlaventEnvironment}")>
-					<form>
-					  <a th:href="@{/preparePlavent}" class="btn btn-primary"> 
-						<span class="glyphicon" aria-hidden="true"></span>Start Initial Setup</a>
-					</form>
-				</th:block>
-	
-				<th:block th:unless="${noPlaventEnvironment}")>
-					<form class="form-horizontal" method="post" th:action="@{/login}">
-						<input type="hidden" th:name="${_csrf.parameterName}"
-							th:value="${_csrf.token}" />
-	
-						<fieldset>
-							<legend>Login</legend>
-	
-							<div th:if="${param.error}" class="alert alert-danger">
-								Invalid username and password.</div>
-							<div th:if="${param.logout}" class="alert alert-success">You
-								have been logged out.</div>
-	
-	
-							<!--  ----------------  User Name ---------------- -->
-							<div class="form-group">
-								<label for="inputName" class="col-md-2 control-label">Username</label>
-								<div class="col-md-10">
-									<input class="form-control" type="text" name="username"
-										required="required" value="">
+					<th:block th:if="${noPlaventEnvironment}">
+						<form>
+							<label for="prepare">No PlaVent environment found, please
+								press Start to initialize your DB.</label><br> <a
+								th:href="@{/preparePlavent}"
+								class="btn btn-lg btn-pill btn-success" id="prepare"> Start
+								Initial Setup</a>
+						</form>
+					</th:block>
+
+					<th:block th:unless="${noPlaventEnvironment}" )>
+						<form class="form-horizontal" method="post" th:action="@{/login}">
+							<input type="hidden" th:name="${_csrf.parameterName}"
+								th:value="${_csrf.token}" />
+
+							<fieldset class="col-md-10">
+								<h1>Login</h1>
+
+								<div th:if="${param.error}" class="alert alert-danger">
+									Invalid username and password.</div>
+								<div th:if="${param.logout}" class="alert alert-success">You
+									have been logged out.</div>
+
+
+								<!--  ----------------  User Name ---------------- -->
+								<div class="input-group">
+									<div class="input-group mb-3">
+										<div class="input-group-prepend">
+											<span class="input-group-text" id="basic-addon1">@</span>
+										</div>
+										<input type="text" class="form-control" placeholder="Username"
+											name="username" required="required" value=""
+											aria-label="Username" aria-describedby="basic-addon1">
+									</div>
 								</div>
-							</div>
-	
-							<!--  ----------------  password ---------------- -->
-							<div class="form-group">
-								<label for="inputPassword" class="col-md-2 control-label">Password</label>
-								<div class="col-md-10">
+
+								<!--  ----------------  password ---------------- -->
+								<div class="input-group">
 									<input class="form-control" type="password" name="password"
-										required="required" value="">
+										required="required" value="" placeholder="Password"> <span
+										class="input-group-append"> <a href="registerUser"
+										class="btn btn-danger">Register</a> <input name="submit"
+										class="btn btn-success" type="submit" value="Login">
+									</span>
 								</div>
-							</div>
-	
-							<!-- --------------  buttons ---------------- -->
-							<div class="form-group">
-								<div class="col-md-10 col-md-offset-2">
-									<td><input name="submit" type="submit" value="Login" class="btn btn-primary"></td>
-									<a href="registerUser" class="btn btn-default"> Register </a>
-								</div>
-							</div>
-	
-						</fieldset>
-					</form>
-				</th:block>
+							</fieldset>
+						</form>
+					</th:block>
+				</div>
 			</div>
 		</div>
+		<!-- weilands16: include our footer -->
+		<footer th:replace="~{includes/fragments :: footer}"></footer>
 	</div>
+
 	<!--  End of container -->
 	<div th:include="~{includes/bootstrap :: bootstrapJS}" th:remove="tag" />
 </body>
