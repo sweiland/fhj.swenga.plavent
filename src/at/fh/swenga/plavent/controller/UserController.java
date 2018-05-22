@@ -1,5 +1,6 @@
 package at.fh.swenga.plavent.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -177,20 +178,16 @@ public class UserController {
 		if (userRepo.findFirstByUsername(newUserModel.getUsername()) != null) {
 			model.addAttribute("warningMessage", "Your User could not be registered!");
 		} else {
-
-			User user = new User();
-			user.setUsername(newUserModel.getUsername());
-			user.setPassword(newUserModel.getPassword());
-			user.setFirstname(newUserModel.getFirstname());
-			user.setLastname(newUserModel.getLastname());
-			user.seteMail(newUserModel.geteMail());
-			user.setTelNumber(newUserModel.getTelNumber());
-
-			UserRole role = userRoleRepo.findFirstByRoleName("GUEST");
-			if (role != null)
-				user.addUserRole(role);
-
-			userRepo.save(user);
+			
+			UserRole role = userRoleRepo.findFirstByRoleName("ROLE_GUEST");
+			if (role != null) {
+				List<UserRole> roles = new ArrayList<UserRole>();
+				roles.add(role);
+				newUserModel.setRoleList(roles);
+			}
+			newUserModel.setEnabled(true);
+	
+			userRepo.save(newUserModel);
 			model.addAttribute("message", "Registered User " + newUserModel.getUsername());
 		}
 		return showRegisterIssues(model, authentication);
@@ -226,18 +223,14 @@ public class UserController {
 			model.addAttribute("errorMessage", "User already exists!");
 		}
 
-		else {
-			User user = new User();
-			user.setUsername(newUser.getUsername());
-			user.setPassword(newUser.getPassword());
-			user.setFirstname(newUser.getFirstname());
-			user.setLastname(newUser.getLastname());
-			user.seteMail(newUser.geteMail());
-			user.setTelNumber(newUser.getTelNumber());
-
-			UserRole role = userRoleRepo.findFirstByRoleName("GUEST");
-			if (role != null)
-				user.addUserRole(role);
+		else {		
+			UserRole role = userRoleRepo.findFirstByRoleName("ROLE_GUEST");
+			if (role != null) {
+				List<UserRole> roles = new ArrayList<UserRole>();
+				roles.add(role);
+				newUser.setRoleList(roles);
+			}
+			newUser.setEnabled(true);
 	
 			userRepo.save(newUser);
 			model.addAttribute("message", "New user " + newUser.getUsername() + "added.");
@@ -290,6 +283,7 @@ public class UserController {
 
 	@ExceptionHandler(Exception.class)
 	public String handleAllException(Exception ex) {
+		ex.printStackTrace();
 		return "error";
 	}
 
