@@ -100,8 +100,7 @@ public class HappeningController {
 	 * @return
 	 */
 	private PageRequest generatePageRequest(int pageNr) {
-		// TODO: Pagination: set back to 10 elements(from 2)
-		return PageRequest.of(pageNr, 2);
+		return PageRequest.of(pageNr, 10);
 	}
 
 	// -----------------------------------------------------------------------------------------
