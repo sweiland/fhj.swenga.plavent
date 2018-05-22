@@ -5,6 +5,8 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -87,6 +89,18 @@ public class HappeningGuestlistController {
 		}
 	}
 
+	/**
+	 * Helper method to include the paging handling. The content is static, so user
+	 * can just change the pagenumber
+	 * 
+	 * @param pageNr
+	 *            .. Page number which should be displayed
+	 * @return
+	 */
+	private PageRequest generatePageRequest(int pageNr) {
+		return PageRequest.of(pageNr, 10);
+	}
+
 	// -----------------------------------------------------------------------------------------
 	// --- GUESTLIST MANAGEMENT ---
 	// -----------------------------------------------------------------------------------------
@@ -103,12 +117,43 @@ public class HappeningGuestlistController {
 			return "forward:/showHappeningManagement";
 		}
 
-		// TODO: Pageable stuff einbauen
+		// Show first page with max 10 elements...
+		PageRequest page = generatePageRequest(0);
+		Page<User> happeningGuestsPage = happeningGuestlistRepo.getGuestListAsPage( happening.getHappeningId(), page);
+
 		model.addAttribute("happening", happening);
-		model.addAttribute("happeningGuests", happening.getGuestList()); // Required in a separate attribute for //
-																			// filtering
+		model.addAttribute("happeningGuests", happeningGuestsPage);
 		model.addAttribute("potentialGuests",
 				happeningGuestlistRepo.getPotentialGuestsForHappening(happening.getHappeningId()));
+
+		model.addAttribute("currPage", happeningGuestsPage.getNumber());
+		model.addAttribute("totalPages", happeningGuestsPage.getTotalPages());
+
+		return "happeningGuestManagement";
+	}
+
+	@RequestMapping(value = { "showGuestListManagementPage" })
+	public String showGuestListManagementPage(Model model, @RequestParam(value = "page") int pageNr,
+			@RequestParam(value = "happeningID") Happening happening, Authentication authentication) {
+
+		// Check if user is Owner of Happening or has role ADMIN
+		if (!isHappeningHostOrAdmin(happening, authentication)
+				|| "DELETED".equals(happening.getHappeningStatus().getStatusName())) {
+			model.addAttribute("warningMessage", "Happening not found or no permission!");
+			return "forward:/showHappeningManagement";
+		}
+
+		// Show first page with max 10 elements...
+		PageRequest page = generatePageRequest(pageNr);
+		Page<User> happeningGuestsPage = happeningGuestlistRepo.getGuestListAsPage( happening.getHappeningId(), page);
+
+		model.addAttribute("happening", happening);
+		model.addAttribute("happeningGuests", happeningGuestsPage);
+		model.addAttribute("potentialGuests",
+				happeningGuestlistRepo.getPotentialGuestsForHappening(happening.getHappeningId()));
+
+		model.addAttribute("currPage", happeningGuestsPage.getNumber());
+		model.addAttribute("totalPages", happeningGuestsPage.getTotalPages());
 
 		return "happeningGuestManagement";
 	}
@@ -193,10 +238,18 @@ public class HappeningGuestlistController {
 			return "forward:/showHappeningManagement";
 		}
 
-		// TODO: Pageable stuff einbauen
+		// Show first page with max 10 elements...
+		PageRequest page = generatePageRequest(0);
+		Page<User> happeningGuestsPage = happeningGuestlistRepo.getFilteredGuestList(happening.getHappeningId(),
+				searchString, page);
+
 		model.addAttribute("happening", happening);
+		model.addAttribute("happeningGuests", happeningGuestsPage);
 		model.addAttribute("potentialGuests",
 				happeningGuestlistRepo.getPotentialGuestsForHappening(happening.getHappeningId()));
+
+		model.addAttribute("currPage", happeningGuestsPage.getNumber());
+		model.addAttribute("totalPages", happeningGuestsPage.getTotalPages());
 		return "happeningGuestManagement";
 	}
 
@@ -242,7 +295,8 @@ public class HappeningGuestlistController {
 
 		User guest = userRepo.findFirstByUsername(username);
 
-		// Valid guest object and guest is on guestlist of happening and given task is managed by guest...
+		// Valid guest object and guest is on guestlist of happening and given task is
+		// managed by guest...
 		if (guest != null && task.getHappening().getGuestList().contains(guest)
 				&& happeningTaskRepo.getAllAssignedTasks(task.getHappening().getHappeningId(), guest).contains(task)) {
 			task.setResponsibleUser(null);

@@ -2,6 +2,8 @@ package at.fh.swenga.plavent.repo;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -30,6 +32,22 @@ public interface HappeningGuestlistRepository extends JpaRepository<User, Intege
 		   			"INNER JOIN User u ON(u.username = g.username) " + 
 		   			"WHERE g.happeningId = :happeningID", nativeQuery = true)	
 	public List<User> getGuestList(@Param("happeningID") int happeningId);
+	
+	@Query(value = "SELECT * " + 
+					"FROM User u " + 
+					"WHERE u.username IN (SELECT g.username " +
+					"			 		  	FROM Guestlist g " +
+					"						WHERE g.happeningId = :happeningID)", nativeQuery = true)	
+	public Page<User> getGuestListAsPage(@Param("happeningID") int happeningId,Pageable page);
+	
+	
+	@Query(value = "SELECT * " + 
+			"FROM User u " + 
+			"WHERE LOWER(u.username) LIKE LOWER(CONCAT('%',:searchstring,'%')) " +
+			"  AND u.username IN (SELECT g.username " +
+			"			 		  	FROM Guestlist g " +
+			"						WHERE g.happeningId = :happeningID)", nativeQuery = true)	
+	public Page<User> getFilteredGuestList(@Param("happeningID") int happeningId, @Param("searchstring") String searchString, Pageable page);
 	
 	@Query(value = "SELECT u.* " + 
    			"FROM Guestlist g " + 

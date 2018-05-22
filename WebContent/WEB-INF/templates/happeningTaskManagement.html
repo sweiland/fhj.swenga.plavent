@@ -42,6 +42,22 @@
 					</div>
 				</form>
 			</nav>
+			
+			<!-- Customized pagination because of happeningId-->
+			<nav>
+			  <ul class="pagination">
+			  	<li th:if="${totalPages <= 1}" class="page-item"> 
+			    	<a class="page-link" th:href="@{/showTaskListManagementPage(page=1, happeningID=${happening.happeningId})}">1</a>
+			    </li>
+			    <li th:if="${totalPages gt 1}" class="page-item" th:each="i : ${#numbers.sequence(0,totalPages-1)}"> 
+			    	<a class="page-link" th:href="@{/showTaskListManagementPage(page=${i}, happeningID=${happening.happeningId})}" th:text="${i+1}"></a>
+			    </li>
+			  </ul>
+			</nav>
+			
+			<!-- include message boxes (moved to fragments) -->
+			<div th:replace="~{includes/fragments :: msgs}"></div>
+		
 			<div class="row">
 				<div class="col-md-12">
 					<!-- hoedlale16: Generates a sortable table with bootstrap-style -->
@@ -63,7 +79,6 @@
 								<td th:text="${task.durationInHour}"></td>
 								<td
 									th:text="${task.responsibleUser} ? ${task.responsibleUser.lastname +' '+#strings.substring(task.responsibleUser.firstname,0,1) +'.'} : 'n/a'"></td>
-
 								<td th:text="${task.description}"></td>
 
 								<td><div class="btn-group">

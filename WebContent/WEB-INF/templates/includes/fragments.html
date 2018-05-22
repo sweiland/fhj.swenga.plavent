@@ -1,3 +1,4 @@
+<!-- Fragement to main menu -->
 <nav th:fragment="navigation" class="navbar navbar-default">
 	<div class="btn-group" role="group">
 		<a sec:authorize="hasRole('USER')" href="showUserManagement"
@@ -16,17 +17,31 @@
 	</form>
 </nav>
 
+<!-- Fragment for main header  -->
 <header th:fragment="header (header)">
 	<div class="container-fluid">
 		<h1 th:text="${(header)}"></h1>
 	</div>
 </header>
 
+<!-- Fragment to have pagination -->
+<nav th:fragment="pageNav (linkToChangePage)">
+  <ul class="pagination">
+  	<li th:if="${totalPages <= 1}" class="page-item"> 
+    	<a class="page-link" th:href="@{${(linkToChangePage)}(page=1)}">1</a>
+	</li>
+    <li th:if="${totalPages gt 1}" class="page-item" th:each="i : ${#numbers.sequence(0,totalPages-1)}"> 
+    	<a class="page-link" th:href="@{${(linkToChangePage)}(page=${i})}" th:text="${i+1}"></a>
+    </li>
+  </ul>
+</nav>
+
+
 <footer th:fragment="footer" class="fixed-bottom card-footer text-muted">
 	<!-- TODO: Bei vielen Zeilen sollte automatisch im Body immer Seite 1..n erfolgen damit die Scrollbar nie kommt... -->
 	<div
 		class="container-fluid text-center footer footer-copyright navbar-fixed-bottom">
-		FERNBACH - HEIDER - HÃ–DL - WEILAND<br> FH JOANNEUM -
+		FERNBACH - HEIDER - HÖDL - WEILAND<br> FH JOANNEUM -
 		Informationsmanagement 2016
 	</div>
 

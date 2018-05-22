@@ -5,6 +5,8 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -77,6 +79,18 @@ public class HappeningTaskController {
 		}
 	}
 
+	/**
+	 * Helper method to include the paging handling. The content is static, so user
+	 * can just change the pagenumber
+	 * 
+	 * @param pageNr
+	 *            .. Page number which should be displayed
+	 * @return
+	 */
+	private PageRequest generatePageRequest(int pageNr) {
+		return PageRequest.of(pageNr, 10);
+	}
+
 	// -----------------------------------------------------------------------------------------
 	// --- TASKLIST MANAGEMENT ---
 	// -----------------------------------------------------------------------------------------
@@ -93,9 +107,43 @@ public class HappeningTaskController {
 			return "forward:/showHappeningManagement";
 		}
 
-		//TODO: Pageable stuff einbauen
-		model.addAttribute("happening", happening); // Enthaelt die GaesteList & Tasks
-		model.addAttribute("happeningTasks", happening.getTaskList()); // Extern benoetigt fuer filterfunction
+		// Show first page with max 10 elements...
+		PageRequest page = generatePageRequest(0);
+		Page<HappeningTask> happeningTasksPage = happeningTaskRepo
+				.findByHappeningHappeningId(happening.getHappeningId(), page);
+
+		model.addAttribute("happening", happening);
+		model.addAttribute("happeningTasks", happeningTasksPage);
+
+		model.addAttribute("currPage", happeningTasksPage.getNumber());
+		model.addAttribute("totalPages", happeningTasksPage.getTotalPages());
+		return "happeningTaskManagement";
+
+	}
+
+	@Secured({ "ROLE_HOST" })
+	@RequestMapping(value = { "showTaskListManagementPage" })
+	public String showTaskListManagementPage(Model model, @RequestParam(value = "page") int pageNr,
+			@RequestParam(value = "happeningID") Happening happening, Authentication authentication) {
+
+		// Check if happening is DELETED or current logged in user is Owner of Happening
+		// or has role ADMIN
+		if (!isHappeningHostOrAdmin(happening, authentication)
+				|| "DELETED".equals(happening.getHappeningStatus().getStatusName())) {
+			model.addAttribute("warningMessage", "Happening not found or no permission!");
+			return "forward:/showHappeningManagement";
+		}
+
+		// Show first page with max 10 elements...
+		PageRequest page = generatePageRequest(pageNr);
+		Page<HappeningTask> happeningTasksPage = happeningTaskRepo
+				.findByHappeningHappeningId(happening.getHappeningId(), page);
+
+		model.addAttribute("happening", happening);
+		model.addAttribute("happeningTasks", happeningTasksPage);
+
+		model.addAttribute("currPage", happeningTasksPage.getNumber());
+		model.addAttribute("totalPages", happeningTasksPage.getTotalPages());
 		return "happeningTaskManagement";
 
 	}
@@ -156,12 +204,16 @@ public class HappeningTaskController {
 			model.addAttribute("warningMessage", "Happening not found or no permission!");
 			return "forward:/showHappeningManagement";
 		}
+		
+		PageRequest page = generatePageRequest(0);
+		Page<HappeningTask> happeningTasksPage = happeningTaskRepo
+				.getFilteredTasks(happening.getHappeningId(),searchString, page);
 
-		//TODO: Pageable stuff einbauen
 		model.addAttribute("happening", happening);
-		// Required in an additional attribute for filter functionality
-		model.addAttribute("happeningTasks",
-				happeningTaskRepo.getFilteredTasks(happening.getHappeningId(), searchString));
+		model.addAttribute("happeningTasks", happeningTasksPage);
+
+		model.addAttribute("currPage", happeningTasksPage.getNumber());
+		model.addAttribute("totalPages", happeningTasksPage.getTotalPages());
 		return "happeningTaskManagement";
 
 	}
@@ -199,10 +251,10 @@ public class HappeningTaskController {
 		// Any errors? -> Create a String out of all errors and return to the page
 		if (errorsDetected(model, bindingResult))
 			return showTaskListManagement(model, happening, authentication);
-		
-		
-		HappeningTask task = happeningTaskRepo.findByTaskIdAndHappeningHappeningId(modifiedTask.getTaskId(), happening.getHappeningId());
-		if(task != null) {
+
+		HappeningTask task = happeningTaskRepo.findByTaskIdAndHappeningHappeningId(modifiedTask.getTaskId(),
+				happening.getHappeningId());
+		if (task != null) {
 			task.setTopic(modifiedTask.getTopic());
 			task.setDurationInHour(modifiedTask.getDurationInHour());
 			task.setDescription(modifiedTask.getDescription());
@@ -214,12 +266,12 @@ public class HappeningTaskController {
 			happeningTaskRepo.saveAndFlush(task);
 			happening.removeHappeningTaskFromList(modifiedTask);
 			happening.addHappeningTask(task);
-			
+
 			return showTaskListManagement(model, happening, authentication);
 		} else {
 			model.addAttribute("warningMessage", "Task not found!");
 			return showTaskListManagement(model, happening, authentication);
-		}		
+		}
 	}
 
 	@Secured({ "ROLE_HOST" })
