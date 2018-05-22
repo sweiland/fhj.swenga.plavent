@@ -23,6 +23,10 @@
 		<!-- include the serach bar fragment for users-->
 		<nav th:replace="~{includes/fragments :: MgmtNavBar (buttonText='New Happening',buttonLink='showCreateHappeningForm',searchLink='filterHappenings')}"></nav>
 
+		<!--  include fragement for pageination stuff -->
+		<nav th:replace="~{includes/fragments :: pageNav (linkToChangePage='/showHappeningManagementPage') }"></nav>
+
+
 		<!--  Error message ----------------------------------------------------------- -->
 		<div th:unless="${errorMessage} == null" th:utext="${errorMessage}"
 			class="alert alert-danger" role="alert"></div>
@@ -40,7 +44,6 @@
 		<!--   message ----------------------------------------------------------- -->
 
 		<div class="row">
-			<!-- <div class="col-md-10 col-md-offset-1"> -->
 			<div class="col-md-12">
 			  <!-- hoedlale16: Generates a sortable table with bootstrap-style -->
 				<table data-toggle="table" class="table table-striped">

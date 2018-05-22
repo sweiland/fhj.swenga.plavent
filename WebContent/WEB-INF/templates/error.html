@@ -1,17 +1,40 @@
-<!DOCTYPE html>
+	<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:th="http://www.thymeleaf.org">
+
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>Error Page</title>
+<div th:include="~{includes/bootstrap :: bootstrapMeta}" th:remove="tag" />
+<title>PlaVent - Error!</title>
+<div th:include="~{includes/bootstrap :: bootstrapCSS}" th:remove="tag" />
 </head>
 <body>
-	<h1>Error</h1>
-	<!--  Spring information to get access -->
-	Exception: <span th:text="${#request.getAttribute('javax.servlet.error.exception')}"></span><br/>
-	Status Code: <span th:text="${#request.getAttribute('javax.servlet.error.status_code')}"></span><br/>
-	Request-URI: <span th:text="${#request.getAttribute('javax.servlet.error.request_uri')}"></span><br/>
-	Servlet Name: <span th:text="${#request.getAttribute('javax.servlet.error.servlet_name')}"></span><br/>
-	<a href="./">back</a>
+	<div class="container" role="main">
+
+		<div class="page-header">
+			<!-- include the Nav bar fragment-->
+			<nav th:replace="~{includes/fragments :: header (header='PlaVent - ERROR')}"></nav>
+		</div>
+
+		<!-- include the Nav bar fragment-->
+		<nav th:replace="~{includes/fragments :: navigation }"></nav>
+		
+		<div class="row">
+			<div class="col-md-12">
+				<h1>Sorry bro, a error occured:</h1>
+				<!--  Spring information to get access -->
+				<b>Exception:</b> 
+					<span th:text="${#request.getAttribute('javax.servlet.error.exception')}"></span><br/><br>
+				<b>Status Code:</b> 
+					<span th:text="${#request.getAttribute('javax.servlet.error.status_code')}"></span><br/>
+				<b>Request-URI:</b> 
+					<span th:text="${#request.getAttribute('javax.servlet.error.request_uri')}"></span><br/>
+				<b>Servlet Name:</b> 
+					<span th:text="${#request.getAttribute('javax.servlet.error.servlet_name')}"></span><br/>
+				<div class="form-group">
+					<a href="./" class="btn btn-default">Back</a>
+				</div>	
+			</div>
+		</div>
+	</div>
 </body>
 </html>

@@ -10,6 +10,9 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -88,6 +91,18 @@ public class HappeningController {
 		}
 		return false;
 	}
+	
+	/**
+	 * Helper method to include the paging handling. The content is static, so user
+	 * can just change the pagenumber
+	 * 
+	 * @param pageNr .. Page number which should be displayed
+	 * @return
+	 */
+	private PageRequest generatePageRequest(int pageNr) {
+		// TODO: Pagination: set back to 10 elements(from 2)
+		return PageRequest.of(pageNr, 2);
+	}
 
 	// -----------------------------------------------------------------------------------------
 	// --- GENERAL HAPPENING MANAGEMENT ---
@@ -96,16 +111,42 @@ public class HappeningController {
 	@RequestMapping(value = { "showHappeningManagement" })
 	public String showHappenings(Model model, Authentication authentication) {
 
+		// Show first page with max 10 elements...
+		PageRequest page = generatePageRequest(0);
+		Page<Happening> happeningPage;
+		
 		// ADMINS are allowed to see all happening. HOSTS just happenings shich belongs
 		// to them and are active
 		if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
-			model.addAttribute("happenings", happeningRepo.findAll());
+			happeningPage = happeningRepo.findAll(page);
 		} else {
 			// Show just active ones!
-			model.addAttribute("happenings", happeningRepo.getActiveHappeningsForHost(authentication.getName()));
+			happeningPage = happeningRepo.getActiveHappeningsForHost(authentication.getName(), page);	
 		}
 
-		//TODO: Pageable stuff einbauen
+		model.addAttribute("happenings", happeningPage);
+		model.addAttribute("currPage", happeningPage.getNumber());
+		model.addAttribute("totalPages", happeningPage.getTotalPages());
+		return "happeningManagement";
+	}
+
+	@RequestMapping(value = { "showHappeningManagementPage" })
+	public String showHappeningManagementPage(Model model, @RequestParam(value = "page") int pageNr,
+			Authentication authentication) {
+
+		PageRequest page = generatePageRequest(pageNr);
+		Page<Happening> happeningPage;
+
+		if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
+			happeningPage = happeningRepo.findAll(page);
+		} else {
+			// Show just active ones!
+			happeningPage = happeningRepo.getActiveHappeningsForHost(authentication.getName(), page);
+		}
+		
+		model.addAttribute("happenings", happeningPage);
+		model.addAttribute("currPage", happeningPage.getNumber());
+		model.addAttribute("totalPages", happeningPage.getTotalPages());
 		return "happeningManagement";
 	}
 
@@ -114,11 +155,10 @@ public class HappeningController {
 	public String showCreateHappeningForm(Model model, Authentication authentication) {
 
 		// Set required attributes
-		// TOOD: Just show active (enabled) ones
+		// TODO: Just show active (enabled) categories
 		model.addAttribute("happeningCategories", happeningCategoryRepo.findAll());
 
-		// ADMins are allowed to create a happening for every host. HOSTS just for
-		// themself.
+		// Admins are allowed to create a happening for everyone, hosts just for themself.
 		if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
 			// Just set Users with role HOST
 			model.addAttribute("happeningHosts", userRepo.getUsersByRolename("ROLE_HOST"));
@@ -145,8 +185,7 @@ public class HappeningController {
 		// TOOD: Just show active (enabled) ones
 		model.addAttribute("happeningCategories", happeningCategoryRepo.findAll());
 
-		// ADMins are allowed to create a happening for every host. HOSTS just for
-		// themself.
+		// Admins are allowed to create a happening for everyone, hosts just for themself.
 		if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
 			// Just set Users with role HOST
 			model.addAttribute("happeningHosts", userRepo.getUsersByRolename("ROLE_HOST"));
@@ -224,8 +263,6 @@ public class HappeningController {
 			return showHappenings(model, authentication);
 		}
 
-		
-		
 		SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy hh:mm");
 		Calendar start = Calendar.getInstance();
 		start.setTime(format.parse(startAsString));
@@ -239,13 +276,13 @@ public class HappeningController {
 			model.addAttribute("warningMessage", "End of happening is not allowed to be before start!");
 			return showHappenings(model, authentication);
 		}
-		
+
 		Optional<Happening> happeningOptional = happeningRepo.findById(newHappening.getHappeningId());
-		if(! happeningOptional.isPresent()) {
+		if (!happeningOptional.isPresent()) {
 			model.addAttribute("warningMessage", "Happening not found or no permission!");
 			return showHappenings(model, authentication);
 		}
-		//Validataion checks done, set new parametsers and update data
+		// Validation checks done, set new parameters and update data
 		Happening happening = happeningOptional.get();
 
 		happening.setHappeningName(newHappening.getHappeningName());
@@ -256,7 +293,7 @@ public class HappeningController {
 		happening.setHappeningStatus(happeningStatusRepo.findFirstByStatusName(happeningStatus));
 		happening.setHappeningHost(userRepo.findFirstByUsername(hostUsername));
 		happening.setCategory(happeningCategoryRepo.findFirstByCategoryID(categoryID));
-		
+
 		happeningRepo.save(happening);
 		return showHappenings(model, authentication);
 	}
@@ -289,10 +326,22 @@ public class HappeningController {
 
 	@Secured({ "ROLE_HOST" })
 	@PostMapping("/filterHappenings")
-	public String filterHappenings(Model model, @RequestParam String searchString) {
+	public String filterHappenings(Model model, @RequestParam String searchString, Authentication authentication) {
+
+		PageRequest page = generatePageRequest(0);
+		Page<Happening> happeningPage;		
 		
-		//TODO: Pageable stuff einbauen
-		model.addAttribute("happenings", happeningRepo.findByHappeningName(searchString));
+		if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
+			// ADMINS are allowed to see all happening
+			happeningPage = happeningRepo.findByHappeningName(searchString,page);
+		} else {
+			// Show filter happenings of user!
+			happeningPage = happeningRepo.findByHappeningNameAndHappeningHostUsername(searchString,authentication.getName(), page);
+		}
+		model.addAttribute("happenings", happeningPage);
+		model.addAttribute("currPage", happeningPage.getNumber());
+		model.addAttribute("totalPages", happeningPage.getTotalPages());
+
 		return "happeningManagement";
 	}
 	// -----------------------------------------------------------------------------------------

@@ -2,6 +2,8 @@ package at.fh.swenga.plavent.repo;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -21,10 +23,10 @@ public interface HappeningTaskRepository extends JpaRepository<HappeningTask, In
 	@Query("Select t From HappeningTask t WHERE t.happening.happeningId  = :happeningId and t.responsibleUser = null" )
 	public List<HappeningTask> getUnassignedTasks(@Param("happeningId") int happeningId);
 	
-	public List<HappeningTask> findByHappeningHappeningId(int happeningId);
+	public Page<HappeningTask> findByHappeningHappeningId(int happeningId,Pageable page);
 
 	@Query("Select t From HappeningTask t WHERE t.happening.happeningId  = :happeningId AND  LOWER(t.topic) LIKE LOWER(CONCAT('%',:searchstring,'%'))" )
-	public List<HappeningTask> getFilteredTasks(@Param("happeningId") int happeningId, @Param("searchstring") String searchstring);
+	public Page<HappeningTask> getFilteredTasks(@Param("happeningId") int happeningId, @Param("searchstring") String searchstring, Pageable page);
 	
 	
 	public List<HappeningTask> findByResponsibleUserUsernameAndHappeningHappeningId(String username, int happeningId);

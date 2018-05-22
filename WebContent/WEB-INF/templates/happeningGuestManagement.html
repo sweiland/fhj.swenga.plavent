@@ -23,7 +23,7 @@
 		<div th:replace="~{includes/happeningFragments :: happeningHeader (happening=${#request.getAttribute('happening')}) }"></div>
 		
 		<!-- Customized Subnavbar because of Drop-Down selection -->
-		<nav>
+		<nav class="navbar navbar-default">
 			<div class="container-fluid">
 				<!-- HTML Form to assign a guest-->
 				<form class="navbar-form navbar-left" method="post" th:action="@{/assignNewGuestToHappening}">
@@ -66,6 +66,20 @@
 				</form>
 			</div>
 		</nav>
+		
+		<!-- Customized pagination because of happeningId-->
+		<nav>
+		  <ul class="pagination">
+		  	<li th:if="${totalPages <= 1}" class="page-item"> 
+		    	<a class="page-link" th:href="@{/showGuestListManagementPage(page=1, happeningID=${happening.happeningId})}">1</a>
+		    </li>
+		    <li th:if="${totalPages gt 1}" class="page-item" th:each="i : ${#numbers.sequence(0,totalPages-1)}"> 
+		    	<a class="page-link" th:href="@{/showGuestListManagementPage(page=${i}, happeningID=${happening.happeningId})}" th:text="${i+1}"></a>
+		    </li>
+		  </ul>
+		</nav>
+		
+		
 		<!--  Error message ----------------------------------------------------------- -->
 		<div th:unless="${errorMessage} == null" th:utext="${errorMessage}"
 			class="alert alert-danger" role="alert"></div>

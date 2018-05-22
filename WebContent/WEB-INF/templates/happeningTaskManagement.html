@@ -46,6 +46,19 @@
 			</div>
 		</nav>
 		
+		<!-- Customized pagination because of happeningId-->
+		<nav>
+		  <ul class="pagination">
+		  	<li th:if="${totalPages <= 1}" class="page-item"> 
+		    	<a class="page-link" th:href="@{/showTaskListManagementPage(page=1, happeningID=${happening.happeningId})}">1</a>
+		    </li>
+		    <li th:if="${totalPages gt 1}" class="page-item" th:each="i : ${#numbers.sequence(0,totalPages-1)}"> 
+		    	<a class="page-link" th:href="@{/showTaskListManagementPage(page=${i}, happeningID=${happening.happeningId})}" th:text="${i+1}"></a>
+		    </li>
+		  </ul>
+		</nav>
+		
+		
 																							
 		<!--  Error message ----------------------------------------------------------- -->
 		<div th:unless="${errorMessage} == null" th:utext="${errorMessage}"

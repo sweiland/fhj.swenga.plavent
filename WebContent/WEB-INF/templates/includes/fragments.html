@@ -1,3 +1,4 @@
+<!-- Fragement to main menu -->
 <nav th:fragment="navigation" class="navbar navbar-default">
 	<div class="container-fluid">
 		<a sec:authorize="hasRole('USER')"  href="showUserManagement" class="btn btn-default navbar-btn">User Management</a>
@@ -7,6 +8,7 @@
 	</div>
 </nav>
 
+<!-- Fragment for main header  -->
 <header th:fragment="header (header)">
 	<div class="container-fluid">
 		<form class="navbar-form navbar-right" method="post" th:action="@{/logout}">
@@ -20,6 +22,19 @@
 		<h1 th:text="${(header)}"></h1>
 	</div>
 </header>
+
+<!-- Fragment to have pagination -->
+<nav th:fragment="pageNav (linkToChangePage)">
+  <ul class="pagination">
+  	<li th:if="${totalPages <= 1}" class="page-item"> 
+    	<a class="page-link" th:href="@{${(linkToChangePage)}(page=1)}">1</a>
+	</li>
+    <li th:if="${totalPages gt 1}" class="page-item" th:each="i : ${#numbers.sequence(0,totalPages-1)}"> 
+    	<a class="page-link" th:href="@{${(linkToChangePage)}(page=${i})}" th:text="${i+1}"></a>
+    </li>
+  </ul>
+</nav>
+
 
 <footer th:fragment="footer" class="card-footer text-muted">
 <!-- TODO: Bei vielen Zeilen sollte automatisch im Body immer Seite 1..n erfolgen damit die Scrollbar nie kommt... -->
