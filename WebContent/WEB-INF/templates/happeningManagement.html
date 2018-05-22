@@ -51,7 +51,8 @@
 						<tbody>
 							<!--  list all items ----------------------------------------------------------- -->
 							<!-- hoedlale16: Fill table content -->
-							<tr th:each="happening : ${#request.getAttribute('happenings')}">
+							<tr th:each="happening : ${#request.getAttribute('happenings')}"
+								th:classappend="${happening.happeningStatus.statusName != 'ACTIVE'} ? table-secondary">
 								<td
 									th:classappend="${happening.happeningStatus.statusName != 'ACTIVE'} ? text-muted"
 									th:text="${happening.happeningName}"></td>
