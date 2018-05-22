@@ -1,6 +1,5 @@
 package at.fh.swenga.plavent.model;
 
-import java.io.Serializable;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -15,16 +14,18 @@ import javax.persistence.Version;
 
 @Entity
 @Table(name = "UserRole")
-public class UserRole implements Serializable {
+public class UserRole implements java.io.Serializable {
+
+	private static final long serialVersionUID = 8098173157518993615L;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int roleID;
 
-	@Column(nullable = false, unique = true, length = 64)
+	@Column(name = "roleName", nullable = false, unique = true, length = 64)
 	private String roleName;
 
-	@Column(nullable = true, length = 512)
+	@Column(name = "description", nullable = true, length = 512)
 	private String description;
 
 	@ManyToMany(mappedBy = "roleList", fetch = FetchType.EAGER)
