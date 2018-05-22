@@ -35,14 +35,16 @@
 
 					<div class="input-group">
 						<select id="inputNewGuest" class="custom-select form-control"
-							name="newGuestUsername" required="required">
+							name="newGuestUsername" required="required"
+							th:readonly="${#lists.isEmpty(potentialGuests)}">
 							<option disabled="disabled" selected="selected">
 								Choose...</option>
 							<option th:each="user : ${potentialGuests}"
 								th:value="${user.username}" th:text="${user.username}"></option>
 						</select> <span class="input-group-btn">
-							<button class="btn btn-pill btn-primary" type="submit">Assign
-								guest</button>
+							<button class="btn btn-pill btn-primary" type="submit" 
+								th:disabled="${#lists.isEmpty(potentialGuests)}">
+								Assign guest</button>
 						</span>
 					</div>
 				</form>
