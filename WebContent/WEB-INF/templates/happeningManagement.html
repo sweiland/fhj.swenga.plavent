@@ -51,6 +51,7 @@
 						<tbody>
 							<!--  list all items ----------------------------------------------------------- -->
 							<!-- hoedlale16: Fill table content -->
+<<<<<<< HEAD
 							<tr th:each="happening : ${#request.getAttribute('happenings')}"
 								th:classappend="${happening.happeningStatus.statusName != 'ACTIVE'} ? table-secondary">
 								<td
@@ -75,6 +76,18 @@
 									th:classappend="${happening.happeningStatus.statusName != 'ACTIVE'} ? text-muted"
 									th:text="${happening.happeningHost.lastname +' '+#strings.substring(happening.happeningHost.firstname,0,1) +'.'}"></td>
 
+=======
+							<tr th:each="happening : ${#request.getAttribute('happenings')}">
+								<!-- TODO: Disable/Highlight Deleted entries! -->
+								<td th:text="${happening.happeningName}"></td>
+								<td th:text="${happening.happeningStatus.statusName}"></td>
+								<td th:text="${happening.category.categoryName}"></td>
+								<td th:text="${#dates.format(happening.start,'dd.MM.yyyy hh:mm')}"></td>
+								<td th:text="${#dates.format(happening.end,'dd.MM.yyyy hh:mm')}"></td>
+								<td th:text="${happening.location}"></td>
+								<td th:text="${happening.happeningHost.lastname +' '+#strings.substring(happening.happeningHost.firstname,0,1) +'.'}"></td>
+								
+>>>>>>> refs/remotes/origin/master
 								<td>
 
 									<div class="btn-group">

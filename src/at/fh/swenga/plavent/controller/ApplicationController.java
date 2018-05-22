@@ -36,9 +36,6 @@ public class ApplicationController {
 	@Autowired
 	private HappeningStatusRepository happeningStatusRepository;
 
-	@Autowired
-	private HappeningCategoryRepository happeningCategoryRepository;
-
 	@RequestMapping(value = { "/", "/login" }, method = RequestMethod.GET)
 	public String handleLogin(Model model, Authentication authentication) {
 
@@ -48,7 +45,7 @@ public class ApplicationController {
 		else {
 			// Check if DB-Environment exists or start is the first initial startup
 			if (happeningStatusRepository.getAmountOfHappeningStatus() <= 0
-					&& userRoleRepository.getAmountOfUserRoles() <= 0) {
+					|| userRoleRepository.getAmountOfUserRoles() <= 0 || userRepository.count() <= 0) {
 				model.addAttribute("message",
 						"Welcome to Plavent! - Please start initial setup before planning happenings!");
 				model.addAttribute("noPlaventEnvironment", true);

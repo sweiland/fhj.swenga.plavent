@@ -76,7 +76,6 @@ public class InitialSetupController {
 			model.addAttribute("message", "Environment created - Start planning!");
 			return "login";
 		} catch (Exception e) {
-			System.out.println("Error occured: " + e.getMessage());
 			model.addAttribute("errorMessage", "Error occured: \"+ e.getMessage()!");
 			return "error";
 		}
