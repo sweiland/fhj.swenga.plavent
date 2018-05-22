@@ -51,6 +51,7 @@
 							<!--  list all items ----------------------------------------------------------- -->
 							<!-- hoedlale16: Fill table content -->
 							<tr th:each="happening : ${#request.getAttribute('happenings')}">
+								<!-- TODO: Disable/Highlight Deleted entries! -->
 								<td th:text="${happening.happeningName}"></td>
 								<td th:text="${happening.happeningStatus.statusName}"></td>
 								<td th:text="${happening.category.categoryName}"></td>

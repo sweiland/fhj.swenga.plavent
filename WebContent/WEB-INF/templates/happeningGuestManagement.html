@@ -114,7 +114,6 @@
 
 								<td th:text="${guest.eMail} ? ${guest.eMail} : 'n/a'"></td>
 								<td><div class="btn-group">
-										<!-- TODO: Link to taskmanagement to assign task -->
 										<a
 											th:href="@{/unassignExistingGuest(happeningID=${happening.happeningId}, username=${guest.username})}"
 											class="btn btn-pill btn-danger"> <span

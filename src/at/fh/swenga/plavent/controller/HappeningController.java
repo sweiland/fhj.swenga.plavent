@@ -153,9 +153,8 @@ public class HappeningController {
 	@RequestMapping(value = { "showCreateHappeningForm" })
 	public String showCreateHappeningForm(Model model, Authentication authentication) {
 
-		// Set required attributes
-		// TODO: Just show active (enabled) categories
-		model.addAttribute("happeningCategories", happeningCategoryRepo.findAll());
+		//Just show active (enabled) categories
+		model.addAttribute("happeningCategories", happeningCategoryRepo.findByEnabledTrue());
 
 		// Admins are allowed to create a happening for everyone, hosts just for themself.
 		if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {

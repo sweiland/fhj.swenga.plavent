@@ -1,6 +1,8 @@
 package at.fh.swenga.plavent.repo;
 
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,5 +17,8 @@ public interface HappeningCategoryRepository extends JpaRepository<HappeningCate
 	public HappeningCategory findFirstByCategoryName(String name);
 	
 	public HappeningCategory findFirstByCategoryID(int categoryID);
+	
+	
+	public List<HappeningCategory> findByEnabledTrue();
 
 }
