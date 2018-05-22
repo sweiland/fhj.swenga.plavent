@@ -9,50 +9,35 @@
 		   http://www.springframework.org/schema/context 
 		   http://www.springframework.org/schema/context/spring-context.xsd">
 	<http auto-config="true">
-		<intercept-url pattern="/login" access="permitAll" />		
+		<intercept-url pattern="/login" access="permitAll" />
 		<intercept-url pattern="/" access="permitAll" />
-		<intercept-url pattern="/registerUser" access="permitAll" />		
-		
-		
-		<!-- HOEDLALE16: Use Annotation @Secured({ "ROLE_USER"}) instead of intercept-url -->
-		
+		<intercept-url pattern="/registerUser" access="permitAll" />
+
+
+		<!-- FERNBACH16: Use Annotation @Secured({ "ROLE_GUEST"}) instead of intercept-url 
+		@Secured({ "ROLE_GUEST"}) for Guest Permissions
+		@Secured({ "ROLE_HOST"}) for Host Permissions
+		@Secured({ "ROLE_ADMIN"}) for Admin Permissions
+		-->
+
 		<form-login login-page="/login" default-target-url="/dashboard"
 			always-use-default-target="true" />
 		<logout logout-success-url="/login" logout-url="/logout" />
 	</http>
 
-	<!-- TODO: Spring security with database -->
-	<!-- 
+
 	<context:property-placeholder location="classpath:db.properties" />
 
-	<beans:bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
-		destroy-method="close">
-		<beans:property name="driverClassName" value="com.mysql.jdbc.Driver" />
-		<beans:property name="url" value="${db.url}" />
-		<beans:property name="username" value="${db.username}" />
-		<beans:property name="password" value="${db.password}" />
-		<beans:property name="initialSize" value="2" />
-		<beans:property name="maxTotal" value="5" />
-	</beans:bean>
-
-
 	<authentication-manager>
 		<authentication-provider>
+			<password-encoder hash="bcrypt" />
 			<jdbc-user-service data-source-ref="dataSource"
-				authorities-by-username-query="SELECT uur.username, ur.roleName  FROM User_UserRole uur JOIn UserRole ur ON(ur.roleID = uur.roleID) WHERE uur.username = ?"
-				users-by-username-query="SELECT username, password, 1 as enabled FROM User WHERE username = ?" />
+				users-by-username-query="SELECT username, password, CASE enabled WHEN 1 THEN 'true' ELSE 'false' END 'enabled' 
+				FROM User WHERE username=?"
+				authorities-by-username-query="SELECT uur.username, ur.roleName  FROM User_UserRole uur JOIN UserRole ur ON(ur.roleID = uur.roleID) WHERE uur.username = ?" />
 		</authentication-provider>
 	</authentication-manager>
-	
-	-->
 
-	<authentication-manager>
-		<authentication-provider>
-			<user-service>
-				<user name="guest" password="{noop}password" authorities="ROLE_USER" />
-				<user name="host" password="{noop}password" authorities="ROLE_USER, ROLE_HOST" />
-				<user name="admin" password="{noop}password" authorities="ROLE_USER,ROLE_HOST,ROLE_ADMIN" />
-			</user-service>
-		</authentication-provider>
-	</authentication-manager>
+
+
 </beans:beans>

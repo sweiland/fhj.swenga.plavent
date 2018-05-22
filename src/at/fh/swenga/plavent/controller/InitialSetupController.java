@@ -2,7 +2,6 @@ package at.fh.swenga.plavent.controller;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,10 +47,9 @@ public class InitialSetupController {
 
 	@Autowired
 	private HappeningCategoryRepository happeningCategoryRepo;
-	
+
 	@Autowired
 	private HappeningTaskRepository happeningTaskRepo;
-	
 
 	public InitialSetupController() {
 	}
@@ -87,7 +85,7 @@ public class InitialSetupController {
 		// Create a default happening category
 		HappeningCategory catUnAssigned = happeningCategoryRepo.findFirstByCategoryName("Unassigned");
 		if (catUnAssigned == null) {
-			catUnAssigned = new HappeningCategory("Unassigned", "Not specified",true);
+			catUnAssigned = new HappeningCategory("Unassigned", "Not specified", true);
 			happeningCategoryRepo.save(catUnAssigned);
 		}
 	}
@@ -130,16 +128,19 @@ public class InitialSetupController {
 
 		// Create overall admin if required
 		if (userRepo.findFirstByUsername("admin") == null) {
-			User administrator = new User("admin", "admin", "Administrator", "Administrator", new ArrayList<UserRole>());
+			User administrator = new User("admin", "password", "Administrator", "Administrator",
+					new ArrayList<UserRole>());
+			administrator.encryptPassword();
 			administrator.addUserRole(roleGuest);
 			administrator.addUserRole(roleHost);
-			administrator.addUserRole(roleAdmin);	
+			administrator.addUserRole(roleAdmin);
 			userRepo.save(administrator);
 		}
 
 		// Create a host user if required
 		if (userRepo.findFirstByUsername("host") == null) {
-			User host = new User("host", "host", "Host", "Host", new ArrayList<UserRole>());
+			User host = new User("host", "password", "Host", "Host", new ArrayList<UserRole>());
+			host.encryptPassword();
 			host.addUserRole(roleGuest);
 			host.addUserRole(roleHost);
 			userRepo.save(host);
@@ -147,9 +148,9 @@ public class InitialSetupController {
 
 		// Create a simple guest user if required
 		if (userRepo.findFirstByUsername("guest") == null) {
-			User guest = new User("guest", "guest", "Gust", "Guest", new ArrayList<UserRole>());
+			User guest = new User("guest", "password", "Guest", "Guest", new ArrayList<UserRole>());
+			guest.encryptPassword();
 			guest.addUserRole(roleGuest);
-			guest.addUserRole(roleHost);
 			userRepo.save(guest);
 		}
 	}
@@ -164,24 +165,26 @@ public class InitialSetupController {
 			List<User> guests = userRepo.getUsersByRolename("GUEST");
 			guests.remove(host); // Remove host itself which is the host and not the guest of the happening!
 
-			Happening happening = new Happening("Tutorial", Calendar.getInstance(), Calendar.getInstance(), "Example Happening", "FH Joanneum",
-					catUnassinged, statusActive, host, guests, new ArrayList<HappeningTask>());
+			Happening happening = new Happening("Tutorial", Calendar.getInstance(), Calendar.getInstance(),
+					"Example Happening", "FH Joanneum", catUnassinged, statusActive, host, guests,
+					new ArrayList<HappeningTask>());
 			happeningRepo.save(happening);
-			
-			//Now add the tasks...
-			//TODO: Assign task to a guest
-			happening.addHappeningTask(createTask(happening,"Create Tasks", "Create new Tasks for this happening", null));
-			happening.addHappeningTask(createTask(happening,"Create Category", "Create a new category", null));
-			happening.addHappeningTask(createTask(happening,"Assign Guests", "Assign guests to happening", null));
-			
+
+			// Now add the tasks...
+			// TODO: Assign task to a guest
+			happening.addHappeningTask(
+					createTask(happening, "Create Tasks", "Create new Tasks for this happening", null));
+			happening.addHappeningTask(createTask(happening, "Create Category", "Create a new category", null));
+			happening.addHappeningTask(createTask(happening, "Assign Guests", "Assign guests to happening", null));
+
 			happeningRepo.save(happening);
 		}
 
 	}
-	
+
 	private HappeningTask createTask(Happening happening, String topic, String description, User responsible) {
 		HappeningTask task = new HappeningTask(happening, topic, description, 1, responsible);
-		happeningTaskRepo.save(task);		
+		happeningTaskRepo.save(task);
 		return task;
 	}
 }
