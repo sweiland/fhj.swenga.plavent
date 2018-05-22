@@ -25,7 +25,7 @@
 				th:replace="~{includes/happeningFragments :: happeningHeader (happening=${#request.getAttribute('happening')}) }"></div>
 
 			<!-- Customized Subnavbar because of Drop-Down selection -->
-			<nav class="navbar navbar-default">
+			<nav class="navbar navbar-expand-lg navbar-light bg-light">
 				<!-- HTML Form to assign a guest-->
 				<form class="navbar-form col-md-5" method="post"
 					th:action="@{/assignNewGuestToHappening}">
@@ -68,7 +68,7 @@
 					th:action="@{filterHappeningGuestList}">
 					<div class="input-group">
 						<input type="hidden" name="happeningID"
-							th:value="${happening.happeningId}"> <input type="text"
+							th:value="${happening.happeningId}"> <input type="search"
 							class="form-control" placeholder="Search for..."
 							name="searchString"> <span class="input-group-btn">
 							<button class="btn btn-pill btn-primary" type="submit">Filter</button>
