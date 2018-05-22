@@ -50,14 +50,15 @@ public class UserController {
 	public UserController() {
 	}
 
-	@Secured({ "ROLE_USER" })
+	@Secured({ "ROLE_GUEST" })
 	@RequestMapping(value = { "showUserManagement" })
 	public String showAllUsers(Model model, Authentication authentication) {
 
 		// If User is ins Role 'ADMIN' show all users
 		if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
 			model.addAttribute("users", userRepo.findAll());
-			model.addAttribute("message", "Currently there are <strong>" + userRepo.findAll().size() + "</strong> entries");
+			model.addAttribute("message",
+					"Currently there are <strong>" + userRepo.findAll().size() + "</strong> entries");
 		} else {
 			model.addAttribute("users", userRepo.findFirstByUsername(authentication.getName()));
 		}
@@ -74,7 +75,7 @@ public class UserController {
 	/**
 	 * MAIN FUNCTIONALITIES editUser deleteExistingUser showChangePasswordForm
 	 */
-	@Secured({ "ROLE_USER" })
+	@Secured({ "ROLE_GUEST" })
 	@GetMapping(value = "/editUser")
 	public String editUser(Model model, @RequestParam String username, Authentication authentication) {
 
@@ -95,7 +96,7 @@ public class UserController {
 		}
 	}
 
-	@Secured({ "ROLE_USER" })
+	@Secured({ "ROLE_GUEST" })
 	@PostMapping(value = "/editUser")
 	public String editUser(@Valid User editUserModel, BindingResult bindingResult, Model model,
 			Authentication authentication) {
@@ -144,12 +145,14 @@ public class UserController {
 		User user = userRepo.findFirstByUsername(editUserModel.getUsername());
 		if (user == null) {
 			model.addAttribute("errorMessage", "User does not exist! <" + editUserModel.getUsername() + ">");
+			return showAllUsers(model, authentication);
 		}
 		if (user.getUsername().equalsIgnoreCase(authentication.getName())) {
 			model.addAttribute("errorMessage",
 					"You cannot delete yourself, dear <" + editUserModel.getUsername() + ">");
 		} else {
-			userRepo.delete(user);
+			user.setEnabled(false);
+			userRepo.save(user);
 			model.addAttribute("message", "User " + editUserModel.getUsername() + "sucessfully deleted");
 		}
 		return showAllUsers(model, authentication);
@@ -178,7 +181,7 @@ public class UserController {
 		if (userRepo.findFirstByUsername(newUserModel.getUsername()) != null) {
 			model.addAttribute("warningMessage", "Your User could not be registered!");
 		} else {
-			
+
 			UserRole role = userRoleRepo.findFirstByRoleName("ROLE_GUEST");
 			if (role != null) {
 				List<UserRole> roles = new ArrayList<UserRole>();
@@ -186,14 +189,14 @@ public class UserController {
 				newUserModel.setRoleList(roles);
 			}
 			newUserModel.setEnabled(true);
-	
+
 			userRepo.save(newUserModel);
 			model.addAttribute("message", "Registered User " + newUserModel.getUsername());
 		}
 		return showRegisterIssues(model, authentication);
 	}
 
-@Secured({ "ROLE_ADMIN" })
+	@Secured({ "ROLE_ADMIN" })
 	@GetMapping("/createUser")
 	public String createNewUser(Model model, Authentication authentication) {
 
@@ -205,7 +208,7 @@ public class UserController {
 		}
 	}
 
-@Secured({ "ROLE_ADMIN" })
+	@Secured({ "ROLE_ADMIN" })
 	@PostMapping("/createUser")
 	public String createNewUser(@Valid User newUser, BindingResult bindingResult, Model model,
 			Authentication authentication) {
@@ -223,7 +226,7 @@ public class UserController {
 			model.addAttribute("errorMessage", "User already exists!");
 		}
 
-		else {		
+		else {
 			UserRole role = userRoleRepo.findFirstByRoleName("ROLE_GUEST");
 			if (role != null) {
 				List<UserRole> roles = new ArrayList<UserRole>();
@@ -231,7 +234,7 @@ public class UserController {
 				newUser.setRoleList(roles);
 			}
 			newUser.setEnabled(true);
-	
+
 			userRepo.save(newUser);
 			model.addAttribute("message", "New user " + newUser.getUsername() + "added.");
 
@@ -239,7 +242,7 @@ public class UserController {
 		return showAllUsers(model, authentication);
 	}
 
-	@Secured({ "ROLE_USER" })
+	@Secured({ "ROLE_GUEST" })
 	@PostMapping("/changePasswordExistingUser")
 	public String changePasswordFromUser(@Valid User changedUserModel, BindingResult bindingResult, Model model,
 			Authentication authentication) {
@@ -264,9 +267,6 @@ public class UserController {
 		}
 		return showAllUsers(model, authentication);
 	}
-
-
-
 
 	private boolean errorsDetected(Model model, BindingResult bindingResult) {
 		// Any errors? -> Create a String out of all errors and return to the page

@@ -35,7 +35,7 @@ public class DashboardController {
 		// TODO Auto-generated constructor stub
 	}	
 
-	@Secured({ "ROLE_USER"})
+	@Secured({ "ROLE_GUEST"})
 	@RequestMapping(value = { "dashboard" })
 	public String showDashboard(Model model) {
 		

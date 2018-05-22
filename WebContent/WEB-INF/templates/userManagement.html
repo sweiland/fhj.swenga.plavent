@@ -31,9 +31,38 @@
 			</div>
 		</div>
 		<div class="card bg-light">
-			<div class="row card-body">
+			<div class="card-body">
 				<div class="col-md-12">
-					<table data-toggle="table" class="table table-dark">
+					<div class="row">
+						<div th:each="user : ${#request.getAttribute('users')}"
+							class="col-4">
+							<div class="card card-accent-primary bg-light text-dark">
+								<div class="card-header">
+									<strong th:text="${user.username}"></strong>
+									<div class="card-header-actions">
+										<a th:href="@{/editUser(username=${user.username})}"
+											class="card-header-action btn-pencil"> <i
+											class="icon-pencil"></i>
+										</a> <a
+											th:href="@{/showChangePasswordForm(username=${user.username})}"
+											class="card-header-action btn-settings"><i
+											class="icon-settings"></i> </a><a
+											th:href="@{/deleteUser(username=${user.username})}"
+											class="card-header-action btn-close"> <i
+											class="icon-close"></i>
+										</a>
+									</div>
+								</div>
+								<div class="card-body">
+									<strong>First Name:</strong> <em th:text="${user.firstname}"></em><br>
+									<strong>Last Name:</strong> <em th:text="${user.lastname}"></em><br>
+									<strong>Email:</strong> <em th:text="${user.eMail}"></em><br>
+									<strong>Phone:</strong> <em th:text="${user.telNumber}"></em><br>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!--<table data-toggle="table" class="table table-dark">
 						<thead class="thead-dark">
 							<tr>
 								<th data-sortable="true">@Username</th>
@@ -45,14 +74,14 @@
 							</tr>
 						</thead>
 						<tbody>
-							<!--  list all user items ----------------------------------------------------------- -->
+							<!--  list all user items -----------------------------------------------------------
 							<tr th:each="user : ${#request.getAttribute('users')}">
 								<td th:text="${user.username}"></td>
 								<td th:text="${user.firstname}"></td>
 								<td th:text="${user.lastname}"></td>
 								<td th:text="${user.eMail}"></td>
 								<td th:text="${user.telNumber}"></td>
-								<!--  functionalities ----------------------------------------------------------- -->
+								<!--  functionalities ----------------------------------------------------------- 
 								<td><div class="btn-group">
 										<a th:href="@{/editUser(username=${user.username})}"
 											class="btn btn-xs btn-outline-light"> <span
@@ -71,9 +100,9 @@
 									</div></td>
 
 							</tr>
-							<!--  list all user items --------------------------------------------------------- -->
+							<!--  list all user items --------------------------------------------------------- 
 						</tbody>
-					</table>
+					</table>-->
 				</div>
 			</div>
 		</div>

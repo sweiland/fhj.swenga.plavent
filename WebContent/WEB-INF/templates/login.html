@@ -29,8 +29,8 @@
 									<label for="prepare">No PlaVent environment found,
 										please press Start to initialize your DB.</label><br> <a
 										th:href="@{/preparePlavent}"
-										class="btn btn-lg btn-pill btn-success" id="prepare">
-										Start Initial Setup</a>
+										class="btn btn-lg btn-outline-success" id="prepare"> Start
+										Initial Setup</a>
 								</form>
 							</th:block>
 							<!-- Login Card -->
@@ -67,8 +67,8 @@
 										</div>
 										<div class="row">
 											<div class="col-6">
-												<input name="submit" class="btn btn-outline-dark px-4" type="submit"
-													value="Login">
+												<input name="submit" class="btn btn-outline-dark px-4"
+													type="submit" value="Login">
 											</div>
 										</div>
 									</fieldset>
@@ -76,16 +76,18 @@
 							</th:block>
 						</div>
 					</div>
-					<div class="card text-light bg-dark py-5 d-md-down-none"
-						style="width: 44%">
-						<div class="card-body text-center">
-							<h2>Sign Up</h2>
-							<p>If you don't yet have an account, don't worry! Signing up
-								is free, quick and easy, so you can start with PlaVent in no
-								time!</p>
-							<a href="registerUser" class="btn btn-outline-light">Register</a>
+					<th:block th:unless="${noPlaventEnvironment}" )>
+						<div class="card text-light bg-dark py-5 d-md-down-none"
+							style="width: 44%">
+							<div class="card-body text-center">
+								<h2>Sign Up</h2>
+								<p>If you don't yet have an account, don't worry! Signing up
+									is free, quick and easy, so you can start with PlaVent in no
+									time!</p>
+								<a href="registerUser" class="btn btn-outline-light">Register</a>
+							</div>
 						</div>
-					</div>
+					</th:block>
 				</div>
 			</div>
 		</div>
