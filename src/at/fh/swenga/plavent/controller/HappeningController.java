@@ -100,7 +100,7 @@ public class HappeningController {
 	 * @return
 	 */
 	private PageRequest generatePageRequest(int pageNr) {
-		return PageRequest.of(pageNr, 10);
+		return PageRequest.of(pageNr, 6);
 	}
 
 	// -----------------------------------------------------------------------------------------
