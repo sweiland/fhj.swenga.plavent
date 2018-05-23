@@ -9,7 +9,7 @@
 </head>
 
 <body class="app flex-row align-items-center bg-dark">
-	<div class="container" role="main">
+	<div class="container mb-5" role="main">
 		<div class="card bg-light">
 			<div class="card-body text-dark">
 				<div class="row page-header">
@@ -36,8 +36,8 @@
 					<div class="row">
 						<div th:each="user : ${#request.getAttribute('users')}"
 							class="col-4">
-							<div class="card card-accent-success text-dark">
-								<div class="card-header">
+							<div class="card text-dark">
+								<div class="bg-success card-header">
 									<strong th:text="${user.username}"></strong>
 									<div class="card-header-actions">
 										<a th:href="@{/editUser(username=${user.username})}"
