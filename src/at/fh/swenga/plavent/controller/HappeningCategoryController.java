@@ -8,6 +8,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import at.fh.swenga.plavent.model.User;
@@ -55,6 +56,19 @@ public class HappeningCategoryController {
 		return "categoryManagement";
 	}
 	
+	@Secured({ "ROLE_ADMIN" })
+	@RequestMapping(value = { "showCreateCategory" })
+	public String showCreateCategories(Model model) {
+		return "createModifyCategory";
+	}
+	
+	@Secured({ "ROLE_ADMIN" })
+	@RequestMapping(value = { "showCreateModifyCategory" })
+	public String showModifyCategories(Model model) {
+		model.addAttribute("modifiedCategory", categoryDao.findById(1)); //TODO: ID Variable richtig setzen
+		return "createModifyCategory";
+	}
+	
 	//TODO: Create methods for requests:
 	//showCreateCategoryForm
 	//filterCategories
@@ -63,4 +77,9 @@ public class HappeningCategoryController {
 	//reactivateCategory => 'Update enabled flag to actiate them again
 	
 
+	@ExceptionHandler(Exception.class)
+	public String handleAllException(Exception ex) {
+		ex.printStackTrace();
+		return "error";
+	}
 }
