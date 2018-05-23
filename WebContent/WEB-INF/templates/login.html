@@ -16,16 +16,18 @@
 			</div>
 			<div class="row">
 				<div class="col-md-10 col-md-offset-1">
-
+					<!-- include message boxes (moved to fragments) -->
+					<div th:replace="~{includes/fragments :: msgs}"></div>
 					<!-- Check if PlaVent Environment exists.
-					If not: just show button for initial setup -->
+					If not: just show button for initial setup
+					<label for="prepare">No PlaVent environment found, please
+								press Start to initialize your DB.</label><br> 
+					 -->
 					<th:block th:if="${noPlaventEnvironment}">
 						<form>
-							<label for="prepare">No PlaVent environment found, please
-								press Start to initialize your DB.</label><br> <a
-								th:href="@{/preparePlavent}"
+							<a th:href="@{/preparePlavent}"
 								class="btn btn-lg btn-pill btn-success" id="prepare"> Start
-								Initial Setup</a>
+							</a>
 						</form>
 					</th:block>
 

@@ -71,7 +71,7 @@ public class InitialSetupController {
 			// Needs to be the last call because requires all other methods before!!!
 			createTutorialHappening();
 
-			model.addAttribute("message", "Environment created - Start planning!");
+			model.addAttribute("message", "Database initialized - You can now login or register!");
 			return "login";
 		} catch (Exception e) {
 			model.addAttribute("errorMessage", "Error occured: \"+ e.getMessage()!");

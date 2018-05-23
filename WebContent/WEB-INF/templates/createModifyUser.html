@@ -63,20 +63,21 @@
 								required="required" th:value="${user} ? ${user.telNumber}"
 								placeholder="Phone Number">
 						</div>
-						<!-- --------------  User Role ---------------- 
+						<!-- --------------  User Role ---------------->
 						<div sec:authorize="hasRole('ROLE_ADMIN')">
-						<div class="form-group">
-							<label for="inputRoles" class="col-md-2 control-label">User Roles</label>
-							<div class="col-md-10">
-								<select class="custom-select" name="roleList"
-									required="required" th:value="${user} ? ${user.roleList">
-									<option style="display: none;"></option>
-									<option value="GUEST">Guest Role</option>
-									<option value="HOST">Host Role</option>
-									<option value="ADMIN">Admin Role</option>
-								</select>
+							<div class="form-group">
+								<label><input class="form-control" type="checkbox"
+									name="ur_guest"  placeholder="Guest Role"
+									th:checked="${hasRoleGuest} OR ${hasRoleHost} OR ${hasRoleAdmin} ? true" required>Guest Role</label>
+								<label><input class="form-control" type="checkbox"
+									name="ur_host" placeholder="Host Role"
+									th:checked="${hasRoleHost} OR ${hasRoleAdmin} ? true : false" th:required="${ur_admin} == true">Host Role</label>
+								<label><input class="form-control" type="checkbox"
+									name="ur_admin" placeholder="Admin Role"
+									th:checked="${hasRoleAdmin} ? true : false">Admin
+									Role</label>
 							</div>
-						</div> -->
+						</div>
 						<!-- --------------  buttons ---------------- -->
 						<div class="input-group btn-group">
 							<button type="submit" class="btn btn-pill btn-primary">Submit</button>
