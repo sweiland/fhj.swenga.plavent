@@ -76,6 +76,13 @@
 		can handle it, otherwise return 404 -->
 	<mvc:default-servlet-handler />
 
+	<!-- Customized ViewResolver in external file (PDF) -->
+	<bean class="org.springframework.web.servlet.view.XmlViewResolver">
+		<property name="location">
+			<value>/WEB-INF/spring-views.xml</value>
+		</property>
+	</bean>
+
 
 	<bean id="templateResolver"
 		class="org.thymeleaf.spring5.templateresolver.SpringResourceTemplateResolver">
