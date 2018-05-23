@@ -8,55 +8,41 @@
 <div th:include="~{includes/bootstrap :: bootstrapCSS}" th:remove="tag" />
 </head>
 
-<body>
-	<div class="card container" role="main">
-		<div class="card-body">
-			<div class="page-header">
-				<!-- include the Nav bar fragment-->
-				<nav
-					th:replace="~{includes/fragments :: header (header='PlaVent - Category Management')}"></nav>
-			</div>
-
-			<!-- include the Nav bar fragment-->
-			<nav th:replace="~{includes/fragments :: navigation }"></nav>
-
-			<!-- include the serach bar fragment for users-->
-			<nav
-				th:replace="~{includes/fragments :: MgmtNavBar (buttonText='New Category',buttonLink='showCreateCategory',searchLink='filterCategories')}"></nav>
-
-			<!--  Error message ----------------------------------------------------------- -->
-			<div th:unless="${errorMessage} == null" th:utext="${errorMessage}"
-				class="alert alert-danger" role="alert"></div>
-			<!--  Error message ----------------------------------------------------------- -->
-
-			<!--  Warning message ----------------------------------------------------------- -->
-			<div th:unless="${warningMessage} == null"
-				th:utext="${warningMessage}" class="alert alert-warning"
-				role="warning"></div>
-			<!--  Warning message ----------------------------------------------------------- -->
-
-			<!--   message ----------------------------------------------------------- -->
-			<div th:unless="${message} == null" th:utext="${message}"
-				class="alert alert-success" role="warning"></div>
-			<!--   message ----------------------------------------------------------- -->
-
-			<div class="row">
-				<div class="col-md-10 col-md-offset-1">
-					<table data-toggle="table" class="table table-hover table-striped">
-						<thead>
-							<tr>
-								<th data-sortable="true">Category</th>
-								<th data-sortable="true">In Use</th>
-								<th data-sortable="true">Status</th>
-								<th class="text-right">Actions</th>
-							</tr>
-						</thead>
-					</table>
+<body class="app flex-row align-items-center bg-dark">
+	<div class="container mb-5" role="main">
+		<div class="card bg-light">
+			<div class="card-body text-dark">
+				<div class="row page-header">
+					<!-- include the Nav bar fragment-->
+					<nav
+						th:replace="~{includes/fragments :: header (header='Category Management')}"></nav>
 				</div>
+
+				<!-- include the Nav bar fragment-->
+				<nav th:replace="~{includes/fragments :: navigation }"></nav>
+
+				<!-- include the serach bar fragment for users-->
+				<nav
+					th:replace="~{includes/fragments :: MgmtNavBar (buttonText='New Category',buttonLink='showCreateCategory',searchLink='filterCategories')}"></nav>
+				<!-- include message boxes (moved to fragments) -->
+				<div th:replace="~{includes/fragments :: msgs}"></div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-10 col-md-offset-1">
+				<table data-toggle="table" class="table table-hover table-striped">
+					<thead>
+						<tr>
+							<th data-sortable="true">Category</th>
+							<th data-sortable="true">In Use</th>
+							<th data-sortable="true">Status</th>
+							<th class="text-right">Actions</th>
+						</tr>
+					</thead>
+				</table>
 			</div>
 		</div>
 	</div>
-
 	<!-- hoedlale16: include some fancy footer -->
 	<footer th:replace="~{includes/fragments :: footer}"></footer>
 
