@@ -351,7 +351,7 @@ public class HappeningGuestlistController {
 			model.addAttribute("warningMessage", "No Guests found for Happening <" + happening.getHappeningName() +">!");
 			return "forward:/showGuestListManagement";
 		}
-		// TODO PDF generieren
+		//PDF generieren
 		model.addAttribute("guestList", guestList);
 		model.addAttribute("happening",happening);		
 		return "pdfReport";	
