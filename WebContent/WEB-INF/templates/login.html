@@ -8,64 +8,85 @@
 <div th:include="~{includes/bootstrap :: bootstrapCSS}" th:remove="tag" />
 </head>
 
-<body class="app flex-row align-items-center">
-	<div class="card container justify-content-center" role="main">
-		<div class="card-body">
-			<div class="page-header">
-				<img src="./img/logo.png" alt="PlaVent" height="150px">
+<body class="app flex-row align-items-center bg-dark">
+	<div class="container" role="main">
+		<div class="row justify-content-center">
+			<div class="col-md-8">
+				<div class="card bg-light p-4 text-center text-dark">
+					<h1 class="display-1 page-header">PlaVent</h1>
+				</div>
 			</div>
-			<div class="row">
-				<div class="col-md-10 col-md-offset-1">
-
-					<!-- Check if PlaVent Environment exists.
+		</div>
+		<div class="row justify-content-center">
+			<div class="col-md-8">
+				<div class="card-group">
+					<div class="card bg-light p-4">
+						<div class="card-body text-dark">
+							<!-- Check if PlaVent Environment exists.
 					If not: just show button for initial setup -->
-					<th:block th:if="${noPlaventEnvironment}">
-						<form>
-							<label for="prepare">No PlaVent environment found, please
-								press Start to initialize your DB.</label><br> <a
-								th:href="@{/preparePlavent}"
-								class="btn btn-lg btn-pill btn-success" id="prepare"> Start
-								Initial Setup</a>
-						</form>
-					</th:block>
-
-					<th:block th:unless="${noPlaventEnvironment}" )>
-						<form class="form-horizontal" method="post" th:action="@{/login}">
-							<input type="hidden" th:name="${_csrf.parameterName}"
-								th:value="${_csrf.token}" />
-
-							<fieldset class="col-md-10">
+							<th:block th:if="${noPlaventEnvironment}">
+								<form>
+									<label for="prepare">No PlaVent environment found,
+										please press Start to initialize your DB.</label><br> <a
+										th:href="@{/preparePlavent}"
+										class="btn btn-lg btn-outline-success" id="prepare"> Start
+										Initial Setup</a>
+								</form>
+							</th:block>
+							<!-- Login Card -->
+							<th:block th:unless="${noPlaventEnvironment}" )>
 								<h1>Login</h1>
-
-								<div th:if="${param.error}" class="alert alert-danger">
-									Invalid username and password.</div>
-								<div th:if="${param.logout}" class="alert alert-success">You
-									have been logged out.</div>
-
-
-								<!--  ----------------  User Name ---------------- -->
-								<div class="input-group">
-									<div class="input-group mb-3">
-										<div class="input-group-prepend">
-											<span class="input-group-text" id="basic-addon1">@</span>
+								<p class="text-muted">Sign in to your account to make the
+									most out of PlaVent!</p>
+								<form class="form-horizontal" method="post"
+									th:action="@{/login}">
+									<input type="hidden" th:name="${_csrf.parameterName}"
+										th:value="${_csrf.token}" />
+									<fieldset>
+										<div th:if="${param.error}" class="alert alert-danger">
+											Invalid username and password.</div>
+										<div th:if="${param.logout}" class="alert alert-success">You
+											have been logged out.</div>
+										<!--  ----------------  User Name ---------------- -->
+										<div class="input-group mb-3">
+											<div class="input-group-prepend">
+												<span class="input-group-text"><i class="icon-user"></i></span>
+											</div>
+											<input type="text" class="form-control"
+												placeholder="Username" name="username" required="required"
+												value="" aria-label="Username"
+												aria-describedby="basic-addon1">
 										</div>
-										<input type="text" class="form-control" placeholder="Username"
-											name="username" required="required" value=""
-											aria-label="Username" aria-describedby="basic-addon1">
-									</div>
-								</div>
-
-								<!--  ----------------  password ---------------- -->
-								<div class="input-group">
-									<input class="form-control" type="password" name="password"
-										required="required" value="" placeholder="Password"> <span
-										class="input-group-append"> <a href="registerUser"
-										class="btn btn-danger">Register</a> <input name="submit"
-										class="btn btn-success" type="submit" value="Login">
-									</span>
-								</div>
-							</fieldset>
-						</form>
+										<!--  ----------------  password ---------------- -->
+										<div class="input-group mb-4">
+											<div class="input-group-prepend">
+												<span class="input-group-text"><i class="icon-lock"></i></span>
+											</div>
+											<input class="form-control" type="password" name="password"
+												required="required" value="" placeholder="Password">
+										</div>
+										<div class="row">
+											<div class="col-6">
+												<input name="submit" class="btn btn-outline-dark px-4"
+													type="submit" value="Login">
+											</div>
+										</div>
+									</fieldset>
+								</form>
+							</th:block>
+						</div>
+					</div>
+					<th:block th:unless="${noPlaventEnvironment}" )>
+						<div class="card text-light bg-dark py-5 d-md-down-none"
+							style="width: 44%">
+							<div class="card-body text-center">
+								<h2>Sign Up</h2>
+								<p>If you don't yet have an account, don't worry! Signing up
+									is free, quick and easy, so you can start with PlaVent in no
+									time!</p>
+								<a href="registerUser" class="btn btn-outline-light">Register</a>
+							</div>
+						</div>
 					</th:block>
 				</div>
 			</div>
