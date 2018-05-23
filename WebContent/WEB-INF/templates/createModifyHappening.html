@@ -120,11 +120,9 @@
 											name="host" required="required"
 											th:readonly="${#strings.contains(#authentication.principal.authorities,'ADMIN') == false}">
 											<option disabled="disabled" selected="selected">Host</option>
-											<option th:value="${happening.happeningHost.username}"
-												th:text="${happening.happeningHost.username}"></option>
-											<!-- For admins: add all other possible hosts to list -->
 											<option sec:authorize="hasRole('ROLE_ADMIN')"
 												th:each="user : ${happeningHosts}"
+												th:selected="${user.username == happening.happeningHost.username}"
 												th:value="${user.username}" th:text="${user.username}">
 											</option>
 										</select>
