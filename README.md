@@ -13,9 +13,12 @@ Gregor Fernbach
 Sebastian Weiland
 Stefan Heider
 
-## Setup for Mr. Blauensteiner
+## Setup Guide
 1. Download project from [here](https://github.com/sweiland/fhj.swenga2017.plavent/releases/tag/v0.0.1a2)
-2. Change dispatcher-servlet to update or create-drop
-3. Start application from [here](http://localhost:8080/fhj.swenga2017.plavent/)
-4. Start initial setup (if necessary)
-5. Login credentials: admin/password, host/password, guest/password
+* Setup ``db.properties`` (db-connection-information)
+* Change jpa-properties in dispatcher-servlet.xml to required attributes (``validate``, ``update``, or ``create-drop``)
+* Publish to and start Tomcat (8.5)
+* Access application from [here](http://localhost:8080/fhj.swenga2017.plavent/)
+* Start initial setup (if necessary)
+* Login credentials: admin/password, host/password, guest/password
+* See Happening Management for Tutorial Happening
