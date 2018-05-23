@@ -30,7 +30,7 @@
 			<groupId>org.springframework.data</groupId>
 			<artifactId>spring-data-jpa</artifactId>
 		</dependency>
-
+ 
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-core</artifactId>
@@ -92,7 +92,7 @@
 			<artifactId>itextpdf</artifactId>
 			<version>5.5.13</version>
 		</dependency>
-		
+		 
 		<!-- PDF Generation: standard version -->
 		<dependency>
 			<groupId>com.lowagie</groupId>

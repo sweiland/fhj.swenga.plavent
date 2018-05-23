@@ -51,6 +51,24 @@
 								<th class="text-right">Actions</th>
 							</tr>
 						</thead>
+						<tbody>
+							<tr
+								th:each="happeningCategory : ${#request.getAttribute('categories')}">
+								<td th:text="${happeningCategory.categoryName}"></td>
+								<td th:text="${happeningCategory.inUse}"></td>
+								<td th:text="${happeningCategory.status}"></td>
+								<td>
+
+									<div class="btn-group">
+										<a
+											th:href="@{/showModifyCategory(categoryID=${happeningCategory.categoryID})}"
+											class="btn btn-pill btn-secondary"> <span
+											class="glyphicon" aria-hidden="true"></span> Edit
+										</a>
+									</div>
+								</td>
+							</tr>
+						</tbody>
 					</table>
 				</div>
 			</div>

@@ -10,8 +10,9 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
-import at.fh.swenga.plavent.model.User;
+import at.fh.swenga.plavent.model.HappeningCategory;
 import at.fh.swenga.plavent.repo.HappeningCategoryRepository;
 
 /**
@@ -63,9 +64,9 @@ public class HappeningCategoryController {
 	}
 	
 	@Secured({ "ROLE_ADMIN" })
-	@RequestMapping(value = { "showCreateModifyCategory" })
-	public String showModifyCategories(Model model) {
-		model.addAttribute("modifiedCategory", categoryDao.findById(1)); //TODO: ID Variable richtig setzen
+	@RequestMapping(value = { "showModifyCategory" })
+	public String showModifyCategories(Model model, @RequestParam(value = "categoryID") HappeningCategory category) {
+		model.addAttribute("modifiedCategory", category);
 		return "createModifyCategory";
 	}
 	
