@@ -40,36 +40,32 @@
 </nav>
 
 
-<footer th:fragment="footer" class="fixed-bottom card-footer text-muted">
+<footer th:fragment="footer" class="fixed-bottom app-footer text-muted justify-content-center p-1">
 	<!-- TODO: Bei vielen Zeilen sollte automatisch im Body immer Seite 1..n erfolgen damit die Scrollbar nie kommt... -->
-	<div
-		class="container-fluid text-center footer footer-copyright navbar-fixed-bottom">
+	<div class="text-center">
 		FERNBACH - HEIDER - HÖDLBERT - WEILAND<br> FH JOANNEUM -
-		Informationsmanagement 2016<br>
-		Made with &#128154; in Styria.
+		Informationsmanagement 2016<br> Made with &#128154; in Styria.
 	</div>
 
 </footer>
 
 <nav th:fragment="MgmtNavBar (buttonText,buttonLink,searchLink)"
 	class="navbar navbar-expand-lg navbar-light bg-light">
-	<div class="container-fluid">
 		<!-- Button to add new element-->
-		<a th:href="${(buttonLink)}" class="btn btn-outline-dark navbar-btn"
+		<a th:href="${(buttonLink)}" class="btn btn-outline-success navbar-btn"
 			th:text="${(buttonText)}">New</a>
 
 		<!-- HTML form with search textbox and submit button-->
-		<form class="navbar-form navbar-right" role="search" method="post"
+		<form class="navbar-form navbar-right ml-auto" role="search" method="post"
 			th:action="${(searchLink)}">
 			<div class="input-group">
 				<input type="search" class="form-control"
 					placeholder="Search for..." name="searchString"> <span
 					class="input-group-append">
-					<button class="btn btn-outline-dark" type="submit">Filter</button>
+					<button class="btn btn-outline-success" type="submit">Filter</button>
 				</span>
 			</div>
 		</form>
-	</div>
 </nav>
 
 <div th:fragment="msgs">
