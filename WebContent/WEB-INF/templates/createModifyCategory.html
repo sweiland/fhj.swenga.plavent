@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<div th:include="~{includes/bootstrap :: bootstrapMeta}" th:remove="tag" />
+<title>PlaVent</title>
+<div th:include="~{includes/bootstrap :: bootstrapCSS}" th:remove="tag" />
+<link
+	href="http://www.malot.fr/bootstrap-datetimepicker/bootstrap-datetimepicker/css/bootstrap-datetimepicker.css"
+	rel="stylesheet">
+</head>
+
+<body class="app flex-row align-items-center">
+	<div class="container" role="main">
+		<div class="row">
+			<div class="card col-md-8 col-md-offset-2">
+
+				<form class="form-horizontal" method="post"
+					th:action="${happeningCategory} ? @{/modifyExistingHappeningCategory} : @{/createNewHappeningCategory}">
+					<fieldset class="card-body">
+						<h1
+							th:text="${happeningCategory} ? 'Change happening category' : 'New happening category'"></h1>
+
+						<!--  ----------------  categoryId ---------------- -->
+						<div th:if="${happeningCategory} != null" class="form-group">
+							<input class="form-control" type="text" name="taskId" readonly
+								required="required"
+								th:value="${happeningCategory} ? ${happeningCategory.categoryId}"
+								placeholder="Category-ID">
+						</div>
+
+						<!--  ----------------  categoryName ---------------- -->
+						<div class="form-group">
+							<input class="form-control" type="text" name="categoryName"
+								required="required"
+								th:value="${happeningCategory} ? ${happeningCategory.categoryName}"
+								placeholder="Category-Name">
+						</div>
+
+						<!--  ----------------  description ---------------- -->
+						<div class="form-group">
+							<textarea class="form-control" rows="5" id="description"
+								name="description"
+								th:text="${happeningTask} ? ${happeningTask.description}"
+								placeholder="Description"></textarea>
+						</div>
+
+						<!-- --------------  buttons ---------------- -->
+						<div class="form-group">
+							<div class="btn-group">
+								<button type="submit" class="btn btn-pill btn-primary">Submit</button>
+								<a
+									th:href="@{showCategoryManagement}"
+									class="btn btn-pill btn-secondary"> Cancel </a>
+							</div>
+						</div>
+
+					</fieldset>
+				</form>
+			</div>
+		</div>
+		<!-- weilands16: include our footer -->
+		<footer th:replace="~{includes/fragments :: footer}"></footer>
+	</div>
+	<!--  End of container -->
+	<div th:include="~{includes/bootstrap :: bootstrapJS}" th:remove="tag" />
+
+	<!-- JS for Datetime picker -->
+	<script type="text/javascript"
+		src="http://www.malot.fr/bootstrap-datetimepicker/bootstrap-datetimepicker/js/bootstrap-datetimepicker.js"></script>
+
+	<script>
+		$(function() {
+
+			$(".form_datetime").datetimepicker({
+				format : "dd.mm.yyyy",
+				autoclose : true,
+				todayBtn : true,
+				pickerPosition : "bottom-left",
+				minView : 2
+			});
+
+		});
+	</script>
+
+</body>
+
+</html>
