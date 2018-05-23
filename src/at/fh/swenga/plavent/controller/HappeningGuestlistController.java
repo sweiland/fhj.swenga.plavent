@@ -2,6 +2,7 @@ package at.fh.swenga.plavent.controller;
 
 import java.util.List;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
@@ -119,7 +120,7 @@ public class HappeningGuestlistController {
 
 		// Show first page with max 10 elements...
 		PageRequest page = generatePageRequest(0);
-		Page<User> happeningGuestsPage = happeningGuestlistRepo.getGuestListAsPage( happening.getHappeningId(), page);
+		Page<User> happeningGuestsPage = happeningGuestlistRepo.getGuestListAsPage(happening.getHappeningId(), page);
 
 		model.addAttribute("happening", happening);
 		model.addAttribute("happeningGuests", happeningGuestsPage);
@@ -145,7 +146,7 @@ public class HappeningGuestlistController {
 
 		// Show first page with max 10 elements...
 		PageRequest page = generatePageRequest(pageNr);
-		Page<User> happeningGuestsPage = happeningGuestlistRepo.getGuestListAsPage( happening.getHappeningId(), page);
+		Page<User> happeningGuestsPage = happeningGuestlistRepo.getGuestListAsPage(happening.getHappeningId(), page);
 
 		model.addAttribute("happening", happening);
 		model.addAttribute("happeningGuests", happeningGuestsPage);
@@ -334,7 +335,7 @@ public class HappeningGuestlistController {
 	}
 
 	@Secured({ "ROLE_HOST" })
-	@GetMapping("/generateGuestListPDF")
+	@PostMapping("/generateGuestListPDF")
 	public String generateGuestListPDF(Model model, @RequestParam(value = "happeningID") Happening happening,
 			Authentication authentication) {
 
@@ -343,11 +344,19 @@ public class HappeningGuestlistController {
 			model.addAttribute("warningMessage", "Happening not found or no permission!");
 			return "forward:/showHappeningManagement";
 		}
-
+		
+		List<User> guestList = happeningGuestlistRepo.getGuestList(happening.getHappeningId());
+		
+		if(CollectionUtils.isEmpty(guestList)) {
+			model.addAttribute("warningMessage", "No Guests found for Happening <" + happening.getHappeningName() +">!");
+			return "forward:/showGuestListManagement";
+		}
 		// TODO PDF generieren
-		model.addAttribute("warningMessage", "TODO Not implemented <" + "generateGuestListPDF" + ">");
-		return showGuestListManagement(model, happening, authentication);
+		model.addAttribute("guestList", guestList);
+		model.addAttribute("happening",happening);		
+		return "pdfReport";	
 	}
+
 	// -----------------------------------------------------------------------------------------
 
 	@ExceptionHandler(Exception.class)
