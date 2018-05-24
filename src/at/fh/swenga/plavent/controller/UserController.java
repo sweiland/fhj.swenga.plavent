@@ -58,7 +58,7 @@ public class UserController {
 		if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
 			model.addAttribute("users", userRepo.findAll());
 			model.addAttribute("message",
-					"Currently there are <strong>" + userRepo.findAll().size() + "</strong> entries");
+					"Currently there are <strong>" + userRepo.findAll().size() + "</strong> active Users and <strong>" + userRepo.findByEnabledFalse().size() + " </strong> inactive users");
 		} else {
 			model.addAttribute("users", userRepo.findFirstByUsername(authentication.getName()));
 		}
@@ -82,8 +82,8 @@ public class UserController {
 		User user = userRepo.findFirstByUsername(username);
 
 		if (user != null) {
-			if (user.getUsername().equalsIgnoreCase(authentication.getName())
-					|| authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
+			if ((user.getUsername().equalsIgnoreCase(authentication.getName())
+					|| authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) && user.isEnabled()) {
 				model.addAttribute("user", user);
 
 				if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
@@ -123,8 +123,8 @@ public class UserController {
 		User user = userRepo.findFirstByUsername(editUserModel.getUsername());
 
 		if (user != null) {
-			if (user.getUsername().equalsIgnoreCase(authentication.getName())
-					|| authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
+			if ((user.getUsername().equalsIgnoreCase(authentication.getName())
+					|| authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN")) && user.isEnabled())) {
 					
 					if (isGuest == true) {
 						UserRole role = userRoleRepo.findFirstByRoleName("ROLE_GUEST");
@@ -153,7 +153,7 @@ public class UserController {
 				userRepo.save(user);
 				model.addAttribute("message", "Changed User " + editUserModel.getUsername());
 			} else {
-				model.addAttribute("warningMessage", "Not allowed to edit " + editUserModel.getUsername() + "!");
+				model.addAttribute("warningMessage", "Not allowed to edit User with username " + editUserModel.getUsername() + "!");
 			}
 		return showAllUsers(model, authentication);
 		}
@@ -173,13 +173,13 @@ public class UserController {
 		}
 
 		User user = userRepo.findFirstByUsername(editUserModel.getUsername());
-		if (user == null) {
+		if (user.isEnabled() == false) {
 			model.addAttribute("errorMessage", "User does not exist! <" + editUserModel.getUsername() + ">");
 			return showAllUsers(model, authentication);
 		}
 		if (user.getUsername().equalsIgnoreCase(authentication.getName())) {
 			model.addAttribute("errorMessage",
-					"You cannot delete yourself, dear <" + editUserModel.getUsername() + ">");
+					"You cannot delete yourself! <" + editUserModel.getUsername() + ">");
 		} else {
 			user.setEnabled(false);
 			userRepo.save(user);
@@ -187,6 +187,34 @@ public class UserController {
 		}
 		return showAllUsers(model, authentication);
 	}
+	
+	@Secured({ "ROLE_ADMIN" })
+	@RequestMapping("/reactivateUser")
+	public String reactivateUser(@Valid User editUserModel, Model model, BindingResult bindingResult,
+			Authentication authentication) {
+
+		if (bindingResult.hasErrors()) {
+			String errorMessage = "";
+			for (FieldError fieldError : bindingResult.getFieldErrors()) {
+				errorMessage += fieldError.getField() + " is invalid<br>";
+			}
+			model.addAttribute("errorMessage", errorMessage);
+			return showAllUsers(model, authentication);
+		}
+
+		User user = userRepo.findFirstByUsername(editUserModel.getUsername());
+		if (user == null || user.isEnabled()) {
+			model.addAttribute("errorMessage", "User does not exist or is already reactivated! <" + editUserModel.getUsername() + ">");
+			return showAllUsers(model, authentication);
+		} else {
+			user.setEnabled(true);
+			userRepo.save(user);
+			model.addAttribute("message", "User " + editUserModel.getUsername() + "sucessfully reactivated");
+		}
+		return showAllUsers(model, authentication);
+	}
+	
+	
 
 	@GetMapping("/registerUser")
 	public String registerUser(Model model, Authentication authentication) {
