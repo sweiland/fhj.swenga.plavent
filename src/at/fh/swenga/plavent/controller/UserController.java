@@ -66,7 +66,7 @@ public class UserController {
 		return "userManagement";
 	}
 
-	@RequestMapping(value = { "showRegisterProblem" })
+	@RequestMapping(value = { "showRegisterIssues" })
 	public String showRegisterIssues(Model model, Authentication authentication) {
 
 		return "login";
@@ -85,6 +85,13 @@ public class UserController {
 			if (user.getUsername().equalsIgnoreCase(authentication.getName())
 					|| authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
 				model.addAttribute("user", user);
+
+				if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
+					model.addAttribute("hasRoleAdmin", user.getRoleList().contains(new UserRole("ROLE_ADMIN", null)));
+					model.addAttribute("hasRoleHost", user.getRoleList().contains(new UserRole("ROLE_HOST", null)));
+					model.addAttribute("hasRoleGuest", user.getRoleList().contains(new UserRole("ROLE_GUEST", null)));}
+				
+				
 				return "createModifyUser";
 			} else {
 				model.addAttribute("warningMessage", "Not allowed to edit " + username + "!");
@@ -98,8 +105,10 @@ public class UserController {
 
 	@Secured({ "ROLE_GUEST" })
 	@PostMapping(value = "/editUser")
-	public String editUser(@Valid User editUserModel, BindingResult bindingResult, Model model,
-			Authentication authentication) {
+	public String editUser(@RequestParam(name = "ur_guest", required = true) boolean isGuest,
+			@RequestParam(name = "ur_host", required = false) boolean isHost,
+			@RequestParam(name = "ur_admin", required = false) boolean isAdmin, @Valid User editUserModel,
+			BindingResult bindingResult, Model model, Authentication authentication) {
 
 		if (bindingResult.hasErrors()) {
 			String errorMessage = "";
@@ -110,23 +119,44 @@ public class UserController {
 			return showAllUsers(model, authentication);
 		}
 
+		List<UserRole> roles = new ArrayList<UserRole>();
 		User user = userRepo.findFirstByUsername(editUserModel.getUsername());
 
 		if (user != null) {
 			if (user.getUsername().equalsIgnoreCase(authentication.getName())
 					|| authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
+					
+					if (isGuest == true) {
+						UserRole role = userRoleRepo.findFirstByRoleName("ROLE_GUEST");
+						if (role != null)
+							roles.add(role);
+					}
+					if (isGuest ==true && isHost ==true) {
+						UserRole role = userRoleRepo.findFirstByRoleName("ROLE_HOST");
+						if (role != null)
+							roles.add(role);
+					}
+					if (isAdmin == true && isGuest==true && isAdmin==true) {
+						UserRole role = userRoleRepo.findFirstByRoleName("ROLE_ADMIN");
+						if (role != null)
+							roles.add(role);
+					}
+				}
+				
 				user.setFirstname(editUserModel.getFirstname());
 				user.setLastname(editUserModel.getLastname());
 				user.seteMail(editUserModel.geteMail());
 				user.setTelNumber(editUserModel.getTelNumber());
+				if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN")))
+					user.setRoleList(roles);
+
 				userRepo.save(user);
 				model.addAttribute("message", "Changed User " + editUserModel.getUsername());
 			} else {
 				model.addAttribute("warningMessage", "Not allowed to edit " + editUserModel.getUsername() + "!");
 			}
-		}
 		return showAllUsers(model, authentication);
-	}
+		}
 
 	@Secured({ "ROLE_ADMIN" })
 	@RequestMapping("/deleteUser")
@@ -184,12 +214,14 @@ public class UserController {
 
 			UserRole role = userRoleRepo.findFirstByRoleName("ROLE_GUEST");
 			if (role != null) {
+
 				List<UserRole> roles = new ArrayList<UserRole>();
 				roles.add(role);
 				newUserModel.setRoleList(roles);
-			}
-			newUserModel.setEnabled(true);
 
+				newUserModel.encryptPassword();
+				newUserModel.setEnabled(true);
+			}
 			userRepo.save(newUserModel);
 			model.addAttribute("message", "Registered User " + newUserModel.getUsername());
 		}
@@ -210,8 +242,10 @@ public class UserController {
 
 	@Secured({ "ROLE_ADMIN" })
 	@PostMapping("/createUser")
-	public String createNewUser(@Valid User newUser, BindingResult bindingResult, Model model,
-			Authentication authentication) {
+	public String createNewUser(@RequestParam(name = "ur_guest", required = true) boolean isGuest,
+			@RequestParam(name = "ur_host", required = false) boolean isHost,
+			@RequestParam(name = "ur_admin", required = false) boolean isAdmin, @Valid User newUser,
+			BindingResult bindingResult, Model model, Authentication authentication) {
 
 		if (bindingResult.hasErrors()) {
 			String errorMessage = "";
@@ -227,12 +261,25 @@ public class UserController {
 		}
 
 		else {
-			UserRole role = userRoleRepo.findFirstByRoleName("ROLE_GUEST");
-			if (role != null) {
-				List<UserRole> roles = new ArrayList<UserRole>();
-				roles.add(role);
-				newUser.setRoleList(roles);
+			List<UserRole> roles = new ArrayList<UserRole>();
+			if (isGuest) {
+				UserRole role = userRoleRepo.findFirstByRoleName("ROLE_GUEST");
+				if (role != null)
+					roles.add(role);
 			}
+			if (isGuest && isHost) {
+				UserRole role = userRoleRepo.findFirstByRoleName("ROLE_HOST");
+				if (role != null)
+					roles.add(role);
+			}
+			if (isGuest && isHost && isAdmin) {
+				UserRole role = userRoleRepo.findFirstByRoleName("ROLE_ADMIN");
+				if (role != null)
+					roles.add(role);
+			}
+
+			newUser.encryptPassword();
+			newUser.setRoleList(roles);
 			newUser.setEnabled(true);
 
 			userRepo.save(newUser);
