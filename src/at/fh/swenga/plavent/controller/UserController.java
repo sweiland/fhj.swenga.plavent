@@ -58,7 +58,8 @@ public class UserController {
 		if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
 			model.addAttribute("users", userRepo.findAll());
 			model.addAttribute("message",
-					"Currently there are <strong>" + userRepo.findAll().size() + "</strong> active Users and <strong>" + userRepo.findByEnabledFalse().size() + " </strong> inactive users");
+					"Currently there are <strong>" + userRepo.findAll().size() + "</strong> active Users and <strong>"
+							+ userRepo.findByEnabledFalse().size() + " </strong> inactive users");
 		} else {
 			model.addAttribute("users", userRepo.findFirstByUsername(authentication.getName()));
 		}
@@ -83,15 +84,16 @@ public class UserController {
 
 		if (user != null) {
 			if ((user.getUsername().equalsIgnoreCase(authentication.getName())
-					|| authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) && user.isEnabled()) {
+					|| authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN")))
+					&& user.isEnabled()) {
 				model.addAttribute("user", user);
 
 				if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
 					model.addAttribute("hasRoleAdmin", user.getRoleList().contains(new UserRole("ROLE_ADMIN", null)));
 					model.addAttribute("hasRoleHost", user.getRoleList().contains(new UserRole("ROLE_HOST", null)));
-					model.addAttribute("hasRoleGuest", user.getRoleList().contains(new UserRole("ROLE_GUEST", null)));}
-				
-				
+					model.addAttribute("hasRoleGuest", user.getRoleList().contains(new UserRole("ROLE_GUEST", null)));
+				}
+
 				return "createModifyUser";
 			} else {
 				model.addAttribute("warningMessage", "Not allowed to edit " + username + "!");
@@ -124,39 +126,41 @@ public class UserController {
 
 		if (user != null) {
 			if ((user.getUsername().equalsIgnoreCase(authentication.getName())
-					|| authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN")) && user.isEnabled())) {
-					
-					if (isGuest == true) {
-						UserRole role = userRoleRepo.findFirstByRoleName("ROLE_GUEST");
-						if (role != null)
-							roles.add(role);
-					}
-					if (isGuest ==true && isHost ==true) {
-						UserRole role = userRoleRepo.findFirstByRoleName("ROLE_HOST");
-						if (role != null)
-							roles.add(role);
-					}
-					if (isAdmin == true && isGuest==true && isAdmin==true) {
-						UserRole role = userRoleRepo.findFirstByRoleName("ROLE_ADMIN");
-						if (role != null)
-							roles.add(role);
-					}
-				}
-				
-				user.setFirstname(editUserModel.getFirstname());
-				user.setLastname(editUserModel.getLastname());
-				user.seteMail(editUserModel.geteMail());
-				user.setTelNumber(editUserModel.getTelNumber());
-				if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN")))
-					user.setRoleList(roles);
+					|| authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))
+							&& user.isEnabled())) {
 
-				userRepo.save(user);
-				model.addAttribute("message", "Changed User " + editUserModel.getUsername());
-			} else {
-				model.addAttribute("warningMessage", "Not allowed to edit User with username " + editUserModel.getUsername() + "!");
+				if (isGuest == true) {
+					UserRole role = userRoleRepo.findFirstByRoleName("ROLE_GUEST");
+					if (role != null)
+						roles.add(role);
+				}
+				if (isGuest == true && isHost == true) {
+					UserRole role = userRoleRepo.findFirstByRoleName("ROLE_HOST");
+					if (role != null)
+						roles.add(role);
+				}
+				if (isAdmin == true && isGuest == true && isAdmin == true) {
+					UserRole role = userRoleRepo.findFirstByRoleName("ROLE_ADMIN");
+					if (role != null)
+						roles.add(role);
+				}
 			}
-		return showAllUsers(model, authentication);
+
+			user.setFirstname(editUserModel.getFirstname());
+			user.setLastname(editUserModel.getLastname());
+			user.seteMail(editUserModel.geteMail());
+			user.setTelNumber(editUserModel.getTelNumber());
+			if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN")))
+				user.setRoleList(roles);
+
+			userRepo.save(user);
+			model.addAttribute("message", "Changed User " + editUserModel.getUsername());
+		} else {
+			model.addAttribute("warningMessage",
+					"Not allowed to edit User with username " + editUserModel.getUsername() + "!");
 		}
+		return showAllUsers(model, authentication);
+	}
 
 	@Secured({ "ROLE_ADMIN" })
 	@RequestMapping("/deleteUser")
@@ -178,8 +182,7 @@ public class UserController {
 			return showAllUsers(model, authentication);
 		}
 		if (user.getUsername().equalsIgnoreCase(authentication.getName())) {
-			model.addAttribute("errorMessage",
-					"You cannot delete yourself! <" + editUserModel.getUsername() + ">");
+			model.addAttribute("errorMessage", "You cannot delete yourself! <" + editUserModel.getUsername() + ">");
 		} else {
 			user.setEnabled(false);
 			userRepo.save(user);
@@ -187,7 +190,7 @@ public class UserController {
 		}
 		return showAllUsers(model, authentication);
 	}
-	
+
 	@Secured({ "ROLE_ADMIN" })
 	@RequestMapping("/reactivateUser")
 	public String reactivateUser(@Valid User editUserModel, Model model, BindingResult bindingResult,
@@ -204,7 +207,8 @@ public class UserController {
 
 		User user = userRepo.findFirstByUsername(editUserModel.getUsername());
 		if (user == null || user.isEnabled()) {
-			model.addAttribute("errorMessage", "User does not exist or is already reactivated! <" + editUserModel.getUsername() + ">");
+			model.addAttribute("errorMessage",
+					"User does not exist or is already reactivated! <" + editUserModel.getUsername() + ">");
 			return showAllUsers(model, authentication);
 		} else {
 			user.setEnabled(true);
@@ -213,8 +217,6 @@ public class UserController {
 		}
 		return showAllUsers(model, authentication);
 	}
-	
-	
 
 	@GetMapping("/registerUser")
 	public String registerUser(Model model, Authentication authentication) {
@@ -237,7 +239,7 @@ public class UserController {
 		}
 
 		if (userRepo.findFirstByUsername(newUserModel.getUsername()) != null) {
-			model.addAttribute("warningMessage", "Your User could not be registered!");
+			model.addAttribute("warningMessage", "User could not be registered!");
 		} else {
 
 			UserRole role = userRoleRepo.findFirstByRoleName("ROLE_GUEST");
@@ -318,26 +320,82 @@ public class UserController {
 	}
 
 	@Secured({ "ROLE_GUEST" })
-	@PostMapping("/changePasswordExistingUser")
-	public String changePasswordFromUser(@Valid User changedUserModel, BindingResult bindingResult, Model model,
-			Authentication authentication) {
-		// Check for errors
-		if (errorsDetected(model, bindingResult))
-			return showAllUsers(model, authentication);
+	@GetMapping("/changePassword")
+	public String changePassword(@RequestParam String username, Model model, Authentication authentication) {
 
-		User user = userRepo.findFirstByUsername(changedUserModel.getUsername());
-		if (user == null) {
-			model.addAttribute("errorMessage", "User does not exist! <" + changedUserModel.getUsername() + ">");
+		User user = userRepo.findFirstByUsername(username);
+
+		if ((user == null) || (user.isEnabled() == false)) {
+			model.addAttribute("errorMessage", "Error while reading User!");
+			return showAllUsers(model, authentication);
 		} else {
 
-			// Check if user and logged in user is the same or logged in user is in role
-			// ADMin
 			if (user.getUsername().equalsIgnoreCase(authentication.getName())
 					|| authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
-				// TODO Change password which is stored in changedUserModel
+				model.addAttribute("user", user);
+				return "changePassword";
 			} else {
 				model.addAttribute("warningMessage", "Not allowed to change password for " + user.getUsername() + "!");
 				return showAllUsers(model, authentication);
+			}
+		}
+	}
+
+	/*
+	 * @Secured({ "ROLE_GUEST" })
+	 * 
+	 * @PostMapping("/changePassword") public String changePassword(@RequestParam
+	 * String password, @Valid User cPWUser, BindingResult bindingResult, Model
+	 * model, Authentication authentication) {
+	 * 
+	 * if (bindingResult.hasErrors()) { String errorMessage = ""; for (FieldError
+	 * fieldError : bindingResult.getFieldErrors()) { errorMessage +=
+	 * fieldError.getField() + " is invalid<br>"; }
+	 * model.addAttribute("errorMessage", errorMessage); return
+	 * showRegisterIssues(model, authentication); }
+	 * 
+	 * User user = userRepo.findFirstByUsername(cPWUser.getUsername());
+	 * System.out.println(cPWUser.getUsername()); if (user == null) {
+	 * model.addAttribute("errorMessage", "Error while reading user!"); } else {
+	 * 
+	 * if (user.getUsername().equalsIgnoreCase(authentication.getName()) ||
+	 * authentication.getAuthorities().contains(new
+	 * SimpleGrantedAuthority("ROLE_ADMIN"))) { user.setPassword(password);
+	 * user.encryptPassword(); userRepo.save(user); model.addAttribute("message",
+	 * "The Password for <" + user.getUsername() + "> was successfully changed!"); }
+	 * else { model.addAttribute("warningMessage",
+	 * "Not allowed to change password for " + user.getUsername() + "!"); return
+	 * showAllUsers(model, authentication); } } return showAllUsers(model,
+	 * authentication); }
+	 */
+
+	@Secured({ "ROLE_GUEST" })
+	@PostMapping(value = "/changePassword")
+	public String changePassword(@Valid User editUserModel, @RequestParam String password, BindingResult bindingResult,
+			Model model, Authentication authentication) {
+
+		if (bindingResult.hasErrors()) {
+			String errorMessage = "";
+			for (FieldError fieldError : bindingResult.getFieldErrors()) {
+				errorMessage += fieldError.getField() + " is invalid<br>";
+			}
+			model.addAttribute("errorMessage", errorMessage);
+			return showAllUsers(model, authentication);
+		}
+
+		User user = userRepo.findFirstByUsername(editUserModel.getUsername());
+
+		if (user != null) {
+			if ((user.getUsername().equalsIgnoreCase(authentication.getName())
+					|| authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN")))) {
+
+				user.setPassword(password);
+				user.encryptPassword();
+				userRepo.save(user);
+
+				model.addAttribute("message", "Password successfully changed for User: " + editUserModel.getUsername());
+			} else {
+				model.addAttribute("warningMessage", "Error while reading User data!");
 			}
 		}
 		return showAllUsers(model, authentication);

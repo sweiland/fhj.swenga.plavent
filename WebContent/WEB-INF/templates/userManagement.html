@@ -60,7 +60,7 @@
 											class="glyphicon glyphicon-trash" aria-hidden="true"></span>
 											Edit
 										</a> <a th:unless="${user.enabled} == false"
-											th:href="@{/showChangePasswordForm(username=${user.username})}"
+											th:href="@{/changePassword(username=${user.username})}"
 											class="btn btn-pill btn-xs btn-success"> <span
 											class="glyphicon glyphicon-trash" aria-hidden="true"></span>
 											Change Password
