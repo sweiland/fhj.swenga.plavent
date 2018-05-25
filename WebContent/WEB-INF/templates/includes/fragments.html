@@ -31,7 +31,7 @@
 <nav th:fragment="pageNav (linkToChangePage)">
 	<ul class="pagination">
 		<li th:if="${totalPages <= 1}" class="page-item"><a
-			class="page-link" th:href="@{${(linkToChangePage)}(page=1)}">1</a></li>
+			class="page-link" th:href="@{${(linkToChangePage)}(page=0)}">1</a></li>
 		<li th:if="${totalPages gt 1}" class="page-item"
 			th:each="i : ${#numbers.sequence(0,totalPages-1)}"><a
 			class="page-link" th:href="@{${(linkToChangePage)}(page=${i})}"

@@ -7,7 +7,6 @@
 	">
  
 	<bean id="excelReport" class="at.fh.swenga.plavent.report.ExcelGuestListReportView" />
-	
-	<bean id="pdfReport" class="at.fh.swenga.plavent.report.PdfGuestListReportView" />
+	<bean id="pdfReport"   class="at.fh.swenga.plavent.report.PdfGuestListReportView" />
 	
 </beans>

@@ -3,6 +3,7 @@ package at.fh.swenga.plavent.controller;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Optional;
 
 import javax.validation.Valid;
@@ -12,7 +13,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -27,7 +27,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import at.fh.swenga.plavent.model.Happening;
+import at.fh.swenga.plavent.model.User;
 import at.fh.swenga.plavent.repo.HappeningCategoryRepository;
+import at.fh.swenga.plavent.repo.HappeningGuestlistRepository;
 import at.fh.swenga.plavent.repo.HappeningRepository;
 import at.fh.swenga.plavent.repo.HappeningStatusRepository;
 import at.fh.swenga.plavent.repo.UserRepository;
@@ -54,6 +56,9 @@ public class HappeningController {
 	HappeningStatusRepository happeningStatusRepo;
 
 	@Autowired
+	HappeningGuestlistRepository happeningGuestlistRepo;
+
+	@Autowired
 	UserRepository userRepo;
 
 	public HappeningController() {
@@ -70,7 +75,6 @@ public class HappeningController {
 	 * @return
 	 */
 	public boolean isHappeningHostOrAdmin(Happening happening, Authentication authentication) {
-
 		if (happening == null || authentication == null) {
 			return false;
 		} else {
@@ -91,12 +95,13 @@ public class HappeningController {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Helper method to include the paging handling. The content is static, so user
 	 * can just change the pagenumber
 	 * 
-	 * @param pageNr .. Page number which should be displayed
+	 * @param pageNr
+	 *            .. Page number which should be displayed
 	 * @return
 	 */
 	private PageRequest generatePageRequest(int pageNr) {
@@ -113,16 +118,16 @@ public class HappeningController {
 		// Show first page with max 10 elements...
 		PageRequest page = generatePageRequest(0);
 		Page<Happening> happeningPage;
-		
+
 		// ADMINS are allowed to see all happening. HOSTS just happenings shich belongs
 		// to them and are active
 		if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
 			happeningPage = happeningRepo.findAll(page);
 		} else {
 			// Show just active ones!
-			happeningPage = happeningRepo.getActiveHappeningsForHost(authentication.getName(), page);	
+			happeningPage = happeningRepo.getActiveHappeningsForHost(authentication.getName(), page);
 		}
-
+		
 		model.addAttribute("happenings", happeningPage);
 		model.addAttribute("currPage", happeningPage.getNumber());
 		model.addAttribute("totalPages", happeningPage.getTotalPages());
@@ -142,7 +147,7 @@ public class HappeningController {
 			// Show just active ones!
 			happeningPage = happeningRepo.getActiveHappeningsForHost(authentication.getName(), page);
 		}
-		
+
 		model.addAttribute("happenings", happeningPage);
 		model.addAttribute("currPage", happeningPage.getNumber());
 		model.addAttribute("totalPages", happeningPage.getTotalPages());
@@ -153,10 +158,11 @@ public class HappeningController {
 	@RequestMapping(value = { "showCreateHappeningForm" })
 	public String showCreateHappeningForm(Model model, Authentication authentication) {
 
-		//Just show active (enabled) categories
+		// Just show active (enabled) categories
 		model.addAttribute("happeningCategories", happeningCategoryRepo.findByEnabledTrue());
 
-		// Admins are allowed to create a happening for everyone, hosts just for themself.
+		// Admins are allowed to create a happening for everyone, hosts just for
+		// themself.
 		if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
 			// Just set Users with role HOST
 			model.addAttribute("happeningHosts", userRepo.getUsersByRolename("ROLE_HOST"));
@@ -183,7 +189,8 @@ public class HappeningController {
 		// TOOD: Just show active (enabled) ones
 		model.addAttribute("happeningCategories", happeningCategoryRepo.findAll());
 
-		// Admins are allowed to create a happening for everyone, hosts just for themself.
+		// Admins are allowed to create a happening for everyone, hosts just for
+		// themself.
 		if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
 			// Just set Users with role HOST
 			model.addAttribute("happeningHosts", userRepo.getUsersByRolename("ROLE_HOST"));
@@ -280,6 +287,13 @@ public class HappeningController {
 			model.addAttribute("warningMessage", "Happening not found or no permission!");
 			return showHappenings(model, authentication);
 		}
+
+		User newHost = userRepo.findFirstByUsername(hostUsername);
+		if (newHost == null) {
+			model.addAttribute("warningMessage", "New Happening-Host not found!");
+			return showHappenings(model, authentication);
+		}
+
 		// Validation checks done, set new parameters and update data
 		Happening happening = happeningOptional.get();
 
@@ -289,8 +303,20 @@ public class HappeningController {
 		happening.setDescription(newHappening.getDescription());
 		happening.setLocation(newHappening.getLocation());
 		happening.setHappeningStatus(happeningStatusRepo.findFirstByStatusName(happeningStatus));
-		happening.setHappeningHost(userRepo.findFirstByUsername(hostUsername));
 		happening.setCategory(happeningCategoryRepo.findFirstByCategoryID(categoryID));
+		happening.setHappeningHost(newHost);
+
+		/*
+		 * Check if new given host is on guestlist. In this case, remove him from
+		 * guestlist. Either a user is host or a guest
+		 */
+		List<User> guestList = happeningGuestlistRepo.getGuestList(happening.getHappeningId());
+		if (guestList.remove(newHost)) {
+			model.addAttribute("warningMessage",
+					"Guest " + newHost.getUsername() + " became new host. Removed from guestlist!");
+			// In this case we have to update the guestlist as well!
+			happening.setGuestList(guestList);
+		}
 
 		happeningRepo.save(happening);
 		return showHappenings(model, authentication);
@@ -327,14 +353,15 @@ public class HappeningController {
 	public String filterHappenings(Model model, @RequestParam String searchString, Authentication authentication) {
 
 		PageRequest page = generatePageRequest(0);
-		Page<Happening> happeningPage;		
-		
+		Page<Happening> happeningPage;
+
 		if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
 			// ADMINS are allowed to see all happening
-			happeningPage = happeningRepo.findByHappeningName(searchString,page);
+			happeningPage = happeningRepo.findByHappeningName(searchString, page);
 		} else {
 			// Show filter happenings of user!
-			happeningPage = happeningRepo.findByHappeningNameAndHappeningHostUsername(searchString,authentication.getName(), page);
+			happeningPage = happeningRepo.findByHappeningNameAndHappeningHostUsername(searchString,
+					authentication.getName(), page);
 		}
 		model.addAttribute("happenings", happeningPage);
 		model.addAttribute("currPage", happeningPage.getNumber());

@@ -23,7 +23,7 @@ public class HappeningTask implements Serializable {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int taskId;
 
-	@ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "happeningId", nullable = false)
 	private Happening happening;
 
@@ -38,7 +38,7 @@ public class HappeningTask implements Serializable {
 																// Tag dauern...
 	private double durationInHour;
 
-	@ManyToOne(cascade = CascadeType.PERSIST, optional = true)
+	@ManyToOne(optional = true)
 	@JoinColumn(name = "responsibleUser", nullable = true)
 	private User responsibleUser;
 

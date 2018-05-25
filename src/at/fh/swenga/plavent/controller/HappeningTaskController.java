@@ -1,7 +1,10 @@
 package at.fh.swenga.plavent.controller;
 
+import java.util.List;
+
 import javax.validation.Valid;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
@@ -19,10 +22,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.commons.CommonsFileUploadSupport;
 
 import at.fh.swenga.plavent.model.Happening;
 import at.fh.swenga.plavent.model.HappeningTask;
 import at.fh.swenga.plavent.model.User;
+import at.fh.swenga.plavent.repo.HappeningGuestlistRepository;
+import at.fh.swenga.plavent.repo.HappeningRepository;
 import at.fh.swenga.plavent.repo.HappeningTaskRepository;
 import at.fh.swenga.plavent.repo.UserRepository;
 
@@ -38,10 +44,16 @@ import at.fh.swenga.plavent.repo.UserRepository;
 public class HappeningTaskController {
 
 	@Autowired
+	HappeningRepository happeningRepo;
+
+	@Autowired
 	HappeningTaskRepository happeningTaskRepo;
 
 	@Autowired
 	UserRepository userRepo;
+
+	@Autowired
+	HappeningGuestlistRepository happeningGuestlistRepo;
 
 	public HappeningTaskController() {
 	}
@@ -159,6 +171,9 @@ public class HappeningTaskController {
 			return "forward:/showHappeningManagement";
 		}
 
+		// First: load guestlist of happening (initialized as "LAZY"))
+		happening.setGuestList(happeningGuestlistRepo.getGuestList(happening.getHappeningId()));
+
 		model.addAttribute("happening", happening);
 		return "createModifyHappeningTask";
 	}
@@ -179,16 +194,29 @@ public class HappeningTaskController {
 		if (errorsDetected(model, bindingResult))
 			return showTaskListManagement(model, happening, authentication);
 
+		// Set responsible User Check if given Username is 'N/A' or a user on guestlist
+		// or host.
+		if ("N/A".equals(username)) {
+			newTask.setResponsibleUser(null);
+		} else {
+			List<User> guestList = happeningGuestlistRepo.getGuestList(happening.getHappeningId());
+			happening.setGuestList(guestList);
+			User responsibleUser = userRepo.findFirstByUsername(username);
+			if (responsibleUser == null
+					|| !(guestList.contains(responsibleUser) || responsibleUser.equals(happening.getHappeningHost()))) {
+				model.addAttribute("warningMessage", "Responsible User not found on guestlist!");
+				return "forward:/showTaskListManagement";
+			}
+
+			newTask.setResponsibleUser(responsibleUser);
+		}
+
 		newTask.setHappening(happening);
+
+		// First: load tasklist of happening (initialized as "LAZY"))
+		happening.setTaskList(happeningTaskRepo.findByHappeningHappeningId(happening.getHappeningId()));
 		happening.addHappeningTask(newTask);
 		happeningTaskRepo.save(newTask);
-
-		// Assign/Link Task with user and happening
-		User responsibleUser = userRepo.findFirstByUsername(username);
-		if (responsibleUser != null) {
-			newTask.setResponsibleUser(responsibleUser);
-			happeningTaskRepo.save(newTask);
-		}
 
 		return showTaskListManagement(model, happening, authentication);
 	}
@@ -204,10 +232,10 @@ public class HappeningTaskController {
 			model.addAttribute("warningMessage", "Happening not found or no permission!");
 			return "forward:/showHappeningManagement";
 		}
-		
+
 		PageRequest page = generatePageRequest(0);
-		Page<HappeningTask> happeningTasksPage = happeningTaskRepo
-				.getFilteredTasks(happening.getHappeningId(),searchString, page);
+		Page<HappeningTask> happeningTasksPage = happeningTaskRepo.getFilteredTasks(happening.getHappeningId(),
+				searchString, page);
 
 		model.addAttribute("happening", happening);
 		model.addAttribute("happeningTasks", happeningTasksPage);
@@ -223,13 +251,19 @@ public class HappeningTaskController {
 	public String showModifyHappeningTaskForm(Model model, @RequestParam(value = "taskId") HappeningTask task,
 			Authentication authentication) {
 
+		// First: load Happening for task (initialized is "LAZY"))
+		Happening happening = happeningRepo.getHappeningForTask(task.getTaskId());
+
 		// Check if user is Owner of Happening or has role ADMIN
-		if (!isHappeningHostOrAdmin(task.getHappening(), authentication)) {
+		if (!isHappeningHostOrAdmin(happening, authentication)) {
 			model.addAttribute("warningMessage", "Happening not found or no permission!");
 			return "forward:/showHappeningManagement";
 		}
 
-		model.addAttribute("happening", task.getHappening());
+		// First: load guestlist of happening (initialized as "LAZY"))
+		happening.setGuestList(happeningGuestlistRepo.getGuestList(happening.getHappeningId()));
+
+		model.addAttribute("happening", happening);
 		model.addAttribute("happeningTask", task);
 		return "createModifyHappeningTask";
 
@@ -258,14 +292,30 @@ public class HappeningTaskController {
 			task.setTopic(modifiedTask.getTopic());
 			task.setDurationInHour(modifiedTask.getDurationInHour());
 			task.setDescription(modifiedTask.getDescription());
-			// Assign/Link Task with user and happening
-			User responsibleUser = userRepo.findFirstByUsername(username);
-			if (responsibleUser != null) {
+
+			// Set responsible User Check if given Username is 'N/A' or a user on guestlist
+			// or host.
+			if ("N/A".equals(username)) {
+				task.setResponsibleUser(null);
+			} else {
+				List<User> guestList = happeningGuestlistRepo.getGuestList(happening.getHappeningId());
+				happening.setGuestList(guestList);
+				User responsibleUser = userRepo.findFirstByUsername(username);
+				if (responsibleUser == null || !(guestList.contains(responsibleUser)
+						|| responsibleUser.equals(happening.getHappeningHost()))) {
+					model.addAttribute("warningMessage", "Responsible User not found on guestlist!");
+					return "forward:/showTaskListManagement";
+				}
+
 				task.setResponsibleUser(responsibleUser);
 			}
-			happeningTaskRepo.saveAndFlush(task);
+
+			// First: load tasklist of happening (initialized as "LAZY"))
+			happening.setTaskList(happeningTaskRepo.findByHappeningHappeningId(happening.getHappeningId()));
+
 			happening.removeHappeningTaskFromList(modifiedTask);
 			happening.addHappeningTask(task);
+			happeningTaskRepo.save(task);
 
 			return showTaskListManagement(model, happening, authentication);
 		} else {
@@ -278,15 +328,21 @@ public class HappeningTaskController {
 	@GetMapping("/deleteExistingTask")
 	public String deleteExistingTask(Model model, @RequestParam(value = "taskId") HappeningTask task,
 			Authentication authentication) {
+
+		// First: load Happening for task (initialized is "LAZY"))
+		Happening happening = happeningRepo.getHappeningForTask(task.getTaskId());
+
 		// Check if user is Owner of Happening or has role ADMIN
-		if (!isHappeningHostOrAdmin(task.getHappening(), authentication)) {
+		if (!isHappeningHostOrAdmin(happening, authentication)) {
 			model.addAttribute("warningMessage", "Happening not found or no permission!");
 			return "forward:/showHappeningManagement";
 		}
 
-		task.getHappening().removeHappeningTaskFromList(task);
+		// First: load tasklist of happening (initialized as "LAZY"))
+		happening.setTaskList(happeningTaskRepo.findByHappeningHappeningId(happening.getHappeningId()));
+		happening.removeHappeningTaskFromList(task);
 		happeningTaskRepo.delete(task);
-		return showTaskListManagement(model, task.getHappening(), authentication);
+		return showTaskListManagement(model, happening, authentication);
 
 	}
 	// -----------------------------------------------------------------------------------------

@@ -57,19 +57,15 @@ public class Happening implements Serializable {
 	@Size(min = 2, max = 128, message = "Location must be between 2 and 128 characters")
 	private String location;
 
-	/*
-	 * cascade = CascadeType.PERSIST: Changes the default setting for this
-	 * relationship, so the EntityManager saves unmanaged related object
-	 * automatically
+	/**
+	 * Load status with eager because there are just two entries (ACITVE and DELETED)
 	 */
 	@ManyToOne(cascade = CascadeType.MERGE,fetch = FetchType.EAGER)
 	@JoinColumn(name = "categoryId")
 	private HappeningCategory category;
 
-	/*
-	 * cascade = CascadeType.PERSIST: Changes the default setting for this
-	 * relationship, so the EntityManager saves unmanaged related object
-	 * automatically
+	/**
+	 * Load status with eager because there are just two entries (ACITVE and DELETED)
 	 */
 	@ManyToOne(cascade = CascadeType.MERGE,fetch = FetchType.EAGER)
 	@JoinColumn(name = "statusId")
@@ -79,24 +75,20 @@ public class Happening implements Serializable {
 	@JoinColumn(name = "username")
 	private User happeningHost;
 
-	/*
-	 * cascade = CascadeType.PERSIST: Changes the default setting for this
-	 * relationship, so the EntityManager saves unmanaged related object
-	 * automatically
+	/**
+	 * Load guests lazy - we don't want to have the whole db in memory
 	 */
-	@ManyToMany(cascade = CascadeType.MERGE,fetch = FetchType.EAGER)
+	@ManyToMany(cascade = CascadeType.MERGE,fetch = FetchType.LAZY)
 	@JoinTable(name = "Guestlist",
 		joinColumns = { @JoinColumn(name = "happeningId") },
 		inverseJoinColumns = { @JoinColumn(name = "username") })
-	@Fetch(value = FetchMode.SUBSELECT)
 	private List<User> guestList;
 	
 	
-	/*
-	 * https://stackoverflow.com/questions/24675340/org-hibernate-loader-multiplebagfetchexception-cannot-simultaneously-fetch-mult/24676806
+	/**
+	 * Load tasks lazy - we don't want to have the whole db in memory
 	 */
-	@OneToMany(fetch = FetchType.EAGER, mappedBy = "happening")
-	@Fetch(value = FetchMode.SUBSELECT)
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "happening")
 	private List<HappeningTask> taskList;
 
 	@Version
@@ -166,6 +158,8 @@ public class Happening implements Serializable {
 	public void setLocation(String location) {
 		this.location = location;
 	}
+	
+	
 
 	@Override
 	public int hashCode() {
