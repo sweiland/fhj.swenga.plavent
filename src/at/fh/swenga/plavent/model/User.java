@@ -46,6 +46,7 @@ public class User implements java.io.Serializable {
 	 * relationship, so the EntityManager saves unmanaged related object
 	 * automatically
 	 */
+
 	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "User_UserRole", joinColumns = { @JoinColumn(name = "username") }, inverseJoinColumns = {
 			@JoinColumn(name = "roleId") })
