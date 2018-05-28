@@ -8,6 +8,7 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -20,6 +21,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.multipart.MultipartFile;
 
 import at.fh.swenga.plavent.model.User;
 import at.fh.swenga.plavent.model.UserRole;
@@ -226,8 +229,8 @@ public class UserController {
 	}
 
 	@PostMapping("/registerUser")
-	public String registerUser(@Valid User newUserModel, BindingResult bindingResult, Model model,
-			Authentication authentication) {
+	public String registerUser(@RequestParam("file") MultipartFile file, @Valid User newUserModel,
+			BindingResult bindingResult, Model model, Authentication authentication) {
 
 		if (bindingResult.hasErrors()) {
 			String errorMessage = "";
@@ -237,7 +240,15 @@ public class UserController {
 			model.addAttribute("errorMessage", errorMessage);
 			return showRegisterIssues(model, authentication);
 		}
-
+/*
+		if (file.isEmpty()) {
+			byte[] bytes = file.getBytes();
+			// store the bytes somewhere
+			model.addAttribute("errorMessage", "Your profile picture could not be succesfully uploaded!");
+			return showRegisterIssues(model, authentication);
+		}
+		model.addAttribute("message", "Your profile picture has been succesfully uploaded!");
+*/
 		if (userRepo.findFirstByUsername(newUserModel.getUsername()) != null) {
 			model.addAttribute("warningMessage", "User could not be registered!");
 		} else {
@@ -420,6 +431,10 @@ public class UserController {
 		return "error";
 	}
 
+	@ExceptionHandler()
+	@ResponseStatus(code=HttpStatus.FORBIDDEN) public String handle403(Exception ex) {
+		ex.printStackTrace();
+		return "login"; }
 }
 
 /**

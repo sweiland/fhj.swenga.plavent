@@ -17,11 +17,11 @@
 			<div class="col-md-8 col-md-offset-2">
 
 				<!--  fernbach16: Form calls /edituser or /adduser, depending if an user is set already. -->
-				<form class="form-horizontal" method="post"
+				<form class="form-horizontal" method="post" enctype="multipart/form-data"
 					th:action="@{/registerUser}">
 					<fieldset>
-						<h1 th:text="${user}? 'Change user' : 'New user'">Register
-							a new User</h1>
+						<h1 th:text="${user}? 'Change user' : 'New user'">Register a
+							new User</h1>
 
 						<!--  ----------------  username ---------------- -->
 
@@ -69,7 +69,11 @@
 								required="required" th:value="${user} ? ${user.telNumber}"
 								placeholder="phone">
 						</div>
-
+						<!--  ----------------  Profile Picture ---------------- -->
+						<div class="form-group">
+							<input class="form-control" type="file" name="profilepicture"
+								placeholder="phone">
+						</div>
 
 						<!-- --------------  buttons ---------------- -->
 						<div class="btn-group">
