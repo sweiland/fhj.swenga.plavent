@@ -53,7 +53,11 @@ public class User implements java.io.Serializable {
 	@Fetch(value = FetchMode.SUBSELECT)
 	private List<UserRole> roleList;
 
-	@ManyToMany(mappedBy = "guestList", fetch = FetchType.EAGER)
+	
+	/**
+	 * Load happenings for user lazy - we don't want to have the whole db in memory
+	 */
+	@ManyToMany(mappedBy = "guestList", fetch = FetchType.LAZY)
 	private List<Happening> happenings;
 
 	@Version
@@ -256,13 +260,6 @@ public class User implements java.io.Serializable {
 		password = passwordEncoder.encode(password);
 	}
 
-	
-	
-	
-
-	/* (non-Javadoc)
-	 * @see java.lang.Object#hashCode()
-	 */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -271,9 +268,6 @@ public class User implements java.io.Serializable {
 		return result;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)

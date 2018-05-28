@@ -1,19 +1,22 @@
 <!-- Fragement to main menu -->
-<nav th:fragment="navigation" class="navbar navbar-default">
-	<div class="btn-group" role="group">
-		<a sec:authorize="hasRole('ROLE_GUEST')" href="showUserManagement"
-			class="btn btn-pill btn-primary navbar-btn">User Management</a> <a
-			sec:authorize="hasRole('ROLE_GUEST')" href="dashboard"
-			class="btn btn-pill btn-primary navbar-btn">Dashboard</a> <a
-			sec:authorize="hasRole('ROLE_HOST')" href="showHappeningManagement"
-			class="btn btn-pill btn-secondary navbar-btn">Happening
-			Management</a> <a sec:authorize="hasRole('ADMIN')"
-			href="showCategoryManagement"
-			class="btn btn-pill btn-success navbar-btn">Category Management</a>
-	</div>
+<nav th:fragment="navigation"
+	class="navbar navbar-expand-lg navbar-light bg-light">
+	<a class="navbar-brand" href="#">PlaVent</a>
+	<ul class="navbar-nav mr-auto">
+		<li class="nav-item"><a sec:authorize="hasRole('ROLE_GUEST')"
+			href="showUserManagement" class="nav-link">User Management</a></li>
+		<li class="nav-item"><a sec:authorize="hasRole('ROLE_GUEST')"
+			href="dashboard" class="nav-link">Dashboard</a></li>
+		<li class="nav-item"><a sec:authorize="hasRole('ROLE_HOST')"
+			href="showHappeningManagement" class="nav-link">Happening
+				Management</a></li>
+		<li class="nav-item"><a sec:authorize="hasRole('ADMIN')"
+			href="showCategoryManagement" class="nav-link">Category
+				Management</a></li>
+	</ul>
 	<form class="navbar-form navbar-left" method="post"
 		th:action="@{/logout}">
-		<button class="btn btn-pill btn-danger navbar-btn" type="submit">Logout</button>
+		<button class="btn btn-outline-danger navbar-btn" type="submit">Logout</button>
 	</form>
 </nav>
 
@@ -26,46 +29,43 @@
 
 <!-- Fragment to have pagination -->
 <nav th:fragment="pageNav (linkToChangePage)">
-  <ul class="pagination">
-  	<li th:if="${totalPages <= 1}" class="page-item"> 
-    	<a class="page-link" th:href="@{${(linkToChangePage)}(page=1)}">1</a>
-	</li>
-    <li th:if="${totalPages gt 1}" class="page-item" th:each="i : ${#numbers.sequence(0,totalPages-1)}"> 
-    	<a class="page-link" th:href="@{${(linkToChangePage)}(page=${i})}" th:text="${i+1}"></a>
-    </li>
-  </ul>
+	<ul class="pagination">
+		<li th:if="${totalPages <= 1}" class="page-item"><a
+			class="page-link" th:href="@{${(linkToChangePage)}(page=0)}">1</a></li>
+		<li th:if="${totalPages gt 1}" class="page-item"
+			th:each="i : ${#numbers.sequence(0,totalPages-1)}"><a
+			class="page-link" th:href="@{${(linkToChangePage)}(page=${i})}"
+			th:text="${i+1}"></a></li>
+	</ul>
 </nav>
 
 
-<footer th:fragment="footer" class="fixed-bottom card-footer text-muted">
+<footer th:fragment="footer" class="fixed-bottom app-footer text-muted justify-content-center p-1">
 	<!-- TODO: Bei vielen Zeilen sollte automatisch im Body immer Seite 1..n erfolgen damit die Scrollbar nie kommt... -->
-	<div
-		class="container-fluid text-center footer footer-copyright navbar-fixed-bottom">
-		FERNBACH - HEIDER - HÖDLBERT - WEILAND<br> FH JOANNEUM -
-		Informationsmanagement 2016<br>
-		Made with (insert green heart here) in Styria.
+	<div class="text-center">
+		FERNBACH - HEIDER - H&Ouml;DLBERT - WEILAND<br> FH JOANNEUM -
+		Informationsmanagement 2016<br> Made with &#128154; in Styria.
 	</div>
 
 </footer>
 
 <nav th:fragment="MgmtNavBar (buttonText,buttonLink,searchLink)"
 	class="navbar navbar-expand-lg navbar-light bg-light">
-	<div class="container-fluid">
 		<!-- Button to add new element-->
-		<a th:href="${(buttonLink)}"
-			class="btn btn-pill btn-primary navbar-btn" th:text="${(buttonText)}">New</a>
+		<a th:href="${(buttonLink)}" class="btn btn-outline-success navbar-btn"
+			th:text="${(buttonText)}">New</a>
 
 		<!-- HTML form with search textbox and submit button-->
-		<form class="navbar-form navbar-right" role="search" method="post"
+		<form class="navbar-form navbar-right ml-auto" role="search" method="post"
 			th:action="${(searchLink)}">
 			<div class="input-group">
-				<input type="text" class="form-control" placeholder="Search for..."
-					name="searchString"> <span class="input-group-append">
-					<button class="btn btn-pill btn-primary" type="submit">Filter</button>
+				<input type="search" class="form-control"
+					placeholder="Search for..." name="searchString"> <span
+					class="input-group-append">
+					<button class="btn btn-outline-success" type="submit">Filter</button>
 				</span>
 			</div>
 		</form>
-	</div>
 </nav>
 
 <div th:fragment="msgs">

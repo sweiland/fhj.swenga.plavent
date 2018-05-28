@@ -11,78 +11,92 @@
 	rel="stylesheet">
 </head>
 
-<body class="app flex-row align-items-center">
-	<div class="card container justify-content-center" role="main">
-		<div class="card-body row">
-			<div class="col-md-8 col-md-offset-2">
+<body class="app flex-row align-items-center bg-dark">
+	<div class="container" role="main">
+		<div class="row justify-content-center">
+			<div class="col-md-6">
+				<div class="card bg-light mx-4 text-dark">
+					<div class="card-body p-4">
+						<!--  fernbach16: Form calls /edituser or /adduser, depending if an user is set already. -->
+						<form class="form-horizontal" method="post"
+							th:action="@{/registerUser}">
+							<fieldset>
+								<h1 th:text="${user}? 'Make Changes' : 'Register'">Register</h1>
+								<p th:text="${user}? 'to an existing user' : 'a new user'"
+									class="text-muted">a new user</p>
+								<!------------ username ---------------- -->
 
-				<!--  fernbach16: Form calls /edituser or /adduser, depending if an user is set already. -->
-				<form class="form-horizontal" method="post" enctype="multipart/form-data"
-					th:action="@{/registerUser}">
-					<fieldset>
-						<h1 th:text="${user}? 'Change user' : 'New user'">Register a
-							new User</h1>
 
-						<!--  ----------------  username ---------------- -->
+								<div class="input-group mb-3">
+									<div class="input-group-prepend">
+										<span class="input-group-text"><i class="icon-user"></i></span>
+									</div>
+									<input type="text" class="form-control" name="username"
+										required="required" placeholder="Username"
+										th:value="${user} ? ${user.username}" aria-label="Username"
+										aria-describedby="basic-addon1" th:readonly="${user}">
+								</div>
 
-						<div class="input-group">
-							<div class="input-group-prepend">
-								<span class="input-group-text" id="basic-addon1">@</span>
-							</div>
-							<input type="text" class="form-control" name="username"
-								required="required" placeholder="Username"
-								th:value="${user} ? ${user.username}" aria-label="Username"
-								aria-describedby="basic-addon1" th:readonly="${user}">
-						</div>
+								<!--  ----------------  password ---------------- -->
+								<div th:if="${user} == null" class="input-group mb-3">
+									<div class="input-group-prepend">
+										<span class="input-group-text"><i class="icon-lock"></i></span>
+									</div>
+									<input class="form-control" type="password" name="password"
+										placeholder="Password" required="required"
+										th:value="${user} ? ${user.password}">
+								</div>
 
-						<!--  ----------------  password ---------------- -->
-						<div th:if="${user} == null" class="form-group">
-							<input class="form-control" type="password" name="password"
-								placeholder="Password" required="required"
-								th:value="${user} ? ${user.password}">
-						</div>
+								<!--  ----------------  firstname ---------------- -->
+								<div class="input-group mb-3">
+									<div class="input-group-prepend">
+										<span class="input-group-text"><i
+											class="icon-emotsmile"></i></span>
+									</div>
+									<input class="form-control" type="text" name="firstname"
+										required="required" th:value="${user} ? ${user.firstname}"
+										placeholder="First Name">
+								</div>
 
-						<!--  ----------------  firstname ---------------- -->
-						<div class="form-group">
-							<input class="form-control" type="text" name="firstname"
-								required="required" th:value="${user} ? ${user.firstname}"
-								placeholder="First Name">
-						</div>
+								<!--  ----------------  lastname ---------------- -->
+								<div class="input-group mb-3">
+									<div class="input-group-prepend">
+										<span class="input-group-text"><i
+											class="icon-emotsmile"></i></span>
+									</div>
+									<input class="form-control" type="text" name="lastname"
+										required="required" th:value="${user} ? ${user.lastname}"
+										placeholder="Last Name">
+								</div>
 
-						<!--  ----------------  lastname ---------------- -->
-						<div class="form-group">
-							<input class="form-control" type="text" name="lastname"
-								required="required" th:value="${user} ? ${user.lastname}"
-								placeholder="Last Name">
-						</div>
+								<!--  ----------------  eMail ---------------- -->
+								<div class="input-group mb-3">
+									<div class="input-group-prepend">
+										<span class="input-group-text"><i class="icon-envelope"></i></span>
+									</div>
+									<input class="form-control" type="email" name="eMail"
+										required="required" th:value="${user} ? ${user.eMail}"
+										placeholder="Email">
+								</div>
 
-						<!--  ----------------  eMail ---------------- -->
-						<div class="form-group">
-							<input class="form-control" type="text" name="eMail"
-								required="required" th:value="${user} ? ${user.eMail}"
-								placeholder="Email">
-						</div>
+								<!--  ----------------  telephone Number ---------------- -->
+								<div class="input-group mb-4">
+									<div class="input-group-prepend">
+										<span class="input-group-text"><i class="icon-phone"></i></span>
+									</div>
+									<input class="form-control" type="tel" name="telNumber"
+										th:value="${user} ? ${user.telNumber}" placeholder="Phone">
+								</div>
 
-						<!--  ----------------  telephone Number ---------------- -->
-						<div class="form-group">
-							<input class="form-control" type="text" name="telNumber"
-								required="required" th:value="${user} ? ${user.telNumber}"
-								placeholder="phone">
-						</div>
-						<!--  ----------------  Profile Picture ---------------- -->
-						<div class="form-group">
-							<input class="form-control" type="file" name="profilepicture"
-								placeholder="phone">
-						</div>
+								<!-- --------------  buttons ---------------- -->
+								<button type="submit" class="btn btn-outline-dark"
+									th:text="${user} ? 'Change' : 'Register'">Submit</button>
+								<a href="login" class="btn btn-light">Cancel</a>
 
-						<!-- --------------  buttons ---------------- -->
-						<div class="btn-group">
-							<button type="submit" class="btn btn-pill btn-primary">Submit</button>
-							<a href="login" class="btn btn-pill btn-secondary">Cancel</a>
-						</div>
-
-					</fieldset>
-				</form>
+							</fieldset>
+						</form>
+					</div>
+				</div>
 			</div>
 		</div>
 		<!-- weilands16: include our footer -->

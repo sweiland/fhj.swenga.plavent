@@ -22,7 +22,7 @@
 
 			<!-- include the serach bar fragment for users-->
 			<nav
-				th:replace="~{includes/fragments :: MgmtNavBar (buttonText='New Category',buttonLink='showCreateCategoryForm',searchLink='filterCategories')}"></nav>
+				th:replace="~{includes/fragments :: MgmtNavBar (buttonText='New Category',buttonLink='showCreateCategory',searchLink='filterCategories')}"></nav>
 
 			<!--  Error message ----------------------------------------------------------- -->
 			<div th:unless="${errorMessage} == null" th:utext="${errorMessage}"
@@ -41,8 +41,18 @@
 			<!--   message ----------------------------------------------------------- -->
 
 			<div class="row">
-				<div class="col-md-10 col-md-offset-1">TODO: Hier kommt der
-					Inhalt</div>
+				<div class="col-md-10 col-md-offset-1">
+					<table data-toggle="table" class="table table-hover table-striped">
+						<thead>
+							<tr>
+								<th data-sortable="true">Category</th>
+								<th data-sortable="true">In Use</th>
+								<th data-sortable="true">Status</th>
+								<th class="text-right">Actions</th>
+							</tr>
+						</thead>
+					</table>
+				</div>
 			</div>
 		</div>
 	</div>

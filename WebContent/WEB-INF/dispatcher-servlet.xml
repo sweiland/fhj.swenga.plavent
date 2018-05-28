@@ -76,6 +76,13 @@
 		can handle it, otherwise return 404 -->
 	<mvc:default-servlet-handler />
 
+	<!-- Customized ViewResolver in external file (PDF) -->
+	<bean class="org.springframework.web.servlet.view.XmlViewResolver">
+		<property name="location">
+			<value>/WEB-INF/spring-views.xml</value>
+		</property>
+	</bean>
+
 
 	<bean id="templateResolver"
 		class="org.thymeleaf.spring5.templateresolver.SpringResourceTemplateResolver">
@@ -119,7 +126,7 @@
 				<!-- validate: validate the schema, makes no changes to the database. 
 					update: update the schema. create: creates the schema, destroying previous 
 					data. create-drop: drop the schema at the end of the session. -->
-				<prop key="hibernate.hbm2ddl.auto">create-drop</prop>
+				<prop key="hibernate.hbm2ddl.auto">update</prop>
 				<prop key="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</prop>
 				<prop key="hibernate.show_sql">true</prop>
 			</props>

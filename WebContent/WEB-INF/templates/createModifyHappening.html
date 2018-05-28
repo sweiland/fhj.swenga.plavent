@@ -26,13 +26,10 @@
 
 						<!--  ----------------  happeningID ---------------- -->
 						<div th:if="${happening} != null" class="form-group">
-							<label for="inputId" class="col-md-2 control-label">ID</label>
-							<div class="col-md-10">
-								<input class="form-control" type="text" name="happeningId"
-									required="required"
-									th:value="${happening} ? ${happening.happeningId}"
-									th:readonly="${happening}">
-							</div>
+							<input class="form-control" type="text" name="happeningId"
+								required="required"
+								th:value="${happening} ? ${happening.happeningId}"
+								th:readonly="${happening}" placeholder="ID">
 						</div>
 
 						<!--  ----------------  happeningID ---------------- -->
@@ -86,8 +83,8 @@
 
 						<!--  ----------------  category ---------------- -->
 						<div class="form-group">
-							<select id="inputCategory" class="custom-select form-control" name="categoryID"
-								required="required"
+							<select id="inputCategory" class="custom-select form-control"
+								name="categoryID" required="required"
 								th:value="${happening} ? ${happening.category.categoryID}"
 								th:disabled="${happening} ? ${happening.happeningStatus.statusName == 'DELETED'}">
 								<option th:if="${happening == null}" disabled="disabled"
@@ -104,8 +101,8 @@
 						<div class="form-group">
 							<!-- CREATE NEW HAPPINING VERSION-->
 							<th:block th:if="${happening == null}">
-								<select id="inputHost" class="custom-select form-control" name="host"
-									required="required"
+								<select id="inputHost" class="custom-select form-control"
+									name="host" required="required"
 									th:readonly="${#strings.contains(#authentication.principal.authorities,'ADMIN') == false}">
 									<option disabled="disabled" selected="selected">Host</option>
 									<option sec:authorize="hasRole('ROLE_ADMIN')"
@@ -119,23 +116,21 @@
 							<th:block th:if="${happening}">
 								<th:block th:switch="${happening.happeningStatus.statusName}">
 									<th:block th:case="ACTIVE">
-										<select id="inputHost" class="custom-select form-control" name="host"
-											required="required"
+										<select id="inputHost" class="custom-select form-control"
+											name="host" required="required"
 											th:readonly="${#strings.contains(#authentication.principal.authorities,'ADMIN') == false}">
 											<option disabled="disabled" selected="selected">Host</option>
-											<option th:value="${happening.happeningHost.username}"
-												th:text="${happening.happeningHost.username}"></option>
-											<!-- For admins: add all other possible hosts to list -->
 											<option sec:authorize="hasRole('ROLE_ADMIN')"
 												th:each="user : ${happeningHosts}"
+												th:selected="${user.username == happening.happeningHost.username}"
 												th:value="${user.username}" th:text="${user.username}">
 											</option>
 										</select>
 									</th:block>
 									<th:block th:case="DELETED">
 										<!-- Show a disabled Drop down if happening is deleted -->
-										<select id="inputHost" class="custom-select form-control" name="host"
-											required="required" disabled>
+										<select id="inputHost" class="custom-select form-control"
+											name="host" required="required" disabled>
 											<option disabled="disabled" selected="selected">Host</option>
 											<option th:value="${happening.happeningHost.username}"
 												th:text="${happening.happeningHost.username}"></option>
@@ -167,8 +162,8 @@
 											class="btn btn-pill btn-primary"> <span class="glyphicon"
 											aria-hidden="true"></span>Reactivate
 										</a>
-										<a href="showHappeningManagement" class="btn btn-pill btn-secondary">
-											Cancel </a>
+										<a href="showHappeningManagement"
+											class="btn btn-pill btn-secondary"> Cancel </a>
 									</th:block>
 								</th:block>
 							</th:block>

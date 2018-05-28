@@ -332,7 +332,7 @@ public class UserController {
 
 	@Secured({ "ROLE_GUEST" })
 	@GetMapping("/changePassword")
-	public String changePassword(@RequestParam String username, Model model, Authentication authentication) {
+	public String changePassword(@RequestParam(name = "username") String username, Model model, Authentication authentication) {
 
 		User user = userRepo.findFirstByUsername(username);
 
