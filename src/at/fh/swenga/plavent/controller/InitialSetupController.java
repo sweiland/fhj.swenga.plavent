@@ -155,8 +155,7 @@ public class InitialSetupController {
 
 		// Create overall admin if required
 		if (userRepo.findFirstByUsername("admin") == null) {
-			User administrator = new User("admin", "password", "Administrator", "Administrator",
-					new ArrayList<UserRole>());
+			User administrator = new User("admin", "password", "Administrator", "Administrator", "admin@plavent.com",new ArrayList<UserRole>());
 			administrator.encryptPassword();
 			administrator.addUserRole(roleGuest);
 			administrator.addUserRole(roleHost);
@@ -166,7 +165,7 @@ public class InitialSetupController {
 
 		// Create a host user if required
 		if (userRepo.findFirstByUsername("host") == null) {
-			User host = new User("host", "password", "Host", "Host", new ArrayList<UserRole>());
+			User host = new User("host", "password", "Host", "Host","host@plavent.com", new ArrayList<UserRole>());
 			host.encryptPassword();
 			host.addUserRole(roleGuest);
 			host.addUserRole(roleHost);
@@ -175,7 +174,7 @@ public class InitialSetupController {
 
 		// Create a simple guest user if required
 		if (userRepo.findFirstByUsername("guest") == null) {
-			User guest = new User("guest", "password", "Guest", "Guest", new ArrayList<UserRole>());
+			User guest = new User("guest", "password", "Guest", "Guest","guest@plavent.com", new ArrayList<UserRole>());
 			guest.encryptPassword();
 			guest.addUserRole(roleGuest);
 			userRepo.save(guest);
