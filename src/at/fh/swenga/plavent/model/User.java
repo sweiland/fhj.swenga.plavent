@@ -101,13 +101,14 @@ public class User implements java.io.Serializable {
 		this.enabled = true;
 	}
 
-	public User(String username, String password, String firstname, String lastname, List<UserRole> roles) {
+	public User(String username, String password, String firstname, String lastname, String email,List<UserRole> roles) {
 		super();
 		this.username = username;
 		this.password = password;
 		this.firstname = firstname;
 		this.lastname = lastname;
 		this.roleList = roles;
+		this.eMail = email;
 		this.enabled = true;
 	}
 

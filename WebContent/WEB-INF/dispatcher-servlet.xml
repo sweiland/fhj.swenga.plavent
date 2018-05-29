@@ -26,7 +26,7 @@
 
 
 	<!-- Read settings from external file and replace all ${...} in the xml -->
-	<context:property-placeholder location="classpath:db.properties" />
+	<context:property-placeholder location="classpath:app.properties" />
 
 
 	<!-- - POJOs labeled with the @Controller, @Service,..... annotations are 
@@ -143,10 +143,22 @@
 		<!-- one of the properties available; the maximum file size in bytes -->
 		<property name="maxUploadSize" value="100000" />
 	</bean>
-
-
-
-
+	
+	<!-- hoedlale16: Mail sending  -->
+	<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+		<property name="host" value="${mail.smtp.host}" />
+		<property name="port" value="${mail.smtp.port}" />
+		<property name="username" value="${mail.smtp.user}" />
+		<property name="password" value="${mail.smtp.pass}" />
+ 
+		<property name="javaMailProperties">
+			<props>
+				<prop key="mail.smtp.auth">true</prop>
+				<prop key="mail.smtp.starttls.enable">true</prop>
+			</props>
+		</property>
+	</bean>
+	
 	<tx:annotation-driven />
 
 </beans>

@@ -26,9 +26,6 @@
 		<logout logout-success-url="/login" logout-url="/logout" />
 	</http>
 
-
-	<context:property-placeholder location="classpath:db.properties" />
-
 	<authentication-manager>
 		<authentication-provider>
 			<password-encoder hash="bcrypt" />
