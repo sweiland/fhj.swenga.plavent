@@ -24,8 +24,7 @@
 								<h1 th:text="${user}? 'Make Changes' : 'Register'">Register</h1>
 								<p th:text="${user}? 'to an existing user' : 'a new user'"
 									class="text-muted">a new user</p>
-
-								<!--  ----------------  username ---------------- -->
+								<!------------ username ---------------- -->
 
 
 								<div class="input-group mb-3">
@@ -86,8 +85,7 @@
 										<span class="input-group-text"><i class="icon-phone"></i></span>
 									</div>
 									<input class="form-control" type="tel" name="telNumber"
-										required="required" th:value="${user} ? ${user.telNumber}"
-										placeholder="Phone">
+										th:value="${user} ? ${user.telNumber}" placeholder="Phone">
 								</div>
 
 								<!-- --------------  buttons ---------------- -->
