@@ -1,6 +1,8 @@
 package at.fh.swenga.plavent.controller;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -8,7 +10,6 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -21,9 +22,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.multipart.MultipartFile;
 
+import at.fh.swenga.plavent.model.ProfilePicture;
 import at.fh.swenga.plavent.model.User;
 import at.fh.swenga.plavent.model.UserRole;
 import at.fh.swenga.plavent.repo.UserRepository;
@@ -66,8 +67,9 @@ public class UserController {
 		} else {
 			model.addAttribute("users", userRepo.findFirstByUsername(authentication.getName()));
 		}
-
-		return "userManagement";
+		if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
+		return "userManagement"; } else {
+			return "viewProfile"; }
 	}
 
 	@RequestMapping(value = { "showRegisterIssues" })
@@ -229,7 +231,7 @@ public class UserController {
 	}
 
 	@PostMapping("/registerUser")
-	public String registerUser(@RequestParam("file") MultipartFile file, @Valid User newUserModel,
+	public String registerUser(@RequestParam(value = "file", required = false) MultipartFile file, @Valid User newUser,
 			BindingResult bindingResult, Model model, Authentication authentication) {
 
 		if (bindingResult.hasErrors()) {
@@ -240,16 +242,7 @@ public class UserController {
 			model.addAttribute("errorMessage", errorMessage);
 			return showRegisterIssues(model, authentication);
 		}
-/*
-		if (file.isEmpty()) {
-			byte[] bytes = file.getBytes();
-			// store the bytes somewhere
-			model.addAttribute("errorMessage", "Your profile picture could not be succesfully uploaded!");
-			return showRegisterIssues(model, authentication);
-		}
-		model.addAttribute("message", "Your profile picture has been succesfully uploaded!");
-*/
-		if (userRepo.findFirstByUsername(newUserModel.getUsername()) != null) {
+		if (userRepo.findFirstByUsername(newUser.getUsername()) != null) {
 			model.addAttribute("warningMessage", "User could not be registered!");
 		} else {
 
@@ -258,13 +251,29 @@ public class UserController {
 
 				List<UserRole> roles = new ArrayList<UserRole>();
 				roles.add(role);
-				newUserModel.setRoleList(roles);
+				newUser.setRoleList(roles);
 
-				newUserModel.encryptPassword();
-				newUserModel.setEnabled(true);
+				newUser.encryptPassword();
+				newUser.setEnabled(true);
+				model.addAttribute("message",
+						"Registered User " + newUser.getUsername() + " without a Profile Picture.");
 			}
-			userRepo.save(newUserModel);
-			model.addAttribute("message", "Registered User " + newUserModel.getUsername());
+			if (file != null) {
+				try {
+					ProfilePicture pp = new ProfilePicture();
+					pp.setName(newUser.getUsername() + "-profile-Picture");
+					pp.setType(file.getContentType());
+					pp.setCreated(new Date());
+					pp.setPic(file.getBytes());
+					newUser.setProfilePicture(pp);
+					model.addAttribute("message",
+							"Registered User " + newUser.getUsername() + " added additional Profile Picture.");
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			userRepo.save(newUser);
+
 		}
 		return showRegisterIssues(model, authentication);
 	}
@@ -332,7 +341,8 @@ public class UserController {
 
 	@Secured({ "ROLE_GUEST" })
 	@GetMapping("/changePassword")
-	public String changePassword(@RequestParam(name = "username") String username, Model model, Authentication authentication) {
+	public String changePassword(@RequestParam(name = "username") String username, Model model,
+			Authentication authentication) {
 
 		User user = userRepo.findFirstByUsername(username);
 
@@ -431,10 +441,12 @@ public class UserController {
 		return "error";
 	}
 
-	@ExceptionHandler()
-	@ResponseStatus(code=HttpStatus.FORBIDDEN) public String handle403(Exception ex) {
-		ex.printStackTrace();
-		return "login"; }
+	/*
+	 * @ExceptionHandler()
+	 * 
+	 * @ResponseStatus(code=HttpStatus.FORBIDDEN) public String handle403(Exception
+	 * ex) { ex.printStackTrace(); return "login"; }
+	 */
 }
 
 /**

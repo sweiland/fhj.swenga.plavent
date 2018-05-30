@@ -65,6 +65,7 @@
 									<strong>Last Name:</strong> <em th:text="${user.lastname}"></em><br>
 									<strong>Email:</strong> <em th:text="${user.eMail}"></em><br>
 									<strong>Phone:</strong> <em th:text="${user.telNumber}"></em><br>
+									<strong th:unless="${user.profilePicture} != null">Profile Picture:</strong> <em th:text="${user.profilePicture}"></em><br>
 								</div>
 							</div>
 						</div>
@@ -83,6 +84,7 @@
 									<th data-sortable="true">Status</th>
 									<th data-sortable="true">Password</th>
 									<th data-sortable="true">User Role</th>
+									<th data-sortable="true">Profile Picture</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -92,6 +94,7 @@
 									<td th:text="${user.enabled} ? 'enabled' : 'disabled'"></td>
 									<td th:text="${user.password}"></td>
 									<td th:text="${user.roleList}"></td>
+									<td th:text="${user.profilePicture.name}"></td>
 										
 								</tr>
 								<!--  list all user items --------------------------------------------------------- -->

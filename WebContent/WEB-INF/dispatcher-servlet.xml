@@ -103,13 +103,14 @@
 					class="org.thymeleaf.extras.springsecurity4.dialect.SpringSecurityDialect" />
 			</set>
 		</property>
-		<!--######################### Spring Security############################## -->
 	</bean>
-
 
 	<bean class="org.thymeleaf.spring5.view.ThymeleafViewResolver">
 		<property name="templateEngine" ref="templateEngine" />
 	</bean>
+
+
+
 
 	<!-- ################################################################ -->
 
@@ -126,7 +127,7 @@
 				<!-- validate: validate the schema, makes no changes to the database. 
 					update: update the schema. create: creates the schema, destroying previous 
 					data. create-drop: drop the schema at the end of the session. -->
-				<prop key="hibernate.hbm2ddl.auto">update</prop>
+				<prop key="hibernate.hbm2ddl.auto">create-drop</prop>
 				<prop key="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</prop>
 				<prop key="hibernate.show_sql">true</prop>
 			</props>
@@ -136,15 +137,16 @@
 	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
 		<property name="entityManagerFactory" ref="entityManagerFactory" />
 	</bean>
-	
-	<!-- Spring multipartResolver for fileupload in form -->
+
+
+
+	<!-- MULTIJSR-303/JSR-349 support will be detected on classpath and enabled 
+		automatically -->
 	<bean id="multipartResolver"
 		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
-		<!-- one of the properties available; the maximum file size in bytes -->
-		<property name="maxUploadSize" value="100000" />
+		<!-- the maximum file size in bytes -->
+		<property name="maxUploadSize" value="10000000" />
 	</bean>
-
-
 
 
 	<tx:annotation-driven />
