@@ -46,8 +46,8 @@ public class ApplicationController {
 			// Check if DB-Environment exists or start is the first initial startup
 			if (happeningStatusRepository.getAmountOfHappeningStatus() <= 0
 					|| userRoleRepository.getAmountOfUserRoles() <= 0 || userRepository.count() <= 0) {
-				model.addAttribute("warningMessage",
-						"Welcome to Plavent! - You first need to initialize the database. Therefor please press start!");
+				//model.addAttribute("warningMessage",
+					//	"Welcome to Plavent! - You first need to initialize the database. Therefor please press start!");
 				model.addAttribute("noPlaventEnvironment", true);
 			}
 			return "login";

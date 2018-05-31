@@ -21,11 +21,6 @@
 				<!-- include the Nav bar fragment-->
 				<nav th:replace="~{includes/fragments :: navigation }"></nav>
 
-				<!-- include the search bar fragment for users-->
-				<div sec:authorize="hasRole('ROLE_ADMIN')">
-					<nav
-						th:replace="~{includes/fragments :: MgmtNavBar (buttonText='Create New User',buttonLink='createUser',searchLink='filterUsers')}"></nav>
-				</div>
 				<!-- include message boxes (moved to fragments) -->
 				<div th:replace="~{includes/fragments :: msgs}"></div>
 			</div>
@@ -46,7 +41,7 @@
 							</tr>
 						</thead>
 						<tbody>
-							<tr th:each="user : ${users}">
+							<tr th:each="user : ${user}">
 								<td th:text="${user.username}"></td>
 								<td th:text="${user.firstname}"></td>
 								<td th:text="${user.lastname}"></td>

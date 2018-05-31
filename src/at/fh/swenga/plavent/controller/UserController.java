@@ -55,21 +55,23 @@ public class UserController {
 	}
 
 	@Secured({ "ROLE_GUEST" })
+	@RequestMapping(value = { "showProfile" })
+	public String showProfile(Model model, Authentication authentication) {
+
+		User user = userRepo.findFirstByUsername(authentication.getName());
+		model.addAttribute("user", user);
+		return "viewProfile";
+	}
+
+	@Secured({ "ROLE_ADMIN" })
 	@RequestMapping(value = { "showUserManagement" })
 	public String showAllUsers(Model model, Authentication authentication) {
 
-		// If User is ins Role 'ADMIN' show all users
-		if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
-			model.addAttribute("users", userRepo.findAll());
-			model.addAttribute("message",
-					"Currently there are <strong>" + userRepo.findAll().size() + "</strong> active Users and <strong>"
-							+ userRepo.findByEnabledFalse().size() + " </strong> inactive users");
-		} else {
-			model.addAttribute("users", userRepo.findFirstByUsername(authentication.getName()));
-		}
-		if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
-		return "userManagement"; } else {
-			return "viewProfile"; }
+		model.addAttribute("users", userRepo.findAll());
+		model.addAttribute("message",
+				"Currently there are <strong>" + userRepo.findAll().size() + "</strong> active Users and <strong>"
+						+ userRepo.findByEnabledFalse().size() + " </strong> inactive users");
+		return "userManagement";
 	}
 
 	@RequestMapping(value = { "showRegisterIssues" })
