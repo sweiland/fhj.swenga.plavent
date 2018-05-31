@@ -52,8 +52,22 @@ public class UserController {
 
 	public UserController() {
 	}
-
+	
 	@Secured({ "ROLE_GUEST" })
+	@RequestMapping(value = { "showProfile" })
+	public String showProfile(Model model, Authentication authentication) {
+
+		// If User is ins Role 'ADMIN' show all users
+		User user = userRepo.findFirstByUsername(authentication.getName());
+			model.addAttribute("user", user);
+		} else {
+			model.addAttribute("users", userRepo.findFirstByUsername(authentication.getName()));
+		}
+
+		return "userManagement";
+	}
+
+	@Secured({ "ROLE_ADMIN" })
 	@RequestMapping(value = { "showUserManagement" })
 	public String showAllUsers(Model model, Authentication authentication) {
 
