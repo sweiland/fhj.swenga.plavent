@@ -1,18 +1,26 @@
 package at.fh.swenga.plavent.controller;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import at.fh.swenga.plavent.model.Happening;
 import at.fh.swenga.plavent.model.HappeningCategory;
+import at.fh.swenga.plavent.model.HappeningTask;
+import at.fh.swenga.plavent.model.User;
 import at.fh.swenga.plavent.repo.HappeningCategoryRepository;
 
 /**
@@ -68,6 +76,33 @@ public class HappeningCategoryController {
 	public String showModifyCategories(Model model, @RequestParam(value = "categoryID") HappeningCategory category) {
 		model.addAttribute("modifiedCategory", category);
 		return "createModifyCategory";
+	}
+/*	
+	public boolean isAdmin(Authentication authentication) {
+		return (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN")));
+	}
+*/	
+	@Secured({ "ROLE_ADMIN" })
+	@PostMapping("/createNewHappeningCategory")
+	public String createNewHappeningCategory(Model model, @Valid HappeningCategory newCategory, @RequestParam(value = "categoryName") String categoryName,
+			@RequestParam(value = "description") String description, Authentication authentication, BindingResult bindingResult) {
+/*
+		// Check if user is ADMIN
+		if (!isAdmin(authentication)) {
+			model.addAttribute("warningMessage", "No permission!");
+			return "forward:/showHappeningManagement";
+		}
+*/
+		// Any errors? -> Create a String out of all errors and return to the page
+		if (errorsDetected(model, bindingResult)) {
+			return showCategories(model);
+		}
+
+		newCategory.setCategoryName(categoryName);
+		newCategory.setDescription(description);
+		categoryDao.save(newCategory);
+
+		return showCategories(model);
 	}
 	
 	//TODO: Create methods for requests:
