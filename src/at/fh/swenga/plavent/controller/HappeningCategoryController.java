@@ -59,7 +59,7 @@ public class HappeningCategoryController {
 
 	@Secured({ "ROLE_ADMIN" })
 	@RequestMapping(value = { "showCategoryManagement" })
-	public String showCategories(Model model) {	
+	public String showCategoryManagement(Model model) {	
 		//Set attributes
 		model.addAttribute("happeningCategories", categoryDao.findAll());
 		return "categoryManagement";
@@ -67,13 +67,13 @@ public class HappeningCategoryController {
 	
 	@Secured({ "ROLE_ADMIN" })
 	@RequestMapping(value = { "showCreateCategory" })
-	public String showCreateCategories(Model model) {
+	public String showCreateCategory(Model model) {
 		return "createModifyCategory";
 	}
 	
 	@Secured({ "ROLE_ADMIN" })
 	@RequestMapping(value = { "showModifyCategory" })
-	public String showModifyCategories(Model model, @RequestParam(value = "categoryID") HappeningCategory category) {
+	public String showModifyCategory(Model model, @RequestParam(value = "categoryID") HappeningCategory category) {
 		model.addAttribute("modifiedCategory", category);
 		return "createModifyCategory";
 	}
@@ -82,10 +82,13 @@ public class HappeningCategoryController {
 		return (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN")));
 	}
 */	
+	//Creating a NEW CATEGROY
 	@Secured({ "ROLE_ADMIN" })
 	@PostMapping("/createNewHappeningCategory")
-	public String createNewHappeningCategory(Model model, @Valid HappeningCategory newCategory, @RequestParam(value = "categoryName") String categoryName,
-			@RequestParam(value = "description") String description, Authentication authentication, BindingResult bindingResult) {
+	public String createNewHappeningCategory(Model model, @Valid HappeningCategory newCategory,
+			@RequestParam(value = "categoryName") String categoryName,
+			@RequestParam(value = "description") String description,
+			Authentication authentication, BindingResult bindingResult) {
 /*
 		// Check if user is ADMIN
 		if (!isAdmin(authentication)) {
@@ -95,14 +98,49 @@ public class HappeningCategoryController {
 */
 		// Any errors? -> Create a String out of all errors and return to the page
 		if (errorsDetected(model, bindingResult)) {
-			return showCategories(model);
+			return showCategoryManagement(model);
 		}
 
 		newCategory.setCategoryName(categoryName);
 		newCategory.setDescription(description);
 		categoryDao.save(newCategory);
 
-		return showCategories(model);
+		return showCategoryManagement(model);
+	}
+	
+	//Modifying an EXISTING CATEGORY
+	@Secured({ "ROLE_HOST" })
+	@PostMapping("/modifyExistingHappeningCategory")
+	public String modifyExistingHappeningCategory(Model model, @Valid HappeningCategory modifiedCategory,
+			@RequestParam(value = "categoryName") String categoryName,
+			@RequestParam(value = "description") String description,
+			Authentication authentication, BindingResult bindingResult) {
+		
+/*
+		// Check if user is ADMIN
+		if (!isAdmin(authentication)) {
+			model.addAttribute("warningMessage", "No permission!");
+			return "forward:/showHappeningManagement";
+		}
+*/
+
+		// Any errors? -> Create a String out of all errors and return to the page
+		if (errorsDetected(model, bindingResult)) {
+			return showCategoryManagement(model);
+		}
+
+		HappeningCategory category = categoryDao.findFirstByCategoryID(modifiedCategory.getCategoryID());
+		if (category != null) {
+			category.setCategoryName(modifiedCategory.getCategoryName());
+			category.setDescription(modifiedCategory.getDescription());
+			
+			categoryDao.saveAndFlush(category);
+
+			return showCategoryManagement(model);
+		} else {
+			model.addAttribute("warningMessage", "Category not found!");
+			return showCategoryManagement(model);
+		}
 	}
 	
 	//TODO: Create methods for requests:

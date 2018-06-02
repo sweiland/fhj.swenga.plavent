@@ -18,7 +18,8 @@ public interface HappeningCategoryRepository extends JpaRepository<HappeningCate
 	
 	public HappeningCategory findFirstByCategoryID(int categoryID);
 	
-	
 	public List<HappeningCategory> findByEnabledTrue();
+	
+	public List<HappeningCategory> findAll();
 
 }
