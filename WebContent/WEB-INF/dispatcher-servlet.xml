@@ -146,6 +146,7 @@
 		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
 		<!-- the maximum file size in bytes -->
 		<property name="maxUploadSize" value="10000000" />
+		<!-- <property name="restrictFileTypes" value="png,jpg"/> -->
 	</bean>
 
 

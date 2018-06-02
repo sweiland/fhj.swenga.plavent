@@ -15,7 +15,8 @@
 	<div class="container  justify-content-center" role="main">
 		<div class="row">
 			<div class="card col-md-8 col-md-offset-2">
-
+				<img th:unless="${image} == null" th:src="${image}" height="100"
+					width="100">
 				<!--  fernbach16: Form calls /edituser or /adduser, depending if an user is set already. -->
 				<form class="form-horizontal" method="post"
 					th:action="${user} ? @{/editUser} : @{/createUser}">
@@ -67,15 +68,16 @@
 						<div sec:authorize="hasRole('ROLE_ADMIN')">
 							<div class="form-group">
 								<label><input class="form-control" type="checkbox"
-									name="ur_guest"  placeholder="Guest Role"
-									th:checked="${hasRoleGuest} OR ${hasRoleHost} OR ${hasRoleAdmin} ? true" required>Guest Role</label>
-								<label><input class="form-control" type="checkbox"
-									name="ur_host" placeholder="Host Role"
-									th:checked="${hasRoleHost} OR ${hasRoleAdmin} ? true : false" th:required="${ur_admin} == true">Host Role</label>
-								<label><input class="form-control" type="checkbox"
-									name="ur_admin" placeholder="Admin Role"
-									th:checked="${hasRoleAdmin} ? true : false">Admin
-									Role</label>
+									name="ur_guest" placeholder="Guest Role"
+									th:checked="${hasRoleGuest} OR ${hasRoleHost} OR ${hasRoleAdmin} ? true"
+									required>Guest Role</label> <label><input
+									class="form-control" type="checkbox" name="ur_host"
+									placeholder="Host Role"
+									th:checked="${hasRoleHost} OR ${hasRoleAdmin} ? true : false"
+									th:required="${ur_admin} == true">Host Role</label> <label><input
+									class="form-control" type="checkbox" name="ur_admin"
+									placeholder="Admin Role"
+									th:checked="${hasRoleAdmin} ? true : false">Admin Role</label>
 							</div>
 						</div>
 						<!-- --------------  buttons ---------------- -->

@@ -25,10 +25,10 @@
 				<div th:replace="~{includes/fragments :: msgs}"></div>
 			</div>
 		</div>
-		<!--  list all employees ----------------------------------------------------------- -->
 			<div class="row">
 				<div class="col-md-10 col-md-offset-1">
 					<table data-toggle="table" class="table table-striped">
+						<img th:unless="${image} == null" th:src="${image}" height="100" width="100">
 						<thead>
 							<tr>
 							<th>User Name</th>
@@ -36,7 +36,6 @@
 								<th>Last Name</th>
 								<th>Email</th>
 								<th>Telephone</th>
-								<th>Profile Picture</th>
 								<th>Action</th>
 							</tr>
 						</thead>
@@ -47,7 +46,7 @@
 								<td th:text="${user.lastname}"></td>
 								<td th:text="${user.eMail}"></td>
 								<td th:text="${user.telNumber}"></td>
-								<td><span th:if="${user.profilePicture != null}" th:text="${user.profilePicture.name}"></a>
+								
 								</span></td>
 								<td>
 								<a th:href="@{/editUser(username=${user.username})}" class="btn btn-xs btn-success">
@@ -59,6 +58,11 @@
 									<span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
 									Change Password
 								</a>
+								
+								<a th:href="@{/uploadProfilePicture(username=${user.username})}" class="btn btn-xs btn-success">
+									<span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+									Upload Profile Picture
+								</a>
 
 							</td>
 							</tr>
@@ -67,7 +71,6 @@
 				</div>
 			</div>
 			</div>
-			<!--  list all employees ----------------------------------------------------------- -->
 
 
 
