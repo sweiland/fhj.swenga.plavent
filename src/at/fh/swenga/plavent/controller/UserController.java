@@ -6,10 +6,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import org.apache.commons.codec.binary.Base64;
 import javax.validation.Valid;
 
-import org.apache.commons.codec.binary.StringUtils;
+import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
@@ -181,18 +180,6 @@ public class UserController {
 	@RequestMapping(value = { "showProfile" })
 	public String showProfile(Model model, Authentication authentication) {
 
-		/*
-		 * final String IMAGES = "images"; final String TOMCAT_HOME_PROPERTY =
-		 * "catalina.home"; final String TOMCAT_HOME_PATH =
-		 * System.getProperty(TOMCAT_HOME_PROPERTY); final String IMAGES_PATH =
-		 * TOMCAT_HOME_PATH + File.separator + IMAGES;
-		 * 
-		 * final File IMAGES_DIR = new File(IMAGES_PATH); final String
-		 * IMAGES_DIR_ABSOLUTE_PATH = IMAGES_DIR.getAbsolutePath() + File.separator;
-		 * 
-		 * private void createImagesDirIfNeeded() { if (!IMAGES_DIR.exists()) {
-		 * IMAGES_DIR.mkdirs(); } }
-		 */
 		User user = userRepo.findFirstByUsername(authentication.getName());
 		model.addAttribute("user", user);
 		if (user.getProfilePicture() != null) {
@@ -200,12 +187,12 @@ public class UserController {
 			Optional<ProfilePicture> ppOpt = profilePictureRepo.findById(user.getProfilePicture().getId());
 			ProfilePicture pp = ppOpt.get();
 			byte[] profilePicture = pp.getPic();
-			
+
 			StringBuilder sb = new StringBuilder();
 			sb.append("data:image/jpeg;base64,");
 			sb.append(Base64.encodeBase64String(profilePicture));
 			String image = sb.toString();
-			
+
 			model.addAttribute("image", image);
 		}
 		return "viewProfile";
@@ -215,11 +202,13 @@ public class UserController {
 	@RequestMapping(value = { "showUserManagement" })
 	public String showAllUsers(Model model, Authentication authentication) {
 
-		model.addAttribute("users", userRepo.findAll());
+		List<User> users = userRepo.findAll();
+		model.addAttribute("users", users);
 		model.addAttribute("message",
 				"Currently there are <strong>" + userRepo.findAll().size() + "</strong> active Users and <strong>"
 						+ userRepo.findByEnabledFalse().size() + " </strong> inactive users");
 		return "userManagement";
+
 	}
 
 	@RequestMapping(value = { "showRegisterIssues" })
@@ -242,22 +231,26 @@ public class UserController {
 					&& user.isEnabled()) {
 				model.addAttribute("user", user);
 
-				if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
-					model.addAttribute("hasRoleAdmin", user.getRoleList().contains(new UserRole("ROLE_ADMIN", null)));
-					model.addAttribute("hasRoleHost", user.getRoleList().contains(new UserRole("ROLE_HOST", null)));
-					model.addAttribute("hasRoleGuest", user.getRoleList().contains(new UserRole("ROLE_GUEST", null)));
+				List<UserRole> ur = user.getRoleList();
+				if (ur.contains(new UserRole("ROLE_ADMIN"))) {
+					model.addAttribute("admin", ur.contains(new UserRole("ROLE_ADMIN")));
+				} else if (ur.contains(new UserRole("ROLE_HOST"))) {
+					model.addAttribute("host", ur.contains(new UserRole("ROLE_HOST")));
+				} else {
+					model.addAttribute("guest", ur.contains(new UserRole("ROLE_GUEST")));
 				}
+
 				if (user.getProfilePicture() != null) {
 
 					Optional<ProfilePicture> ppOpt = profilePictureRepo.findById(user.getProfilePicture().getId());
 					ProfilePicture pp = ppOpt.get();
 					byte[] profilePicture = pp.getPic();
-					
+
 					StringBuilder sb = new StringBuilder();
 					sb.append("data:image/jpeg;base64,");
 					sb.append(Base64.encodeBase64String(profilePicture));
 					String image = sb.toString();
-					
+
 					model.addAttribute("image", image);
 				}
 

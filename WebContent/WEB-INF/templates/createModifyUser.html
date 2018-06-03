@@ -67,6 +67,18 @@
 						<!-- --------------  User Role ---------------->
 						<div sec:authorize="hasRole('ROLE_ADMIN')">
 							<div class="form-group">
+								<select name="role" size="3">
+								<option value="guest" autofocus th:selected="${guest}">Guest</option>
+								<option value="host" th:selected="${host}">Host</option>
+								<option value="admin" th:selected="${admin}">Administrator</option>
+								</select>
+
+
+							</div>
+
+
+							<!-- 
+							<div class="form-group">
 								<label><input class="form-control" type="checkbox"
 									name="ur_guest" placeholder="Guest Role"
 									th:checked="${hasRoleGuest} OR ${hasRoleHost} OR ${hasRoleAdmin} ? true"
@@ -78,7 +90,7 @@
 									class="form-control" type="checkbox" name="ur_admin"
 									placeholder="Admin Role"
 									th:checked="${hasRoleAdmin} ? true : false">Admin Role</label>
-							</div>
+							</div> -->
 						</div>
 						<!-- --------------  buttons ---------------- -->
 						<div class="input-group btn-group">

@@ -42,7 +42,7 @@ public class User implements java.io.Serializable {
 
 	@Column(name = "enabled", nullable = false)
 	private boolean enabled;
-	
+
 	@OneToOne(cascade = CascadeType.ALL)
 	private ProfilePicture profilePicture;
 
@@ -58,7 +58,6 @@ public class User implements java.io.Serializable {
 	@Fetch(value = FetchMode.SUBSELECT)
 	private List<UserRole> roleList;
 
-	
 	/**
 	 * Load happenings for user lazy - we don't want to have the whole db in memory
 	 */
@@ -71,7 +70,6 @@ public class User implements java.io.Serializable {
 	public User() {
 	}
 
-	
 	/**
 	 * @param username
 	 * @param password
@@ -80,8 +78,8 @@ public class User implements java.io.Serializable {
 	 * @param eMail
 	 * @param telNumber
 	 */
-	public User(String username, String password, String firstname, String lastname, String eMail, String telNumber, ProfilePicture profilePicture,
-			List<UserRole> roles, List<Happening> happenings) {
+	public User(String username, String password, String firstname, String lastname, String eMail, String telNumber,
+			ProfilePicture profilePicture, List<UserRole> roles, List<Happening> happenings) {
 		super();
 		this.username = username;
 		this.password = password;
@@ -94,7 +92,7 @@ public class User implements java.io.Serializable {
 		this.happenings = happenings;
 		this.enabled = true;
 	}
-	
+
 	/**
 	 * @param username
 	 * @param password
@@ -245,6 +243,16 @@ public class User implements java.io.Serializable {
 		this.roleList = roleList;
 	}
 
+	public String getUserRole() {
+		if (roleList.contains( new UserRole("ROLE_ADMIN")))
+			return "ROLE_ADMIN";
+		else if (roleList.contains (new UserRole("ROLE_HOST")))
+			return "ROLE_HOST";
+		else
+			return "ROLE_GUEST";
+}
+	
+	
 	public void addUserRole(UserRole role) {
 		roleList.add(role);
 	}
@@ -283,11 +291,11 @@ public class User implements java.io.Serializable {
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
 	}
-	
+
 	public ProfilePicture getProfilePicture() {
 		return profilePicture;
 	}
- 
+
 	public void setProfilePicture(ProfilePicture profilePicture) {
 		this.profilePicture = profilePicture;
 	}
