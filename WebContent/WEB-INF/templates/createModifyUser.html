@@ -65,39 +65,24 @@
 								placeholder="Phone Number">
 						</div>
 						<!-- --------------  User Role ---------------->
-						<div sec:authorize="hasRole('ROLE_ADMIN')">
-							<div class="form-group">
-								<select name="role" size="3">
-								<option value="guest" autofocus th:selected="${guest}">Guest</option>
-								<option value="host" th:selected="${host}">Host</option>
-								<option value="admin" th:selected="${admin}">Administrator</option>
+								<label for="roles">Select user role</label>
+								
+								<select th:unless="${user}" id="roles" name="role">
+								<option value="guest">Guest</option>
+								<option value="host">Host</option>
+								<option value="admin">Administrator</option>
 								</select>
-
-
-							</div>
-
-
-							<!-- 
-							<div class="form-group">
-								<label><input class="form-control" type="checkbox"
-									name="ur_guest" placeholder="Guest Role"
-									th:checked="${hasRoleGuest} OR ${hasRoleHost} OR ${hasRoleAdmin} ? true"
-									required>Guest Role</label> <label><input
-									class="form-control" type="checkbox" name="ur_host"
-									placeholder="Host Role"
-									th:checked="${hasRoleHost} OR ${hasRoleAdmin} ? true : false"
-									th:required="${ur_admin} == true">Host Role</label> <label><input
-									class="form-control" type="checkbox" name="ur_admin"
-									placeholder="Admin Role"
-									th:checked="${hasRoleAdmin} ? true : false">Admin Role</label>
-							</div> -->
-						</div>
 						<!-- --------------  buttons ---------------- -->
 						<div class="input-group btn-group">
 							<button type="submit" class="btn btn-pill btn-primary">Submit</button>
-							<a href="showUserManagement" class="btn btn-pill btn-secondary">
-								Cancel </a>
-						</div>
+							<div sec:authorize="hasRole('ROLE_ADMIN')">
+								<a href="showUserManagement" class="btn btn-pill btn-secondary">
+									Cancel </a>
+							</div>
+							<div sec:authorize="!hasRole('ROLE_ADMIN')">
+								<a href="showProfile" class="btn btn-pill btn-secondary">
+									Cancel </a> </div>
+							</div>
 					</fieldset>
 				</form>
 			</div>

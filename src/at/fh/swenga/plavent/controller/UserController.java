@@ -79,16 +79,14 @@ public class UserController {
 		if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN")))
 			return "createModifyUser";
 		else {
-			model.addAttribute("warningMessage", "Not allowed to create new Users ");
-			return showAllUsers(model, authentication);
+			model.addAttribute("warningMessage", "Not authorized to create new Users.");
+			return showUserManagement(model, authentication);
 		}
 	}
 
 	@Secured({ "ROLE_ADMIN" })
 	@PostMapping("/createUser")
-	public String createNewUser(@RequestParam(name = "ur_guest", required = true) boolean isGuest,
-			@RequestParam(name = "ur_host", required = false) boolean isHost,
-			@RequestParam(name = "ur_admin", required = false) boolean isAdmin, @Valid User newUser,
+	public String createNewUser(@RequestParam(name = "role", required = false) String role, @Valid User newUser,
 			BindingResult bindingResult, Model model, Authentication authentication) {
 
 		if (bindingResult.hasErrors()) {
@@ -97,40 +95,58 @@ public class UserController {
 				errorMessage += fieldError.getField() + " is invalid<br>";
 			}
 			model.addAttribute("errorMessage", errorMessage);
-			return showRegisterIssues(model, authentication);
+			return showUserManagement(model, authentication);
 		}
 
 		if (userRepo.findFirstByUsername(newUser.getUsername()) != null) {
 			model.addAttribute("errorMessage", "User already exists!");
-		}
+		} else {
 
-		else {
 			List<UserRole> roles = new ArrayList<UserRole>();
-			if (isGuest) {
-				UserRole role = userRoleRepo.findFirstByRoleName("ROLE_GUEST");
-				if (role != null)
-					roles.add(role);
-			}
-			if (isGuest && isHost) {
-				UserRole role = userRoleRepo.findFirstByRoleName("ROLE_HOST");
-				if (role != null)
-					roles.add(role);
-			}
-			if (isGuest && isHost && isAdmin) {
-				UserRole role = userRoleRepo.findFirstByRoleName("ROLE_ADMIN");
-				if (role != null)
-					roles.add(role);
-			}
 
-			newUser.encryptPassword();
-			newUser.setRoleList(roles);
-			newUser.setEnabled(true);
+			if (role.equals("admin")) {
+				UserRole userRoleAdmin = userRoleRepo.findFirstByRoleName("ROLE_ADMIN");
+				UserRole userRoleHost = userRoleRepo.findFirstByRoleName("ROLE_HOST");
+				UserRole userRoleGuest = userRoleRepo.findFirstByRoleName("ROLE_GUEST");
+				if (userRoleAdmin != null && userRoleHost != null && userRoleGuest != null) {
+					roles.add(userRoleGuest);
+					roles.add(userRoleHost);
+					roles.add(userRoleAdmin);
+				} else {
+					model.addAttribute("warningMessage", "Error while assigning user Role!");
+					return showUserManagement(model, authentication);
+				}
+			}
+			if (role.equals("host")) {
+				UserRole userRoleHost = userRoleRepo.findFirstByRoleName("ROLE_HOST");
+				UserRole userRoleGuest = userRoleRepo.findFirstByRoleName("ROLE_GUEST");
+				if (userRoleHost != null && userRoleGuest != null) {
+					roles.add(userRoleGuest);
+					roles.add(userRoleHost);
+				} else {
+					model.addAttribute("warningMessage", "Error while assigning user Role!");
+					return showUserManagement(model, authentication);
+				}
+			}
+			if (role.equals("guest")) {
+				UserRole userRoleGuest = userRoleRepo.findFirstByRoleName("ROLE_GUEST");
+				if (userRoleGuest != null) {
+					roles.add(userRoleGuest);
+				} else {
+					model.addAttribute("warningMessage", "Error while assigning user Role!");
+					return showUserManagement(model, authentication);
+				}
 
-			userRepo.save(newUser);
-			model.addAttribute("message", "New user " + newUser.getUsername() + "added.");
+				newUser.encryptPassword();
+				newUser.setRoleList(roles);
+				newUser.setEnabled(true);
 
+				userRepo.save(newUser);
+				model.addAttribute("message", "New user " + newUser.getUsername() + "added.");
+
+			}
 		}
-		return showAllUsers(model, authentication);
+		return showUserManagement(model, authentication);
 	}
 
 	@GetMapping("/registerUser")
@@ -165,8 +181,7 @@ public class UserController {
 
 				newUser.encryptPassword();
 				newUser.setEnabled(true);
-				model.addAttribute("message",
-						"Registered User " + newUser.getUsername() + " without a Profile Picture.");
+				model.addAttribute("message", "Successfully registered User: " + newUser.getUsername());
 			}
 			userRepo.save(newUser);
 
@@ -181,30 +196,37 @@ public class UserController {
 	public String showProfile(Model model, Authentication authentication) {
 
 		User user = userRepo.findFirstByUsername(authentication.getName());
-		model.addAttribute("user", user);
-		if (user.getProfilePicture() != null) {
 
-			Optional<ProfilePicture> ppOpt = profilePictureRepo.findById(user.getProfilePicture().getId());
-			ProfilePicture pp = ppOpt.get();
-			byte[] profilePicture = pp.getPic();
+		if (user != null && user.isEnabled()) {
 
-			StringBuilder sb = new StringBuilder();
-			sb.append("data:image/jpeg;base64,");
-			sb.append(Base64.encodeBase64String(profilePicture));
-			String image = sb.toString();
+			model.addAttribute("user", user);
+			if (user.getProfilePicture() != null) {
 
-			model.addAttribute("image", image);
+				Optional<ProfilePicture> ppOpt = profilePictureRepo.findById(user.getProfilePicture().getId());
+				ProfilePicture pp = ppOpt.get();
+				byte[] profilePicture = pp.getPic();
+
+				StringBuilder sb = new StringBuilder();
+				sb.append("data:image/jpeg;base64,");
+				sb.append(Base64.encodeBase64String(profilePicture));
+				String image = sb.toString();
+
+				model.addAttribute("image", image);
+			}
+		} else {
+			model.addAttribute("errorMessage", "Something went wrong!");
+			return "login";
 		}
 		return "viewProfile";
 	}
 
 	@Secured({ "ROLE_ADMIN" })
 	@RequestMapping(value = { "showUserManagement" })
-	public String showAllUsers(Model model, Authentication authentication) {
+	public String showUserManagement(Model model, Authentication authentication) {
 
 		List<User> users = userRepo.findAll();
 		model.addAttribute("users", users);
-		model.addAttribute("message",
+		model.addAttribute("information",
 				"Currently there are <strong>" + userRepo.findAll().size() + "</strong> active Users and <strong>"
 						+ userRepo.findByEnabledFalse().size() + " </strong> inactive users");
 		return "userManagement";
@@ -221,24 +243,15 @@ public class UserController {
 
 	@Secured({ "ROLE_GUEST" })
 	@GetMapping(value = "/editUser")
-	public String editUser(Model model, @RequestParam String username, Authentication authentication) {
+	public String editUser(@RequestParam String username, Model model, Authentication authentication) {
 
 		User user = userRepo.findFirstByUsername(username);
 
-		if (user != null) {
-			if ((user.getUsername().equalsIgnoreCase(authentication.getName())
-					|| authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN")))
-					&& user.isEnabled()) {
-				model.addAttribute("user", user);
+		if (user != null && user.isEnabled()) {
+			if (user.getUsername().equalsIgnoreCase(authentication.getName())
+					|| authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
 
-				List<UserRole> ur = user.getRoleList();
-				if (ur.contains(new UserRole("ROLE_ADMIN"))) {
-					model.addAttribute("admin", ur.contains(new UserRole("ROLE_ADMIN")));
-				} else if (ur.contains(new UserRole("ROLE_HOST"))) {
-					model.addAttribute("host", ur.contains(new UserRole("ROLE_HOST")));
-				} else {
-					model.addAttribute("guest", ur.contains(new UserRole("ROLE_GUEST")));
-				}
+				model.addAttribute("user", user);
 
 				if (user.getProfilePicture() != null) {
 
@@ -254,22 +267,103 @@ public class UserController {
 					model.addAttribute("image", image);
 				}
 
+				model.addAttribute("message", "User data successfully retrieved. You can now edit the User");
 				return "createModifyUser";
 			} else {
-				model.addAttribute("warningMessage", "Not allowed to edit " + username + "!");
-				return showAllUsers(model, authentication);
+				if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
+					model.addAttribute("errorMessage",
+							"Error while reading User data! Hint: Either dissabled or does not exist");
+					return showUserManagement(model, authentication);
+				} else {
+					model.addAttribute("errorMessage", "Error while reading User data!");
+					return showProfile(model, authentication);
+				}
 			}
-		} else {
-			model.addAttribute("errorMessage", "Couldn't find user" + username);
-			return showAllUsers(model, authentication);
 		}
+		return "createModifyUser";
 	}
 
 	@Secured({ "ROLE_GUEST" })
 	@PostMapping(value = "/editUser")
-	public String editUser(@RequestParam(name = "ur_guest", required = true) boolean isGuest,
-			@RequestParam(name = "ur_host", required = false) boolean isHost,
-			@RequestParam(name = "ur_admin", required = false) boolean isAdmin, @Valid User editUserModel,
+	public String editUser(@Valid User editUserModel, BindingResult bindingResult, Model model,
+			Authentication authentication) {
+
+		if (bindingResult.hasErrors()) {
+			String errorMessage = "";
+			for (FieldError fieldError : bindingResult.getFieldErrors()) {
+				errorMessage += fieldError.getField() + " is invalid<br>";
+			}
+			model.addAttribute("errorMessage", errorMessage);
+			if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN")))
+				return showUserManagement(model, authentication);
+			else
+				return showProfile(model, authentication);
+		}
+
+		User user = userRepo.findFirstByUsername(editUserModel.getUsername());
+
+		if (user != null && user.isEnabled()) {
+			if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))
+					|| user.getUsername().equalsIgnoreCase(authentication.getName())) {
+
+				user.setFirstname(editUserModel.getFirstname());
+				user.setLastname(editUserModel.getLastname());
+				user.seteMail(editUserModel.geteMail());
+				user.setTelNumber(editUserModel.getTelNumber());
+				userRepo.save(user);
+
+			} else {
+				model.addAttribute("warningMessage",
+						"Not allowed to edit User with username " + editUserModel.getUsername() + "!");
+			}
+
+			if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
+				model.addAttribute("message", "Successfully updated User data of User: " + user.getUsername() + " !");
+				return showUserManagement(model, authentication);
+			} else {
+				model.addAttribute("message", "Successfully updated User data of User: " + user.getUsername() + " !");
+				return showProfile(model, authentication);
+			}
+
+		} else {
+			if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
+				model.addAttribute("errorMessage",
+						"Error while reading User data! Hint: Either dissabled or does not exist");
+				return showUserManagement(model, authentication);
+			} else {
+				model.addAttribute("errorMessage", "Error while reading User data!");
+				return showProfile(model, authentication);
+			}
+		}
+	}
+
+	@Secured({ "ROLE_ADMIN" })
+	@GetMapping(value = "/changeUserRole")
+	public String changeUserRole(@RequestParam("username") String username, Model model,
+			Authentication authentication) {
+
+		User user = userRepo.findFirstByUsername(username);
+
+		if (user != null && user.isEnabled()) {
+
+			if (user.getUsername().equalsIgnoreCase(authentication.getName())) {
+				model.addAttribute("warningMessage", "You cannot change your own user role!");
+				return showUserManagement(model, authentication);
+			}
+
+			model.addAttribute("message", "User data successfully retrieved. You can now change the User Role of User: "
+					+ user.getUsername());
+			model.addAttribute("user", user);
+			return "changeUserRole";
+		} else {
+			model.addAttribute("errorMessage", "Error while reading User data! Either dissabled or does not exist");
+			return showUserManagement(model, authentication);
+		}
+	}
+
+	@Secured({ "ROLE_ADMIN" })
+	@PostMapping(value = "/changeUserRole")
+	public String changeUserRole(@RequestParam(name = "role", required = false) String role, @Valid User editUserModel,
 			BindingResult bindingResult, Model model, Authentication authentication) {
 
 		if (bindingResult.hasErrors()) {
@@ -278,55 +372,73 @@ public class UserController {
 				errorMessage += fieldError.getField() + " is invalid<br>";
 			}
 			model.addAttribute("errorMessage", errorMessage);
-			return showAllUsers(model, authentication);
+			return showUserManagement(model, authentication);
 		}
 
 		List<UserRole> roles = new ArrayList<UserRole>();
 		User user = userRepo.findFirstByUsername(editUserModel.getUsername());
 
-		if (user != null) {
-			if ((user.getUsername().equalsIgnoreCase(authentication.getName())
-					|| authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))
-							&& user.isEnabled())) {
+		if (user != null && user.isEnabled()) {
 
-				if (isGuest == true) {
-					UserRole role = userRoleRepo.findFirstByRoleName("ROLE_GUEST");
-					if (role != null)
-						roles.add(role);
+			if (role.equals("admin")) {
+				UserRole userRoleAdmin = userRoleRepo.findFirstByRoleName("ROLE_ADMIN");
+				UserRole userRoleHost = userRoleRepo.findFirstByRoleName("ROLE_HOST");
+				UserRole userRoleGuest = userRoleRepo.findFirstByRoleName("ROLE_GUEST");
+				if (userRoleAdmin != null && userRoleHost != null && userRoleGuest != null) {
+					roles.add(userRoleGuest);
+					roles.add(userRoleHost);
+					roles.add(userRoleAdmin);
+				} else {
+					model.addAttribute("warningMessage", "Error while assigning user Role!");
+					return showUserManagement(model, authentication);
 				}
-				if (isGuest == true && isHost == true) {
-					UserRole role = userRoleRepo.findFirstByRoleName("ROLE_HOST");
-					if (role != null)
-						roles.add(role);
+			}
+			if (role.equals("host")) {
+				UserRole userRoleHost = userRoleRepo.findFirstByRoleName("ROLE_HOST");
+				UserRole userRoleGuest = userRoleRepo.findFirstByRoleName("ROLE_GUEST");
+				if (userRoleHost != null && userRoleGuest != null) {
+					roles.add(userRoleGuest);
+					roles.add(userRoleHost);
+				} else {
+					model.addAttribute("warningMessage", "Error while assigning user Role!");
+					return showUserManagement(model, authentication);
 				}
-				if (isAdmin == true && isGuest == true && isAdmin == true) {
-					UserRole role = userRoleRepo.findFirstByRoleName("ROLE_ADMIN");
-					if (role != null)
-						roles.add(role);
+			}
+			if (role.equals("guest")) {
+				UserRole userRoleGuest = userRoleRepo.findFirstByRoleName("ROLE_GUEST");
+				if (userRoleGuest != null) {
+					roles.add(userRoleGuest);
+				} else {
+					model.addAttribute("warningMessage", "Error while assigning user Role!");
+					return showUserManagement(model, authentication);
 				}
 			}
 
-			user.setFirstname(editUserModel.getFirstname());
-			user.setLastname(editUserModel.getLastname());
-			user.seteMail(editUserModel.geteMail());
-			user.setTelNumber(editUserModel.getTelNumber());
-			if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN")))
-				user.setRoleList(roles);
-
+			user.setRoleList(roles);
 			userRepo.save(user);
-			model.addAttribute("message", "Changed User " + editUserModel.getUsername());
+			model.addAttribute("message", "User Data successfully updated!");
+			return showUserManagement(model, authentication);
 		} else {
-			model.addAttribute("warningMessage",
-					"Not allowed to edit User with username " + editUserModel.getUsername() + "!");
+			model.addAttribute("errorMessage",
+					"Error while reading User data! Hint: Either dissabled or does not exist.");
+			return showUserManagement(model, authentication);
 		}
-		return showAllUsers(model, authentication);
+
 	}
 
 	@Secured({ "ROLE_GUEST" })
 	@GetMapping("/uploadProfilePicture")
 	public String uploadProfilePicture(Model model, @RequestParam("username") String username) {
 		model.addAttribute("username", username);
-		return "uploadProfilePicture";
+		User user = userRepo.findFirstByUsername(username);
+		if (user != null && user.isEnabled()) {
+			model.addAttribute("information", "You can now upload your profile Picture in JPG format.");
+			return "uploadProfilePicture";
+		} else {
+			model.addAttribute("errorMessage",
+					"Error while reading User Data!. Please login in again and retry to upload your profile Picture.");
+			return "login";
+		}
 	}
 
 	@Secured({ "ROLE_GUEST" })
@@ -380,7 +492,7 @@ public class UserController {
 
 		if ((user == null) || (user.isEnabled() == false)) {
 			model.addAttribute("errorMessage", "Error while reading User!");
-			return showAllUsers(model, authentication);
+			return showUserManagement(model, authentication);
 		} else {
 
 			if (user.getUsername().equalsIgnoreCase(authentication.getName())
@@ -389,7 +501,7 @@ public class UserController {
 				return "changePassword";
 			} else {
 				model.addAttribute("warningMessage", "Not allowed to change password for " + user.getUsername() + "!");
-				return showAllUsers(model, authentication);
+				return showUserManagement(model, authentication);
 			}
 		}
 	}
@@ -405,7 +517,7 @@ public class UserController {
 				errorMessage += fieldError.getField() + " is invalid<br>";
 			}
 			model.addAttribute("errorMessage", errorMessage);
-			return showAllUsers(model, authentication);
+			return showUserManagement(model, authentication);
 		}
 
 		User user = userRepo.findFirstByUsername(editUserModel.getUsername());
@@ -423,7 +535,7 @@ public class UserController {
 				model.addAttribute("warningMessage", "Error while reading User data!");
 			}
 		}
-		return showAllUsers(model, authentication);
+		return showUserManagement(model, authentication);
 	}
 
 	// ******************** D:DELETE ****************************************
@@ -439,13 +551,13 @@ public class UserController {
 				errorMessage += fieldError.getField() + " is invalid<br>";
 			}
 			model.addAttribute("errorMessage", errorMessage);
-			return showAllUsers(model, authentication);
+			return showUserManagement(model, authentication);
 		}
 
 		User user = userRepo.findFirstByUsername(editUserModel.getUsername());
 		if (user.isEnabled() == false) {
 			model.addAttribute("errorMessage", "User does not exist! <" + editUserModel.getUsername() + ">");
-			return showAllUsers(model, authentication);
+			return showUserManagement(model, authentication);
 		}
 		if (user.getUsername().equalsIgnoreCase(authentication.getName())) {
 			model.addAttribute("errorMessage", "You cannot delete yourself! <" + editUserModel.getUsername() + ">");
@@ -454,7 +566,7 @@ public class UserController {
 			userRepo.save(user);
 			model.addAttribute("message", "User " + editUserModel.getUsername() + "sucessfully deleted");
 		}
-		return showAllUsers(model, authentication);
+		return showUserManagement(model, authentication);
 	}
 
 	@Secured({ "ROLE_ADMIN" })
@@ -468,20 +580,20 @@ public class UserController {
 				errorMessage += fieldError.getField() + " is invalid<br>";
 			}
 			model.addAttribute("errorMessage", errorMessage);
-			return showAllUsers(model, authentication);
+			return showUserManagement(model, authentication);
 		}
 
 		User user = userRepo.findFirstByUsername(editUserModel.getUsername());
 		if (user == null || user.isEnabled()) {
 			model.addAttribute("errorMessage",
 					"User does not exist or is already reactivated! <" + editUserModel.getUsername() + ">");
-			return showAllUsers(model, authentication);
+			return showUserManagement(model, authentication);
 		} else {
 			user.setEnabled(true);
 			userRepo.save(user);
 			model.addAttribute("message", "User " + editUserModel.getUsername() + "sucessfully reactivated");
 		}
-		return showAllUsers(model, authentication);
+		return showUserManagement(model, authentication);
 	}
 
 	// ******************** HELPER METHODS ****************************************

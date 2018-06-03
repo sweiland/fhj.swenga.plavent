@@ -3,9 +3,11 @@
 	xmlns:th="http://www.thymeleaf.org">
 
 <head>
-<div th:include="~{includes/bootstrap :: bootstrapMeta}" th:remove="tag" />
-<title>PlaVent</title>
-<div th:include="~{includes/bootstrap :: bootstrapCSS}" th:remove="tag" />
+<div sec:authorize="hasRole('ROLE_ADMIN')">
+	<div th:include="~{includes/bootstrap :: bootstrapMeta}"
+		th:remove="tag" />
+	<title>PlaVent</title>
+	<div th:include="~{includes/bootstrap :: bootstrapCSS}" th:remove="tag" />
 </head>
 
 <body class="app flex-row align-items-center bg-dark">
@@ -22,10 +24,8 @@
 				<nav th:replace="~{includes/fragments :: navigation }"></nav>
 
 				<!-- include the search bar fragment for users-->
-				<div sec:authorize="hasRole('ROLE_ADMIN')">
-					<nav
-						th:replace="~{includes/fragments :: MgmtNavBar (buttonText='Create New User',buttonLink='createUser',searchLink='filterUsers')}"></nav>
-				</div>
+				<nav
+					th:replace="~{includes/fragments :: MgmtNavBar (buttonText='Create New User',buttonLink='createUser',searchLink='filterUsers')}"></nav>
 				<!-- include message boxes (moved to fragments) -->
 				<div th:replace="~{includes/fragments :: msgs}"></div>
 			</div>
@@ -38,10 +38,14 @@
 							class="col-4">
 							<div class="card text-dark">
 								<div class="bg-success card-header">
-									<strong th:text="${user.username}"></strong>
+									<div class="card-title" th:text="${user.username}"></div>
 									<div class="card-header-actions">
 										<a th:unless="${user.enabled} == false"
 											th:href="@{/editUser(username=${user.username})}"
+											class="card-header-action btn-pencil"> <i
+											class="icon-pencil"></i>
+										</a> <a th:unless="${user.enabled} == false"
+											th:href="@{/changeUserRole(username=${user.username})}"
 											class="card-header-action btn-pencil"> <i
 											class="icon-pencil"></i>
 										</a> <a th:unless="${user.enabled} == false"
@@ -67,17 +71,23 @@
 									<strong>Profile Picture:</strong><em
 										th:text="${user.profilePicture == null} ? 'not set' : 'set'"></em><br>
 									<div th:switch="${user.getUserRole()}">
-										<p th:case="'ROLE_ADMIN'"><strong>User Role:</strong> Administrator</p>
-										<p th:case="'ROLE_HOST'"><strong>User Role:</strong> Host</p>
-										<p th:case="'ROLE_GUEST'"><strong>User Role:</strong> Guest</p>
+										<p th:case="'ROLE_ADMIN'">
+											<strong>User Role:</strong> Administrator
+										</p>
+										<p th:case="'ROLE_HOST'">
+											<strong>User Role:</strong> Host
+										</p>
+										<p th:case="'ROLE_GUEST'">
+											<strong>User Role:</strong> Guest
+										</p>
 									</div>
+									<strong>Status</strong> <em th:text="${user.enabled} ? 'Enabled' : 'Dissabled'"></em><br>
 								</div>
 							</div>
 						</div>
 					</div>
 				</div>
 			</div>
-
 		</div>
 	</div>
 
@@ -87,6 +97,7 @@
 
 	<!--  End of container -->
 	<div th:include="~{includes/bootstrap :: bootstrapJS}" th:remove="tag" />
+	</div>
 </body>
 
 </html>
