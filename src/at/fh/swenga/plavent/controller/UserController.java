@@ -12,6 +12,9 @@ import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
+import org.springframework.mail.MailException;
+import org.springframework.mail.MailSender;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -50,9 +53,13 @@ public class UserController {
 	@Autowired
 	private UserRoleRepository userRoleRepo;
 
-
 	@Autowired
 	private ProfilePictureRepository profilePictureRepo;
+
+	@Autowired
+	private MailSender mailSender;
+	@Autowired
+	private SimpleMailMessage templateMessage;
 
 	public UserController() {
 	}
@@ -523,7 +530,7 @@ public class UserController {
 
 		User user = userRepo.findFirstByUsername(editUserModel.getUsername());
 
-		if (user != null) {
+		if (user != null && user.isEnabled()) {
 			if ((user.getUsername().equalsIgnoreCase(authentication.getName())
 					|| authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN")))) {
 
@@ -537,6 +544,81 @@ public class UserController {
 			}
 		}
 		return showUserManagement(model, authentication);
+	}
+
+	@GetMapping("/sendResetPassword")
+	public String sendResetPassword(@RequestParam("username") String username, Model model, Authentication authentication) {
+
+		
+		User user = userRepo.findFirstByUsername(username);
+		if (user != null && user.isEnabled() && user.geteMail() != null) {
+			sendPasswordResetMail(user);
+			model.addAttribute("message", "Reset Passwort Email for User: " + user.getUsername() + " has been sent.");
+			return "login";
+		} else
+			model.addAttribute("errorMessage", "Error while reading user data!");
+		return "login";
+	}
+
+	private void sendPasswordResetMail(User user) {
+		
+		String resetPasswordUrl = "http://localhost:8080/fhj.swenga2017.plavent/resetPassword?username=" + user.getUsername();
+		String content = "Click the following link to reset your password: " + resetPasswordUrl;
+		
+		// Create a thread safe "copy" of the template message and customize it
+		SimpleMailMessage msg = new SimpleMailMessage(this.templateMessage);
+ 
+		// You can override default settings from dispatcher-servlet.xml:
+		msg.setTo(user.geteMail());
+		msg.setSubject("Password Reset");
+		msg.setText(String.format(msg.getText(), user.getFirstname() + ' ' + user.getLastname(), content));
+		try {
+			this.mailSender.send(msg);
+		} catch (MailException ex) {
+			ex.printStackTrace();
+		}
+	}
+
+	@GetMapping("/resetPassword")
+	public String resetPassword(@RequestParam("username") String username, Model model,
+			Authentication authentication) {
+		
+		User user = userRepo.findFirstByUsername(username);
+		if (user != null && user.isEnabled()) {
+			model.addAttribute("message", "You can now reset the password.");
+			model.addAttribute("userReset", user);
+			return "changePassword";
+		} else
+			model.addAttribute("errorMessage", "Error while reading user data!");
+		return "login";
+	}
+	
+	@PostMapping("/resetPassword")
+	public String resetPassword(@RequestParam("username") String username, BindingResult bindingResult, Model model,
+			Authentication authentication) {
+		
+		authentication.setAuthenticated(true);
+		
+		if (bindingResult.hasErrors()) {
+			String errorMessage = "";
+			for (FieldError fieldError : bindingResult.getFieldErrors()) {
+				errorMessage += fieldError.getField() + " is invalid<br>";
+			}
+			model.addAttribute("errorMessage", errorMessage);
+			return "login";
+		}
+		
+		authentication.setAuthenticated(true);
+		
+		User user = userRepo.findFirstByUsername(username);
+		if (user != null && user.isEnabled()) {
+			user.encryptPassword();
+			userRepo.save(user);
+			model.addAttribute("message", "Password successfully reset");
+			return "login";
+		} else
+			model.addAttribute("errorMessage", "Error while reading user data!");
+		return "login";
 	}
 
 	// ******************** D:DELETE ****************************************
