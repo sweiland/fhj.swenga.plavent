@@ -1,6 +1,7 @@
 package at.fh.swenga.plavent.repo;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -14,6 +15,9 @@ import at.fh.swenga.plavent.model.User;
 @Transactional
 public interface UserRepository extends JpaRepository<User, Integer> {
 
+	
+	public Optional<User> findByUsername(String username);
+	
 	public User findFirstByUsername(String username);
 
 	@Query("Select u from User u")

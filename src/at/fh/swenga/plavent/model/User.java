@@ -2,6 +2,7 @@ package at.fh.swenga.plavent.model;
 
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -9,6 +10,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
@@ -41,6 +43,9 @@ public class User implements java.io.Serializable {
 	@Column(name = "enabled", nullable = false)
 	private boolean enabled;
 
+	@OneToOne(cascade = CascadeType.ALL)
+	private ProfilePicture profilePicture;
+
 	/*
 	 * cascade = CascadeType.PERSIST: Changes the default setting for this
 	 * relationship, so the EntityManager saves unmanaged related object
@@ -53,7 +58,6 @@ public class User implements java.io.Serializable {
 	@Fetch(value = FetchMode.SUBSELECT)
 	private List<UserRole> roleList;
 
-	
 	/**
 	 * Load happenings for user lazy - we don't want to have the whole db in memory
 	 */
@@ -64,6 +68,29 @@ public class User implements java.io.Serializable {
 	long version;
 
 	public User() {
+	}
+
+	/**
+	 * @param username
+	 * @param password
+	 * @param firstname
+	 * @param lastname
+	 * @param eMail
+	 * @param telNumber
+	 */
+	public User(String username, String password, String firstname, String lastname, String eMail, String telNumber,
+			ProfilePicture profilePicture, List<UserRole> roles, List<Happening> happenings) {
+		super();
+		this.username = username;
+		this.password = password;
+		this.firstname = firstname;
+		this.lastname = lastname;
+		this.eMail = eMail;
+		this.telNumber = telNumber;
+		this.profilePicture = profilePicture;
+		this.roleList = roles;
+		this.happenings = happenings;
+		this.enabled = true;
 	}
 
 	/**
@@ -217,6 +244,16 @@ public class User implements java.io.Serializable {
 		this.roleList = roleList;
 	}
 
+	public String getUserRole() {
+		if (roleList.contains( new UserRole("ROLE_ADMIN")))
+			return "ROLE_ADMIN";
+		else if (roleList.contains (new UserRole("ROLE_HOST")))
+			return "ROLE_HOST";
+		else
+			return "ROLE_GUEST";
+}
+	
+	
 	public void addUserRole(UserRole role) {
 		roleList.add(role);
 	}
@@ -254,6 +291,14 @@ public class User implements java.io.Serializable {
 
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
+	}
+
+	public ProfilePicture getProfilePicture() {
+		return profilePicture;
+	}
+
+	public void setProfilePicture(ProfilePicture profilePicture) {
+		this.profilePicture = profilePicture;
 	}
 
 	public void encryptPassword() {
