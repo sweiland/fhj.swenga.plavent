@@ -12,9 +12,15 @@ import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
+import org.springframework.mail.MailException;
+import org.springframework.mail.MailSender;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -50,9 +56,13 @@ public class UserController {
 	@Autowired
 	private UserRoleRepository userRoleRepo;
 
-
 	@Autowired
 	private ProfilePictureRepository profilePictureRepo;
+
+	@Autowired
+	private MailSender mailSender;
+	@Autowired
+	private SimpleMailMessage templateMessage;
 
 	public UserController() {
 	}
@@ -499,7 +509,7 @@ public class UserController {
 			if (user.getUsername().equalsIgnoreCase(authentication.getName())
 					|| authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
 				model.addAttribute("user", user);
-				return "changePassword";
+				return "changeResetPassword";
 			} else {
 				model.addAttribute("warningMessage", "Not allowed to change password for " + user.getUsername() + "!");
 				return showUserManagement(model, authentication);
@@ -518,12 +528,14 @@ public class UserController {
 				errorMessage += fieldError.getField() + " is invalid<br>";
 			}
 			model.addAttribute("errorMessage", errorMessage);
-			return showUserManagement(model, authentication);
+			if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN")))
+				return showUserManagement(model, authentication);
+			else return showProfile(model, authentication);
 		}
 
 		User user = userRepo.findFirstByUsername(editUserModel.getUsername());
 
-		if (user != null) {
+		if (user != null && user.isEnabled()) {
 			if ((user.getUsername().equalsIgnoreCase(authentication.getName())
 					|| authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN")))) {
 
@@ -536,7 +548,81 @@ public class UserController {
 				model.addAttribute("warningMessage", "Error while reading User data!");
 			}
 		}
-		return showUserManagement(model, authentication);
+		if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN")))
+			return showUserManagement(model, authentication);
+		else return showProfile(model, authentication);
+	}
+
+	@GetMapping("/sendResetPassword")
+	public String sendResetPassword(@RequestParam("username") String username, Model model, Authentication authentication) {
+
+		
+		User user = userRepo.findFirstByUsername(username);
+		if (user != null && user.isEnabled() && user.geteMail() != null) {
+			sendPasswordResetMail(user);
+			model.addAttribute("message", "Reset Passwort Email for User: " + user.getUsername() + " has been sent.");
+			return "login";
+		} else
+			model.addAttribute("errorMessage", "Error while reading user data!");
+		return "login";
+	}
+
+	private void sendPasswordResetMail(User user) {
+		
+		String resetPasswordUrl = "http://localhost:8080/fhj.swenga2017.plavent/resetPassword?username=" + user.getUsername();
+		String content = "Copy and paste the following link in your browser to reset your password: " + resetPasswordUrl;
+		
+		// Create a thread safe "copy" of the template message and customize it
+		SimpleMailMessage msg = new SimpleMailMessage(this.templateMessage);
+ 
+		// You can override default settings from dispatcher-servlet.xml:
+		msg.setTo(user.geteMail());
+		msg.setSubject("Password Reset");
+		msg.setText(String.format(msg.getText(), user.getFirstname() + ' ' + user.getLastname(), content));
+		try {
+			this.mailSender.send(msg);
+		} catch (MailException ex) {
+			ex.printStackTrace();
+		}
+	}
+
+	@GetMapping("/resetPassword")
+	public String resetPassword(@RequestParam("username") String username, Model model,
+			Authentication authentication) {
+		
+		User user = userRepo.findFirstByUsername(username);
+		if (user != null && user.isEnabled()) {
+			model.addAttribute("message", "You can now reset the password.");
+			model.addAttribute("userB", user);
+			return "changeResetPassword";
+		} else
+			model.addAttribute("errorMessage", "Error while reading user data!");
+		return "login";
+	}
+	
+	@PostMapping("/resetPassword")
+	public String resetPassword(@Valid User resetPasswordUser, BindingResult bindingResult, Model model,
+			Authentication authentication) {
+		
+		if (bindingResult.hasErrors()) {
+			String errorMessage = "";
+			for (FieldError fieldError : bindingResult.getFieldErrors()) {
+				errorMessage += fieldError.getField() + " is invalid<br>";
+			}
+			model.addAttribute("errorMessage", errorMessage);
+			return "login";
+		}
+		
+		User user = userRepo.findFirstByUsername(resetPasswordUser.getUsername());
+		if (user != null && user.isEnabled()) {
+			user.setPassword(resetPasswordUser.getPassword());
+			user.encryptPassword();
+			userRepo.save(user);
+			model.addAttribute("message", "Password successfully reset");
+			return "login";
+		} else
+			model.addAttribute("errorMessage", "Error while reading user data!");
+		return "login";
 	}
 
 	// ******************** D:DELETE ****************************************

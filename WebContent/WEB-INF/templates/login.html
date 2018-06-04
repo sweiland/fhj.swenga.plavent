@@ -17,7 +17,7 @@
 				</div>
 			</div>
 			<!-- include message boxes (moved to fragments) -->
-				<div th:replace="~{includes/fragments :: msgs}"></div>
+			<div th:replace="~{includes/fragments :: msgs}"></div>
 		</div>
 		<div class="row justify-content-center">
 			<div class="col-md-8">
@@ -89,6 +89,34 @@
 								<a href="registerUser" class="btn btn-outline-light">Register</a>
 							</div>
 						</div>
+					</th:block>
+					<th:block th:unless="${noPlaventEnvironment}">
+						<h1>Reset Password</h1>
+
+						<form class="form-horizontal" method="get"
+							th:action="@{/sendResetPassword}">
+							<input type="hidden" th:name="${_csrf.parameterName}"
+								th:value="${_csrf.token}" />
+							<fieldset>
+
+								<!--  ----------------  User Name ---------------- -->
+								<div class="input-group mb-3">
+									<div class="input-group-prepend">
+										<span class="input-group-text"><i class="icon-user"></i></span>
+									</div>
+									<input type="text" class="form-control" placeholder="Username"
+										name="username" required="required" value=""
+										aria-label="Username" aria-describedby="basic-addon1">
+								</div>
+
+								<div class="row">
+									<div class="col-6">
+										<input name="submit" class="btn btn-outline-dark px-4"
+											type="submit" value="Reset Password">
+									</div>
+								</div>
+							</fieldset>
+						</form>
 					</th:block>
 				</div>
 			</div>
