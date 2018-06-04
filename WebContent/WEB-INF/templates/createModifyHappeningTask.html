@@ -29,14 +29,20 @@
 								th:value="${happening.happeningId}" />
 
 							<!--  ----------------  happening ---------------- -->
-							<div class="form-group">
+							<div class="input-group mb-3">
+								<div class="input-group-prepend">
+									<span class="input-group-text"><i class="icon-note"></i></span>
+								</div>
 								<input class="form-control" type="text" name="happeningName"
 									th:value="${happening.happeningName}" readonly
 									placeholder="Happening">
 							</div>
 
 							<!--  ----------------  taskId ---------------- -->
-							<div th:if="${happeningTask} != null" class="form-group">
+							<div th:if="${happeningTask} != null" class="input-group mb-3">
+								<div class="input-group-prepend">
+									<span class="input-group-text">#</span>
+								</div>
 								<input class="form-control" type="text" name="taskId" readonly
 									required="required"
 									th:value="${happeningTask} ? ${happeningTask.taskId}"
@@ -44,7 +50,10 @@
 							</div>
 
 							<!--  ----------------  topic ---------------- -->
-							<div class="form-group">
+							<div class="input-group mb-3">
+							<div class="input-group-prepend">
+									<span class="input-group-text"><i class="icon-note"></i></span>
+								</div>
 								<input class="form-control" type="text" name="topic"
 									required="required"
 									th:value="${happeningTask} ? ${happeningTask.topic}"
@@ -52,7 +61,10 @@
 							</div>
 
 							<!--  ----------------  durationInHour ---------------- -->
-							<div class="form-group">
+							<div class="input-group mb-3">
+							<div class="input-group-prepend">
+									<span class="input-group-text"><i class="icon-clock"></i></span>
+								</div>
 								<input class="form-control" type="number" name="durationInHour"
 									required="required"
 									th:value="${happeningTask} ? ${happeningTask.durationInHour}"
@@ -122,12 +134,12 @@
 
 							<!-- --------------  buttons ---------------- -->
 							<div class="form-group">
-								<div class="btn-group">
-									<button type="submit" class="btn btn-pill btn-primary">Submit</button>
-									<a
-										th:href="@{showTaskListManagement(happeningID=${happening.happeningId})}"
-										class="btn btn-pill btn-secondary"> Cancel </a>
-								</div>
+
+								<button type="submit" class="btn btn-outline-dark">Submit</button>
+								<a
+									th:href="@{showTaskListManagement(happeningID=${happening.happeningId})}"
+									class="btn btn-outline-secondary"> Cancel </a>
+
 							</div>
 
 						</fieldset>
