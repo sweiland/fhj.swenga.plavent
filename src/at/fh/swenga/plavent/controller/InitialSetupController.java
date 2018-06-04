@@ -9,12 +9,14 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import at.fh.swenga.plavent.model.ApplicationProperty;
 import at.fh.swenga.plavent.model.Happening;
 import at.fh.swenga.plavent.model.HappeningCategory;
 import at.fh.swenga.plavent.model.HappeningStatus;
 import at.fh.swenga.plavent.model.HappeningTask;
 import at.fh.swenga.plavent.model.User;
 import at.fh.swenga.plavent.model.UserRole;
+import at.fh.swenga.plavent.repo.ApplicationPropertyRepository;
 import at.fh.swenga.plavent.repo.HappeningCategoryRepository;
 import at.fh.swenga.plavent.repo.HappeningRepository;
 import at.fh.swenga.plavent.repo.HappeningStatusRepository;
@@ -32,6 +34,9 @@ import at.fh.swenga.plavent.repo.UserRoleRepository;
 
 @Controller
 public class InitialSetupController {
+
+	@Autowired
+	private ApplicationPropertyRepository appPropertyRepo;
 
 	@Autowired
 	private UserRepository userRepo;
@@ -58,6 +63,9 @@ public class InitialSetupController {
 	public String preparePlavent(Model model) {
 		try {
 
+			//Create application properties
+			this.createApplicationProperties();
+
 			// Create Categories
 			this.createHappeningCategories();
 
@@ -71,12 +79,32 @@ public class InitialSetupController {
 			// Needs to be the last call because requires all other methods before!!!
 			createTutorialHappening();
 
-			model.addAttribute("message", "Environment created - Start planning!");
+			//model.addAttribute("message", "Database initialized - You can now login or register!");
 			return "login";
 		} catch (Exception e) {
 			model.addAttribute("errorMessage", "Error occured: \"+ e.getMessage()!");
 			return "error";
 		}
+	}
+
+	private void createApplicationProperties()
+	{
+		//Property to mark environment as installed.
+		ApplicationProperty installed = appPropertyRepo.findFirstByToken("PLAVENT.INSTALLED");
+		if (installed == null) {
+			installed = new ApplicationProperty("PLAVENT.INSTALLED", true,
+					"Marks environment as installed. Handles InitialSetup in combination wiht amount of existing users. ");
+			appPropertyRepo.save(installed);
+		}
+		
+		//Property to set permission if HOSTS are allowed to modify happenings after their start.
+		ApplicationProperty modAfterStart = appPropertyRepo.findFirstByToken("HAPPENING.MODIFICATION.AFTER.START");
+		if (modAfterStart  == null) {
+			modAfterStart  = new ApplicationProperty("HAPPENING.MODIFICATION.AFTER.START", false,
+					"Flag to set permission if users with role HOST (and no ADMIN) are allowed to modify a happening after start or not.");
+			appPropertyRepo.save(modAfterStart );
+		}
+		
 	}
 
 	private void createHappeningCategories() {
@@ -127,8 +155,7 @@ public class InitialSetupController {
 
 		// Create overall admin if required
 		if (userRepo.findFirstByUsername("admin") == null) {
-			User administrator = new User("admin", "password", "Administrator", "Administrator",
-					new ArrayList<UserRole>());
+			User administrator = new User("admin", "password", "Administrator", "Administrator", "admin@plavent.com",new ArrayList<UserRole>());
 			administrator.encryptPassword();
 			administrator.addUserRole(roleGuest);
 			administrator.addUserRole(roleHost);
@@ -138,7 +165,7 @@ public class InitialSetupController {
 
 		// Create a host user if required
 		if (userRepo.findFirstByUsername("host") == null) {
-			User host = new User("host", "password", "Host", "Host", new ArrayList<UserRole>());
+			User host = new User("host", "password", "Host", "Host","host@plavent.com", new ArrayList<UserRole>());
 			host.encryptPassword();
 			host.addUserRole(roleGuest);
 			host.addUserRole(roleHost);
@@ -147,7 +174,7 @@ public class InitialSetupController {
 
 		// Create a simple guest user if required
 		if (userRepo.findFirstByUsername("guest") == null) {
-			User guest = new User("guest", "password", "Guest", "Guest", new ArrayList<UserRole>());
+			User guest = new User("guest", "password", "Guest", "Guest","guest@plavent.com", new ArrayList<UserRole>());
 			guest.encryptPassword();
 			guest.addUserRole(roleGuest);
 			userRepo.save(guest);

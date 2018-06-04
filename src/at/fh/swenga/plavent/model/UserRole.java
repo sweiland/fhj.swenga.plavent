@@ -49,6 +49,10 @@ public class UserRole implements java.io.Serializable {
 		this.roleName = roleName;
 		this.description = description;
 	}
+	public UserRole(String roleName) {
+		super();
+		this.roleName = roleName;
+	}
 
 	public void addUser(User u) {
 		userList.add(u);
@@ -97,24 +101,21 @@ public class UserRole implements java.io.Serializable {
 		this.description = description;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	
+
+	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((description == null) ? 0 : description.hashCode());
-		result = prime * result + roleID;
 		result = prime * result + ((roleName == null) ? 0 : roleName.hashCode());
+		result = prime * result + (int) (version ^ (version >>> 32));
 		return result;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/* (non-Javadoc)
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
@@ -126,17 +127,12 @@ public class UserRole implements java.io.Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		UserRole other = (UserRole) obj;
-		if (description == null) {
-			if (other.description != null)
-				return false;
-		} else if (!description.equals(other.description))
-			return false;
-		if (roleID != other.roleID)
-			return false;
 		if (roleName == null) {
 			if (other.roleName != null)
 				return false;
 		} else if (!roleName.equals(other.roleName))
+			return false;
+		if (version != other.version)
 			return false;
 		return true;
 	}

@@ -105,8 +105,7 @@
 									name="host" required="required"
 									th:readonly="${#strings.contains(#authentication.principal.authorities,'ADMIN') == false}">
 									<option disabled="disabled" selected="selected">Host</option>
-									<option sec:authorize="hasRole('ROLE_ADMIN')"
-										th:each="user : ${happeningHosts}"
+									<option th:each="user : ${happeningHosts}"
 										th:selected="${user.username == #authentication.principal.getUsername()}"
 										th:value="${user.username}" th:text="${user.username}">
 									</option>
@@ -120,8 +119,7 @@
 											name="host" required="required"
 											th:readonly="${#strings.contains(#authentication.principal.authorities,'ADMIN') == false}">
 											<option disabled="disabled" selected="selected">Host</option>
-											<option sec:authorize="hasRole('ROLE_ADMIN')"
-												th:each="user : ${happeningHosts}"
+											<option th:each="user : ${happeningHosts}"
 												th:selected="${user.username == happening.happeningHost.username}"
 												th:value="${user.username}" th:text="${user.username}">
 											</option>

@@ -49,6 +49,7 @@
 							</option></select>
 
 							<!-- --------------  buttons ---------------- -->
+							<!-- TODO: Button disabled solange bis eine gueltige Option gewaehlt wurde! -->
 							<button type="submit" class="btn btn-pill btn-primary"
 								th:disabled="${assignedTasks} ? ${#lists.isEmpty(assignedTasks)}">Remove
 								Assignment</button>
@@ -70,6 +71,7 @@
 									th:value="${task.taskId}" th:text="${task.topic}"></option>
 							</select>
 							<!-- --------------  buttons ---------------- -->
+							<!-- TODO: Button disabled solange bis eine gueltige Option gewaehlt wurde! -->
 							<button type="submit" class="btn btn-pill btn-primary"
 								th:disabled="${unassignedTasks} ? ${#lists.isEmpty(unassignedTasks)}">Assign</button>
 						</form>

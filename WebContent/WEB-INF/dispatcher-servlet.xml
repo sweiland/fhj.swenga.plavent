@@ -26,7 +26,7 @@
 
 
 	<!-- Read settings from external file and replace all ${...} in the xml -->
-	<context:property-placeholder location="classpath:db.properties" />
+	<context:property-placeholder location="classpath:app.properties" />
 
 
 	<!-- - POJOs labeled with the @Controller, @Service,..... annotations are 
@@ -103,13 +103,14 @@
 					class="org.thymeleaf.extras.springsecurity4.dialect.SpringSecurityDialect" />
 			</set>
 		</property>
-		<!--######################### Spring Security############################## -->
 	</bean>
-
 
 	<bean class="org.thymeleaf.spring5.view.ThymeleafViewResolver">
 		<property name="templateEngine" ref="templateEngine" />
 	</bean>
+
+
+
 
 	<!-- ################################################################ -->
 
@@ -137,6 +138,32 @@
 		<property name="entityManagerFactory" ref="entityManagerFactory" />
 	</bean>
 
+
+
+	<!-- MULTIJSR-303/JSR-349 support will be detected on classpath and enabled 
+		automatically -->
+	<bean id="multipartResolver"
+		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<!-- the maximum file size in bytes -->
+		<property name="maxUploadSize" value="10000000" />
+		<!-- <property name="restrictFileTypes" value="png,jpg"/> -->
+	</bean>
+	
+	<!-- hoedlale16: Mail sending  -->
+	<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+		<property name="host" value="${mail.smtp.host}" />
+		<property name="port" value="${mail.smtp.port}" />
+		<property name="username" value="${mail.smtp.user}" />
+		<property name="password" value="${mail.smtp.pass}" />
+ 
+		<property name="javaMailProperties">
+			<props>
+				<prop key="mail.smtp.auth">true</prop>
+				<prop key="mail.smtp.starttls.enable">true</prop>
+			</props>
+		</property>
+	</bean>
+	
 	<tx:annotation-driven />
 
 </beans>

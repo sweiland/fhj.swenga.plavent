@@ -8,41 +8,84 @@
 <div th:include="~{includes/bootstrap :: bootstrapCSS}" th:remove="tag" />
 </head>
 
-<body class="app flex-row align-items-center bg-dark">
-	<div class="container mb-5" role="main">
-		<div class="card bg-light">
-			<div class="card-body text-dark">
-				<div class="row page-header">
-					<!-- include the Nav bar fragment-->
-					<nav
-						th:replace="~{includes/fragments :: header (header='Category Management')}"></nav>
-				</div>
-
+<body>
+	<div class="card container" role="main">
+		<div class="card-body">
+			<div class="page-header">
 				<!-- include the Nav bar fragment-->
-				<nav th:replace="~{includes/fragments :: navigation }"></nav>
-
-				<!-- include the serach bar fragment for users-->
 				<nav
-					th:replace="~{includes/fragments :: MgmtNavBar (buttonText='New Category',buttonLink='showCreateCategory',searchLink='filterCategories')}"></nav>
-				<!-- include message boxes (moved to fragments) -->
-				<div th:replace="~{includes/fragments :: msgs}"></div>
+					th:replace="~{includes/fragments :: header (header='PlaVent - Category Management')}"></nav>
 			</div>
-		</div>
-		<div class="row">
-			<div class="col-md-10 col-md-offset-1">
-				<table data-toggle="table" class="table table-hover table-striped">
-					<thead>
-						<tr>
-							<th data-sortable="true">Category</th>
-							<th data-sortable="true">In Use</th>
-							<th data-sortable="true">Status</th>
-							<th class="text-right">Actions</th>
-						</tr>
-					</thead>
-				</table>
+
+			<!-- include the Nav bar fragment-->
+			<nav th:replace="~{includes/fragments :: navigation }"></nav>
+
+			<!-- include the serach bar fragment for users-->
+			<nav
+				th:replace="~{includes/fragments :: MgmtNavBar (buttonText='New Category',buttonLink='showCreateCategory',searchLink='filterCategories')}"></nav>
+
+			<!-- include message boxes (moved to fragments) -->
+			<div th:replace="~{includes/fragments :: msgs}"></div>
+
+			<div class="card bg-light">
+				<div class="card-body">
+					<div class="col-md-12">
+						<div class="row">
+							<div th:each="happeningCategory : ${#request.getAttribute('happeningCategories')}"
+								class="col-4">
+								<div class="card text-dark">
+									<div
+										th:classappend="${happeningCategory.enabled == true} ? bg-success : bg-danger"
+										class="card-header">
+										<strong th:text="${happeningCategory.categoryName}"></strong>
+										<div class="card-header-actions">
+											<th:block
+												th:if="${happeningCategory.enabled == true}">
+												<a
+												th:href="@{/showModifyCategory(categoryID=${happeningCategory.categoryID})}"
+												class="card-header-action btn-pencil"><i
+												class="icon-pencil"></i> </a>
+												
+												<a th:if="${#lists.contains(usedCategories,happeningCategory)}"
+												th:href="@{/disableUsedHappeningCategory(categoryID=${happeningCategory.categoryID})}"
+												class="card-header-action btn-trash"><i
+												class="icon-trash"></i> </a>	
+												
+												<a th:unless="${#lists.contains(usedCategories,happeningCategory)}"
+												th:href="@{/deleteUnusedHappeningCategory(categoryID=${happeningCategory.categoryID})}"
+												class="card-header-action btn-trash"><i
+												class="icon-trash"></i> </a>											
+												
+											</th:block>
+											
+											<th:block
+												th:if="${happeningCategory.enabled == false}">
+												<!-- TODO: Funktion ausimplementieren -->
+												<a
+												th:href="@{/reactivateDisabledHappeningCategory(categoryID=${happeningCategory.categoryID})}"
+												class="card-header-action btn-trash"><i
+												class="icon-check"></i> </a>
+												</th:block>
+											
+										</div>
+									</div>
+									<div class="card-body">
+										<strong>Description:</strong> <em
+											th:text="${happeningCategory.description}"></em><br> 
+										<strong>Used:</strong> <em th:text="${#lists.contains(usedCategories,happeningCategory) ? 'Used' : 'Not used' }"></em><br>									
+									</div>
+								</div>
+							</div>
+						</div>
+						<!--  include fragement for pageination stuff -->
+						<nav
+							th:replace="~{includes/fragments :: pageNav (linkToChangePage='/showCategoryManagementPage') }"></nav>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>
+
 	<!-- hoedlale16: include some fancy footer -->
 	<footer th:replace="~{includes/fragments :: footer}"></footer>
 
