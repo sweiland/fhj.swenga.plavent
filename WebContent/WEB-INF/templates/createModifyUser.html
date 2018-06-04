@@ -11,84 +11,105 @@
 	rel="stylesheet">
 </head>
 
-<body class="app flex-row align-items-center">
-	<div class="container  justify-content-center" role="main">
-		<div class="row">
-			<div class="card col-md-8 col-md-offset-2">
-				<img th:unless="${image} == null" th:src="${image}" height="100"
-					width="100">
-				<!--  fernbach16: Form calls /edituser or /adduser, depending if an user is set already. -->
-				<form class="form-horizontal" method="post"
-					th:action="${user} ? @{/editUser} : @{/createUser}">
-					<fieldset class="card-body">
-						<h1 th:text="${user}? 'Change user' : 'New user'">New user</h1>
+<body class="app flex-row align-items-center bg-dark">
+	<div class="container" role="main">
+		<div class="row justify-content-center">
+			<div class="col-md-6">
+				<div class="card bg-light mx-4 text-dark">
+					<img class="card-img-top" th:unless="${image} == null" th:src="${image}">
+					<!--  fernbach16: Form calls /edituser or /adduser, depending if an user is set already. -->
+					<form class="form-horizontal" method="post"
+						th:action="${user} ? @{/editUser} : @{/createUser}">
+						<fieldset class="card-body">
+							<h1 th:text="${user}? 'Change user' : 'New user'">New user</h1>
 
-						<!--  ----------------  username ---------------- -->
-						<div class="form-group">
-							<input class="form-control" type="text" name="username"
-								required="required" th:value="${user} ? ${user.username}"
-								th:readonly="${user}" placeholder="Username">
-						</div>
+							<!--  ----------------  username ---------------- -->
+							<div class="input-group mb-3">
+								<div class="input-group-prepend">
+									<span class="input-group-text"><i class="icon-user"></i></span>
+								</div>
+								<input type="text" class="form-control" name="username"
+									required="required" placeholder="Username"
+									th:value="${user} ? ${user.username}" th:readonly="${user}"
+									autocomplete="off" minlength="1" maxlength="45">
+							</div>
 
-						<!--  ----------------  password ---------------- -->
-						<div th:if="${user} == null" class="form-group">
-							<input class="form-control" type="password" name="password"
-								required="required" th:value="${user} ? ${user.password}"
-								placeholder="Password">
-						</div>
+							<!--  ----------------  password ---------------- -->
+							<div th:if="${user} == null" class="input-group mb-3">
+								<div class="input-group-prepend">
+									<span class="input-group-text"><i class="icon-lock"></i></span>
+								</div>
+								<input class="form-control" type="password" name="password"
+									placeholder="Password" required="required" autocomplete="off"
+									minlength="6" maxlength="45"
+									th:value="${user} ? ${user.password}">
+							</div>
 
-						<!--  ----------------  firstname ---------------- -->
-						<div class="form-group">
-							<input class="form-control" type="text" name="firstname"
-								required="required" th:value="${user} ? ${user.firstname}"
-								placeholder="First Name">
-						</div>
+							<!--  ----------------  firstname ---------------- -->
+							<div class="input-group mb-3">
+								<div class="input-group-prepend">
+									<span class="input-group-text"><i class="icon-emotsmile"></i></span>
+								</div>
+								<input class="form-control" type="text" name="firstname"
+									required="required" placeholder="First Name" autocomplete="off"
+									minlength="2" maxlength="64">
+							</div>
 
-						<!--  ----------------  lastname ---------------- -->
-						<div class="form-group">
-							<input class="form-control" type="text" name="lastname"
-								required="required" th:value="${user} ? ${user.lastname}"
-								placeholder="Last Name">
-						</div>
+							<!--  ----------------  lastname ---------------- -->
+							<div class="input-group mb-3">
+								<div class="input-group-prepend">
+									<span class="input-group-text"><i class="icon-emotsmile"></i></span>
+								</div>
+								<input class="form-control" type="text" name="lastname"
+									required="required" placeholder="Last Name" autocomplete="off"
+									minlength="2" maxlength="64">
+							</div>
 
-						<!--  ----------------  eMail ---------------- -->
-						<div class="form-group">
-							<input class="form-control" type="email" name="eMail"
-								required="required" th:value="${user} ? ${user.eMail}"
-								placeholder="Email">
-						</div>
+							<!--  ----------------  eMail ---------------- -->
+							<div class="input-group mb-3">
+								<div class="input-group-prepend">
+									<span class="input-group-text"><i class="icon-envelope"></i></span>
+								</div>
+								<input class="form-control" type="email" name="eMail"
+									required="required" placeholder="Email" autocomplete="off"
+									minlength="5" maxlength="256">
+							</div>
 
-						<!--  ----------------  telephone Number ---------------- -->
-						<div class="form-group">
-							<input class="form-control" type="tel" name="telNumber"
-								th:value="${user} ? ${user.telNumber}"
-								placeholder="Phone Number">
-						</div>
-						<!-- --------------  User Role ---------------->
-								<label for="roles">Select user role</label>
-								
-								<select th:unless="${user}" id="roles" name="role">
-								<option value="guest">Guest</option>
-								<option value="host">Host</option>
-								<option value="admin">Administrator</option>
+							<!--  ----------------  telephone Number ---------------- -->
+							<div class="input-group mb-3">
+								<div class="input-group-prepend">
+									<span class="input-group-text"><i class="icon-phone"></i></span>
+								</div>
+								<input class="form-control" type="tel" name="telNumber"
+									required="required" placeholder="Phone" autocomplete="off"
+									minlength="9" maxlength="15">
+							</div>
+							<!-- --------------  User Role ---------------->
+							<div class="form-group mb-4">
+								<select class="custom-select form-control" th:unless="${user}"
+									id="roles" name="role">
+									<option disabled="disabled">User Role</option>
+									<option value="guest" selected="selected">Guest</option>
+									<option value="host">Host</option>
+									<option value="admin">Administrator</option>
 								</select>
-						<!-- --------------  buttons ---------------- -->
-						<div class="input-group btn-group">
-							<button type="submit" class="btn btn-pill btn-primary">Submit</button>
-							<div sec:authorize="hasRole('ROLE_ADMIN')">
-								<a href="showUserManagement" class="btn btn-pill btn-secondary">
-									Cancel </a>
 							</div>
-							<div sec:authorize="!hasRole('ROLE_ADMIN')">
-								<a href="showProfile" class="btn btn-pill btn-secondary">
-									Cancel </a> </div>
-							</div>
-					</fieldset>
-				</form>
+							<!-- --------------  buttons ---------------- -->
+							<button type="submit" class="btn btn-outline-dark">Submit</button>
+							<th:block sec:authorize="hasRole('ROLE_ADMIN')">
+								<a href="showUserManagement" class="btn btn-light">Cancel</a>
+							</th:block>
+							<th:block sec:authorize="!hasRole('ROLE_ADMIN')">
+								<a href="showProfile" class="btn btn-light">Cancel</a>
+							</th:block>
+						</fieldset>
+					</form>
+				</div>
 			</div>
 		</div>
-
 	</div>
+	<!-- weilands16: include our footer -->
+	<footer th:replace="~{includes/fragments :: footer}"></footer>
 	<!--  End of container -->
 	<div th:include="~{includes/bootstrap :: bootstrapJS}" th:remove="tag" />
 
