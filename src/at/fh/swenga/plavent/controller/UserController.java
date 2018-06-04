@@ -16,8 +16,11 @@ import org.springframework.mail.MailException;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -506,7 +509,7 @@ public class UserController {
 			if (user.getUsername().equalsIgnoreCase(authentication.getName())
 					|| authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
 				model.addAttribute("user", user);
-				return "changePassword";
+				return "changeResetPassword";
 			} else {
 				model.addAttribute("warningMessage", "Not allowed to change password for " + user.getUsername() + "!");
 				return showUserManagement(model, authentication);
@@ -525,7 +528,9 @@ public class UserController {
 				errorMessage += fieldError.getField() + " is invalid<br>";
 			}
 			model.addAttribute("errorMessage", errorMessage);
-			return showUserManagement(model, authentication);
+			if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN")))
+				return showUserManagement(model, authentication);
+			else return showProfile(model, authentication);
 		}
 
 		User user = userRepo.findFirstByUsername(editUserModel.getUsername());
@@ -543,7 +548,9 @@ public class UserController {
 				model.addAttribute("warningMessage", "Error while reading User data!");
 			}
 		}
-		return showUserManagement(model, authentication);
+		if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN")))
+			return showUserManagement(model, authentication);
+		else return showProfile(model, authentication);
 	}
 
 	@GetMapping("/sendResetPassword")
@@ -563,7 +570,7 @@ public class UserController {
 	private void sendPasswordResetMail(User user) {
 		
 		String resetPasswordUrl = "http://localhost:8080/fhj.swenga2017.plavent/resetPassword?username=" + user.getUsername();
-		String content = "Click the following link to reset your password: " + resetPasswordUrl;
+		String content = "Copy and paste the following link in your browser to reset your password: " + resetPasswordUrl;
 		
 		// Create a thread safe "copy" of the template message and customize it
 		SimpleMailMessage msg = new SimpleMailMessage(this.templateMessage);
@@ -586,18 +593,16 @@ public class UserController {
 		User user = userRepo.findFirstByUsername(username);
 		if (user != null && user.isEnabled()) {
 			model.addAttribute("message", "You can now reset the password.");
-			model.addAttribute("userReset", user);
-			return "changePassword";
+			model.addAttribute("userB", user);
+			return "changeResetPassword";
 		} else
 			model.addAttribute("errorMessage", "Error while reading user data!");
 		return "login";
 	}
 	
 	@PostMapping("/resetPassword")
-	public String resetPassword(@RequestParam("username") String username, BindingResult bindingResult, Model model,
+	public String resetPassword(@Valid User resetPasswordUser, BindingResult bindingResult, Model model,
 			Authentication authentication) {
-		
-		authentication.setAuthenticated(true);
 		
 		if (bindingResult.hasErrors()) {
 			String errorMessage = "";
@@ -608,10 +613,9 @@ public class UserController {
 			return "login";
 		}
 		
-		authentication.setAuthenticated(true);
-		
-		User user = userRepo.findFirstByUsername(username);
+		User user = userRepo.findFirstByUsername(resetPasswordUser.getUsername());
 		if (user != null && user.isEnabled()) {
+			user.setPassword(resetPasswordUser.getPassword());
 			user.encryptPassword();
 			userRepo.save(user);
 			model.addAttribute("message", "Password successfully reset");
