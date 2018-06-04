@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans:beans xmlns="http://www.springframework.org/schema/security"
+<beans:beans
+	xmlns="http://www.springframework.org/schema/security"
 	xmlns:context="http://www.springframework.org/schema/context"
-	xmlns:beans="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
            http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
            http://www.springframework.org/schema/security 
@@ -11,17 +13,17 @@
 	<http auto-config="true">
 		<intercept-url pattern="/login" access="permitAll" />
 		<intercept-url pattern="/" access="permitAll" />
-		<intercept-url pattern="/registerUser" access="permitAll" />
-		<intercept-url pattern="/resetPassword" access="permitAll" />
+		<intercept-url pattern="/registerUser"
+			access="permitAll" />
+		<intercept-url pattern="/resetPassword"
+			access="permitAll" />
 
 		<!-- FERNBACH16: Use Annotation @Secured({ "ROLE_GUEST"}) instead of intercept-url 
-		@Secured({ "ROLE_GUEST"}) for Guest Permissions
-		@Secured({ "ROLE_HOST"}) for Host Permissions
-		@Secured({ "ROLE_ADMIN"}) for Admin Permissions
-		-->
+			@Secured({ "ROLE_GUEST"}) for Guest Permissions @Secured({ "ROLE_HOST"}) 
+			for Host Permissions @Secured({ "ROLE_ADMIN"}) for Admin Permissions -->
 
-		<form-login login-page="/login" default-target-url="/dashboard"
-			always-use-default-target="true" />
+		<form-login login-page="/login"
+			default-target-url="/dashboard" always-use-default-target="true" />
 		<logout logout-success-url="/login" logout-url="/logout" />
 	</http>
 

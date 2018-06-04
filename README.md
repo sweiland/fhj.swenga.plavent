@@ -1,5 +1,4 @@
 # fhj.swenga2017.plavent
-
 PlaVent is an event planner application and was developed during the study course Software Engineering Advanced at FH JOANNEUM (UAS)
 in the Bachelor's degree Informationsmanagement (IMA16). The project was supported by *DI (FH) Johann Blauensteiner* and *DI (FH) Stefan Krausler-Baumann*.
 

@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:p="http://www.springframework.org/schema/p" xmlns:context="http://www.springframework.org/schema/context"
-	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:aop="http://www.springframework.org/schema/aop"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
-	xmlns:util="http://www.springframework.org/schema/util" xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:jpa="http://www.springframework.org/schema/data/jpa"
 	xmlns:security="http://www.springframework.org/schema/security"
 
 	xsi:schemaLocation="
@@ -26,12 +30,14 @@
 
 
 	<!-- Read settings from external file and replace all ${...} in the xml -->
-	<context:property-placeholder location="classpath:app.properties" />
+	<context:property-placeholder
+		location="classpath:app.properties" />
 
 
 	<!-- - POJOs labeled with the @Controller, @Service,..... annotations are 
 		auto-detected. -->
-	<context:component-scan base-package="at.fh.swenga" />
+	<context:component-scan
+		base-package="at.fh.swenga" />
 
 	<!-- ################################################################ -->
 
@@ -59,7 +65,8 @@
 		<constructor-arg ref="sortResolver" />
 	</bean>
 
-	<mvc:annotation-driven conversion-service="conversionService">
+	<mvc:annotation-driven
+		conversion-service="conversionService">
 		<mvc:argument-resolvers>
 			<ref bean="sortResolver" />
 			<ref bean="pageableResolver" />
@@ -92,7 +99,8 @@
 		<property name="cacheable" value="false" />
 	</bean>
 
-	<bean id="templateEngine" class="org.thymeleaf.spring5.SpringTemplateEngine">
+	<bean id="templateEngine"
+		class="org.thymeleaf.spring5.SpringTemplateEngine">
 		<property name="templateResolver" ref="templateResolver" />
 		<property name="enableSpringELCompiler" value="true" />
 
@@ -120,7 +128,8 @@
 		<property name="dataSource" ref="dataSource" />
 		<property name="packagesToScan" value="at.fh.swenga" />
 		<property name="jpaVendorAdapter">
-			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter" />
+			<bean
+				class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter" />
 		</property>
 		<property name="jpaProperties">
 			<props>
@@ -134,8 +143,10 @@
 		</property>
 	</bean>
 
-	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
-		<property name="entityManagerFactory" ref="entityManagerFactory" />
+	<bean id="transactionManager"
+		class="org.springframework.orm.jpa.JpaTransactionManager">
+		<property name="entityManagerFactory"
+			ref="entityManagerFactory" />
 	</bean>
 
 
@@ -148,14 +159,15 @@
 		<property name="maxUploadSize" value="10000000" />
 		<!-- <property name="restrictFileTypes" value="png,jpg"/> -->
 	</bean>
-	
-	<!-- hoedlale16: Mail sending  -->
-	<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+
+	<!-- hoedlale16: Mail sending -->
+	<bean id="mailSender"
+		class="org.springframework.mail.javamail.JavaMailSenderImpl">
 		<property name="host" value="${mail.smtp.host}" />
 		<property name="port" value="${mail.smtp.port}" />
 		<property name="username" value="${mail.smtp.user}" />
 		<property name="password" value="${mail.smtp.pass}" />
- 
+
 		<property name="javaMailProperties">
 			<props>
 				<prop key="mail.smtp.auth">true</prop>
@@ -163,9 +175,10 @@
 			</props>
 		</property>
 	</bean>
-	
-	<bean id="customMailMessage" class="org.springframework.mail.SimpleMailMessage">
- 
+
+	<bean id="customMailMessage"
+		class="org.springframework.mail.SimpleMailMessage">
+
 		<property name="from" value="office@plavent.com" />
 		<property name="to" value="test@test.com" />
 		<property name="subject" value="Testing Subject" />
@@ -181,7 +194,7 @@ Plavent Team!
 			</value>
 		</property>
 	</bean>
-	
+
 	<tx:annotation-driven />
 
 </beans>

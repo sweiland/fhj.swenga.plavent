@@ -43,7 +43,7 @@
 							</span>
 						</div>
 					</form>
-					
+
 					<form class="navbar-form navbar-left" method="post"
 						th:action="@{/sendMailReminder}">
 
@@ -53,11 +53,12 @@
 						<div class="input-group">
 							<span class="input-group-btn">
 								<button class="btn btn-outline-success" type="submit"
-									th:disabled="${#lists.isEmpty(happening.guestList)}">Send Mail Reminder</button>
+									th:disabled="${#lists.isEmpty(happening.guestList)}">Send
+									Mail Reminder</button>
 							</span>
 						</div>
 					</form>
-					
+
 					<!-- HTML Form to assign a guest-->
 					<form class="navbar-form col-5 ml-auto" method="post"
 						th:action="@{/assignNewGuestToHappening}">

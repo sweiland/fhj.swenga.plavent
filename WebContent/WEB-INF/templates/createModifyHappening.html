@@ -79,7 +79,7 @@
 
 							<!--  ----------------  description ---------------- -->
 							<div class="input-group mb-3">
-							<div class="input-group-prepend">
+								<div class="input-group-prepend">
 									<span class="input-group-text"><i class="icon-note"></i></span>
 								</div>
 								<input class="form-control" type="text" name="description"
@@ -90,8 +90,9 @@
 
 							<!--  ----------------  location ---------------- -->
 							<div class="input-group mb-3">
-							<div class="input-group-prepend">
-									<span class="input-group-text"><i class="icon-location-pin"></i></span>
+								<div class="input-group-prepend">
+									<span class="input-group-text"><i
+										class="icon-location-pin"></i></span>
 								</div>
 								<input class="form-control" type="text" name="location"
 									required="required"
@@ -157,40 +158,39 @@
 								</th:block>
 							</div>
 							<!-- --------------  buttons ---------------- -->
-							
-								<th:block th:if="${happening}">
-									<th:block th:switch="${happening.happeningStatus.statusName}">
-										<th:block th:case="ACTIVE">
-											<button type="submit"
-												class="btn btn-outline-dark">Submit</button>
-											<a href="showHappeningManagement"
-												class="btn btn-outline-secondary"> Cancel </a>
 
-											<a
-												th:href="@{/deleteExistingHappening(happeningId=${happening.happeningId})}"
-												class="btn btn-outline-danger pull-right"> <span
-												class="glyphicon glyphicon-trash" aria-hidden="true"></span>Delete
-											</a>
-										</th:block>
+							<th:block th:if="${happening}">
+								<th:block th:switch="${happening.happeningStatus.statusName}">
+									<th:block th:case="ACTIVE">
+										<button type="submit" class="btn btn-outline-dark">Submit</button>
+										<a href="showHappeningManagement"
+											class="btn btn-outline-secondary"> Cancel </a>
 
-										<th:block th:case="DELETED">
-											<a
-												th:href="@{/reactivateExistingHappening(happeningId=${happening.happeningId})}"
-												class="btn btn-outline-dark"> <span
-												class="glyphicon" aria-hidden="true"></span>Reactivate
-											</a>
-											<a href="showHappeningManagement"
-												class="btn btn-outline-secondary"> Cancel </a>
-										</th:block>
+										<a
+											th:href="@{/deleteExistingHappening(happeningId=${happening.happeningId})}"
+											class="btn btn-outline-danger pull-right"> <span
+											class="glyphicon glyphicon-trash" aria-hidden="true"></span>Delete
+										</a>
+									</th:block>
+
+									<th:block th:case="DELETED">
+										<a
+											th:href="@{/reactivateExistingHappening(happeningId=${happening.happeningId})}"
+											class="btn btn-outline-dark"> <span class="glyphicon"
+											aria-hidden="true"></span>Reactivate
+										</a>
+										<a href="showHappeningManagement"
+											class="btn btn-outline-secondary"> Cancel </a>
 									</th:block>
 								</th:block>
+							</th:block>
 
-								<th:block th:unless="${happening}">
-									<button type="submit" class="btn btn-outline-dark">Submit</button>
-									<a href="showHappeningManagement"
-										class="btn btn-outline-secondary"> Cancel </a>
-								</th:block>
-							
+							<th:block th:unless="${happening}">
+								<button type="submit" class="btn btn-outline-dark">Submit</button>
+								<a href="showHappeningManagement"
+									class="btn btn-outline-secondary"> Cancel </a>
+							</th:block>
+
 
 						</fieldset>
 					</form>

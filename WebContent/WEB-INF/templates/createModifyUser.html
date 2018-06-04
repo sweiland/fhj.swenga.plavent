@@ -16,7 +16,8 @@
 		<div class="row justify-content-center">
 			<div class="col-md-6">
 				<div class="card bg-light mx-4 text-dark">
-					<img class="card-img-top" th:unless="${image} == null" th:src="${image}">
+					<img class="card-img-top" th:unless="${image} == null"
+						th:src="${image}">
 					<!--  fernbach16: Form calls /edituser or /adduser, depending if an user is set already. -->
 					<form class="form-horizontal" method="post"
 						th:action="${user} ? @{/editUser} : @{/createUser}">
@@ -52,7 +53,8 @@
 								</div>
 								<input class="form-control" type="text" name="firstname"
 									required="required" placeholder="First Name" autocomplete="off"
-									minlength="2" maxlength="64" th:value="${user} ? ${user.firstname}">
+									minlength="2" maxlength="64"
+									th:value="${user} ? ${user.firstname}">
 							</div>
 
 							<!--  ----------------  lastname ---------------- -->
@@ -62,7 +64,8 @@
 								</div>
 								<input class="form-control" type="text" name="lastname"
 									required="required" placeholder="Last Name" autocomplete="off"
-									minlength="2" maxlength="64" th:value="${user} ? ${user.lastname}">
+									minlength="2" maxlength="64"
+									th:value="${user} ? ${user.lastname}">
 							</div>
 
 							<!--  ----------------  eMail ---------------- -->
@@ -72,7 +75,8 @@
 								</div>
 								<input class="form-control" type="email" name="eMail"
 									required="required" placeholder="Email" autocomplete="off"
-									minlength="5" maxlength="256" th:value="${user} ? ${user.eMail}">
+									minlength="5" maxlength="256"
+									th:value="${user} ? ${user.eMail}">
 							</div>
 
 							<!--  ----------------  telephone Number ---------------- -->
@@ -82,7 +86,8 @@
 								</div>
 								<input class="form-control" type="tel" name="telNumber"
 									required="required" placeholder="Phone" autocomplete="off"
-									minlength="9" maxlength="15" th:value="${user} ? ${user.telNumber}">
+									minlength="9" maxlength="15"
+									th:value="${user} ? ${user.telNumber}">
 							</div>
 							<!-- --------------  User Role ---------------->
 							<div class="form-group mb-4">

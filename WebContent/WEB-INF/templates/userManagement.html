@@ -35,7 +35,8 @@
 						<div th:each="user : ${#request.getAttribute('users')}"
 							class="col-4">
 							<div class="card text-dark">
-								<div th:classappend="${user.enabled} ? bg-success : bg-danger" class="card-header">
+								<div th:classappend="${user.enabled} ? bg-success : bg-danger"
+									class="card-header">
 									<strong th:text="${user.username}"></strong>
 									<div class="card-header-actions">
 										<a th:unless="${user.enabled} == false"
@@ -69,12 +70,11 @@
 									<strong>Profile Picture:</strong> <em
 										th:text="${user.profilePicture == null} ? 'not set' : 'set'"></em><br>
 									<div th:switch="${user.getUserRole()}">
-										<span th:case="'ROLE_ADMIN'">
-											<strong>User Role:</strong> <em>Administrator</em></span>
-										<span th:case="'ROLE_HOST'">
-											<strong>User Role:</strong> <em>Host</em></span>
-										<span th:case="'ROLE_GUEST'">
-											<strong>User Role:</strong> <em>Guest</em></span>
+										<span th:case="'ROLE_ADMIN'"> <strong>User
+												Role:</strong> <em>Administrator</em></span> <span th:case="'ROLE_HOST'">
+											<strong>User Role:</strong> <em>Host</em>
+										</span> <span th:case="'ROLE_GUEST'"> <strong>User
+												Role:</strong> <em>Guest</em></span>
 									</div>
 									<strong>Status:</strong> <em
 										th:text="${user.enabled} ? 'Enabled' : 'Disabled'"></em><br>
