@@ -18,6 +18,6 @@ Team Members:
 4. Change jpa-properties in dispatcher-servlet.xml to required attributes (``validate``, ``update``, or ``create-drop``)
 5. Publish project to Tomcat and start Tomcat (8.5)
 6. Open Web application [here](http://localhost:8080/fhj.swenga2017.plavent/)
-7. If there is a new database behind (or started via create-update) a setup wizard is shown instead of the login page. Click on Button ``Start initial setup` to create the database environment.
+7. If there is a new database behind (or started via create-update) a setup wizard is shown instead of the login page. Click on Button ``Start initial setup`` to create the database environment.
 8. Login credentials: admin/password, host/password, guest/password
 9. Welcome to PlaVent - Check out the Happening Management Tutorial (Menu ``Happening Management``)
