@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -25,9 +26,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
+import at.fh.swenga.plavent.model.ApplicationProperty;
 import at.fh.swenga.plavent.model.Happening;
 import at.fh.swenga.plavent.model.User;
+import at.fh.swenga.plavent.repo.ApplicationPropertyRepository;
 import at.fh.swenga.plavent.repo.HappeningCategoryRepository;
 import at.fh.swenga.plavent.repo.HappeningGuestlistRepository;
 import at.fh.swenga.plavent.repo.HappeningRepository;
@@ -61,6 +65,9 @@ public class HappeningController {
 	@Autowired
 	UserRepository userRepo;
 
+	@Autowired
+	ApplicationPropertyRepository appPropertyRepo;
+
 	public HappeningController() {
 	}
 
@@ -78,8 +85,31 @@ public class HappeningController {
 		if (happening == null || authentication == null) {
 			return false;
 		} else {
-			return (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))
-					|| happening.getHappeningHost().getUsername().equals(authentication.getName()));
+			// Admins are allowed to modify all happenings
+			if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN")))
+				return true;
+
+			/*
+			 * Hosts are allowed to modify their happenings when happening is in the future.
+			 * Modification of started happenings or happenings in past depend on
+			 * application property
+			 */
+			if (happening.getHappeningHost().getUsername().equals(authentication.getName())) {
+
+				Optional<ApplicationProperty> prop = appPropertyRepo.findById("HAPPENING.MODIFICATION.AFTER.START");
+				// Check happening start date if property is present and true
+				if (prop.isPresent() && (! prop.get().isValue()) ) {
+					Calendar now = Calendar.getInstance();
+					return happening.getStart().getTime().after(now.getTime());
+				} else
+					// When property not found or false do not check date.
+					return true;
+			} else {
+				/*
+				 * Neither ROLE_ADMIN nor host of given happening
+				 */
+				return false;
+			}
 		}
 	}
 
@@ -127,7 +157,7 @@ public class HappeningController {
 			// Show just active ones!
 			happeningPage = happeningRepo.getActiveHappeningsForHost(authentication.getName(), page);
 		}
-		
+
 		model.addAttribute("happenings", happeningPage);
 		model.addAttribute("currPage", happeningPage.getNumber());
 		model.addAttribute("totalPages", happeningPage.getTotalPages());
@@ -293,7 +323,8 @@ public class HappeningController {
 			model.addAttribute("warningMessage", "New Happening-Host not found!");
 			return showHappenings(model, authentication);
 		}
-
+		
+		
 		// Validation checks done, set new parameters and update data
 		Happening happening = happeningOptional.get();
 
@@ -375,5 +406,11 @@ public class HappeningController {
 	public String handleAllException(Exception ex) {
 		ex.printStackTrace();
 		return "error";
+	}
+
+	@ExceptionHandler()
+	@ResponseStatus(code = HttpStatus.FORBIDDEN)
+	public String handle403(Exception ex) {
+		return "login";
 	}
 }

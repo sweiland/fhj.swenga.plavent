@@ -1,7 +1,6 @@
 package at.fh.swenga.plavent.controller;
 
 import java.util.ArrayList;
-//import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -631,3 +630,5 @@ public class UserController {
 	 * handle403(Exception ex) { ex.printStackTrace(); return "login"; }
 	 */
 }
+
+
