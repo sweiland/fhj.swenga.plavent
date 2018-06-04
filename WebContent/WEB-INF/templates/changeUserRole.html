@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<div th:include="~{includes/bootstrap :: bootstrapMeta}" th:remove="tag" />
+<title>PlaVent</title>
+<div th:include="~{includes/bootstrap :: bootstrapCSS}" th:remove="tag" />
+</head>
+
+<body class="app flex-row align-items-center">
+	<div class="card container justify-content-center" role="main">
+		<div class="card-body">
+			<div class="page-header">
+				<img src="./img/logo.png" alt="PlaVent" height="150px">
+			</div>
+			<div class="row">
+				<div class="col-md-10 col-md-offset-1">
+					<!-- include message boxes (moved to fragments) -->
+					<div th:replace="~{includes/fragments :: msgs}"></div>
+
+					<form class="form-horizontal" method="post"
+						th:action="@{user} ? @{/changeUserRole(username=${user.username})} : @{/login}">
+
+						<fieldset class="col-md-10">
+							<h1 th:text="'Change User Role for User ' + ${user.username}"></h1>
+							<!-- --------------  User Role ---------------->
+							<div class="form-group">
+								<select name="role">
+								<option value="guest" autofocus th:selected="${user.getUserRole()} == 'ROLE_GUEST'">Guest</option>
+								<option value="host" th:selected="${user.getUserRole()} == 'ROLE_HOST'">Host</option>
+								<option value="admin" th:selected="${user.getUserRole()} == 'ROLE_ADMIN'">Administrator</option>
+								</select>
+							</div>
+							<!-- --------------  buttons ---------------- -->
+							<div class="form-group">
+								<div class="col-md-10 col-md-offset-2">
+									<button type="submit" class="btn btn-primary">Submit</button>
+									<a href="showUserManagement" class="btn btn-pill btn-secondary">
+										Cancel </a>
+								</div>
+							</div>
+						</fieldset>
+					</form>
+					</th:block>
+				</div>
+			</div>
+		</div>
+		<!-- weilands16: include our footer -->
+		<footer th:replace="~{includes/fragments :: footer}"></footer>
+	</div>
+
+	<!--  End of container -->
+	<div th:include="~{includes/bootstrap :: bootstrapJS}" th:remove="tag" />
+</body>
+
+</html>

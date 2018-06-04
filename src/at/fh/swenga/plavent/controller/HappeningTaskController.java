@@ -1,6 +1,8 @@
 package at.fh.swenga.plavent.controller;
 
+import java.util.Calendar;
 import java.util.List;
+import java.util.Optional;
 
 import javax.validation.Valid;
 
@@ -10,6 +12,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -22,11 +25,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.multipart.commons.CommonsFileUploadSupport;
 
+import at.fh.swenga.plavent.model.ApplicationProperty;
 import at.fh.swenga.plavent.model.Happening;
 import at.fh.swenga.plavent.model.HappeningTask;
 import at.fh.swenga.plavent.model.User;
+import at.fh.swenga.plavent.repo.ApplicationPropertyRepository;
 import at.fh.swenga.plavent.repo.HappeningGuestlistRepository;
 import at.fh.swenga.plavent.repo.HappeningRepository;
 import at.fh.swenga.plavent.repo.HappeningTaskRepository;
@@ -55,6 +61,9 @@ public class HappeningTaskController {
 	@Autowired
 	HappeningGuestlistRepository happeningGuestlistRepo;
 
+	@Autowired
+	ApplicationPropertyRepository appPropertyRepo;
+
 	public HappeningTaskController() {
 	}
 
@@ -79,15 +88,39 @@ public class HappeningTaskController {
 	 *            - Happening to check
 	 * @param authentication
 	 *            - current logged in user
+	 * @param ignoreStartdateCheck
+	 *            - Ignore check on start date for HOST
 	 * @return
 	 */
-	public boolean isHappeningHostOrAdmin(Happening happening, Authentication authentication) {
-
+	public boolean isHappeningHostOrAdmin(Happening happening, Authentication authentication,
+			boolean ignoreStartdateCheck) {
 		if (happening == null || authentication == null) {
 			return false;
 		} else {
-			return (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))
-					|| happening.getHappeningHost().getUsername().equals(authentication.getName()));
+			// Admins are allowed to modify all happenings
+			if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN")))
+				return true;
+
+			/*
+			 * Hosts are allowed to modify their happenings when happening is in the future.
+			 * Modification of started happenings or happenings in past depend on
+			 * application property
+			 */
+			if (happening.getHappeningHost().getUsername().equals(authentication.getName())) {
+				Optional<ApplicationProperty> prop = appPropertyRepo.findById("HAPPENING.MODIFICATION.AFTER.START");
+				// Check happening start date if property is present and true
+				if ((!ignoreStartdateCheck) && prop.isPresent() && (!prop.get().isValue())) {
+					Calendar now = Calendar.getInstance();
+					return happening.getStart().getTime().after(now.getTime());
+				} else
+					// When property not found or false do not check date.
+					return true;
+			} else {
+				/*
+				 * Neither ROLE_ADMIN nor host of given happening
+				 */
+				return false;
+			}
 		}
 	}
 
@@ -113,7 +146,7 @@ public class HappeningTaskController {
 
 		// Check if happening is DELETED or current logged in user is Owner of Happening
 		// or has role ADMIN
-		if (!isHappeningHostOrAdmin(happening, authentication)
+		if (!isHappeningHostOrAdmin(happening, authentication, true)
 				|| "DELETED".equals(happening.getHappeningStatus().getStatusName())) {
 			model.addAttribute("warningMessage", "Happening not found or no permission!");
 			return "forward:/showHappeningManagement";
@@ -140,7 +173,7 @@ public class HappeningTaskController {
 
 		// Check if happening is DELETED or current logged in user is Owner of Happening
 		// or has role ADMIN
-		if (!isHappeningHostOrAdmin(happening, authentication)
+		if (!isHappeningHostOrAdmin(happening, authentication, true)
 				|| "DELETED".equals(happening.getHappeningStatus().getStatusName())) {
 			model.addAttribute("warningMessage", "Happening not found or no permission!");
 			return "forward:/showHappeningManagement";
@@ -166,7 +199,7 @@ public class HappeningTaskController {
 			Authentication authentication) {
 
 		// Check if user is Owner of Happening or has role ADMIN
-		if (!isHappeningHostOrAdmin(happening, authentication)) {
+		if (!isHappeningHostOrAdmin(happening, authentication, false)) {
 			model.addAttribute("warningMessage", "Happening not found or no permission!");
 			return "forward:/showHappeningManagement";
 		}
@@ -185,7 +218,7 @@ public class HappeningTaskController {
 			Authentication authentication, BindingResult bindingResult) {
 
 		// Check if user is Owner of Happening or has role ADMIN
-		if (!isHappeningHostOrAdmin(happening, authentication)) {
+		if (!isHappeningHostOrAdmin(happening, authentication, false)) {
 			model.addAttribute("warningMessage", "Happening not found or no permission!");
 			return "forward:/showHappeningManagement";
 		}
@@ -228,7 +261,7 @@ public class HappeningTaskController {
 			Authentication authentication, @RequestParam String searchString) {
 
 		// Check if user is Owner of Happening or has role ADMIN
-		if (!isHappeningHostOrAdmin(happening, authentication)) {
+		if (!isHappeningHostOrAdmin(happening, authentication, true)) {
 			model.addAttribute("warningMessage", "Happening not found or no permission!");
 			return "forward:/showHappeningManagement";
 		}
@@ -255,7 +288,7 @@ public class HappeningTaskController {
 		Happening happening = happeningRepo.getHappeningForTask(task.getTaskId());
 
 		// Check if user is Owner of Happening or has role ADMIN
-		if (!isHappeningHostOrAdmin(happening, authentication)) {
+		if (!isHappeningHostOrAdmin(happening, authentication, false)) {
 			model.addAttribute("warningMessage", "Happening not found or no permission!");
 			return "forward:/showHappeningManagement";
 		}
@@ -277,7 +310,7 @@ public class HappeningTaskController {
 			BindingResult bindingResult) {
 
 		// Check if user is Owner of Happening or has role ADMIN
-		if (!isHappeningHostOrAdmin(happening, authentication)) {
+		if (!isHappeningHostOrAdmin(happening, authentication, false)) {
 			model.addAttribute("warningMessage", "Happening not found or no permission!");
 			return "forward:/showHappeningManagement";
 		}
@@ -333,7 +366,7 @@ public class HappeningTaskController {
 		Happening happening = happeningRepo.getHappeningForTask(task.getTaskId());
 
 		// Check if user is Owner of Happening or has role ADMIN
-		if (!isHappeningHostOrAdmin(happening, authentication)) {
+		if (!isHappeningHostOrAdmin(happening, authentication, false)) {
 			model.addAttribute("warningMessage", "Happening not found or no permission!");
 			return "forward:/showHappeningManagement";
 		}
@@ -351,5 +384,11 @@ public class HappeningTaskController {
 	public String handleAllException(Exception ex) {
 		ex.printStackTrace();
 		return "error";
+	}
+
+	@ExceptionHandler()
+	@ResponseStatus(code = HttpStatus.FORBIDDEN)
+	public String handle403(Exception ex) {
+		return "login";
 	}
 }

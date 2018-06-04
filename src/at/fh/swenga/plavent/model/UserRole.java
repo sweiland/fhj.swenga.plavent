@@ -49,6 +49,10 @@ public class UserRole implements java.io.Serializable {
 		this.roleName = roleName;
 		this.description = description;
 	}
+	public UserRole(String roleName) {
+		super();
+		this.roleName = roleName;
+	}
 
 	public void addUser(User u) {
 		userList.add(u);

@@ -21,7 +21,7 @@
 				<nav th:replace="~{includes/fragments :: navigation }"></nav>
 
 				<!-- include the search bar fragment for users-->
-				<div sec:authorize="hasRole('ROLE_ADMIN')">
+				<div sec:authorize="hasRole('ROLE_HOST')">
 					<nav
 						th:replace="~{includes/fragments :: MgmtNavBar (buttonText='New Happening',buttonLink='showCreateHappeningForm',searchLink='filterHappenings')}"></nav>
 				</div>

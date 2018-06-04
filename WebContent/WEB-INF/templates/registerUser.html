@@ -17,34 +17,29 @@
 			<div class="col-md-6">
 				<div class="card bg-light mx-4 text-dark">
 					<div class="card-body p-4">
-						<!--  fernbach16: Form calls /edituser or /adduser, depending if an user is set already. -->
 						<form class="form-horizontal" method="post"
 							th:action="@{/registerUser}">
 							<fieldset>
-								<h1 th:text="${user}? 'Make Changes' : 'Register'">Register</h1>
-								<p th:text="${user}? 'to an existing user' : 'a new user'"
-									class="text-muted">a new user</p>
+								<h1>Register a new User</h1>
 								<!------------ username ---------------- -->
-
-
 								<div class="input-group mb-3">
 									<div class="input-group-prepend">
 										<span class="input-group-text"><i class="icon-user"></i></span>
 									</div>
 									<input type="text" class="form-control" name="username"
-										required="required" placeholder="Username"
-										th:value="${user} ? ${user.username}" aria-label="Username"
-										aria-describedby="basic-addon1" th:readonly="${user}">
+										required="required" placeholder="User Name"
+										aria-label="Username" aria-describedby="basic-addon1"
+										autocomplete="off" minlength="1" maxlength="45">
 								</div>
 
 								<!--  ----------------  password ---------------- -->
-								<div th:if="${user} == null" class="input-group mb-3">
+								<div class="input-group mb-3">
 									<div class="input-group-prepend">
 										<span class="input-group-text"><i class="icon-lock"></i></span>
 									</div>
 									<input class="form-control" type="password" name="password"
-										placeholder="Password" required="required"
-										th:value="${user} ? ${user.password}">
+										placeholder="Password" required="required" autocomplete="off"
+										minlength="6" maxlength="45">
 								</div>
 
 								<!--  ----------------  firstname ---------------- -->
@@ -54,8 +49,8 @@
 											class="icon-emotsmile"></i></span>
 									</div>
 									<input class="form-control" type="text" name="firstname"
-										required="required" th:value="${user} ? ${user.firstname}"
-										placeholder="First Name">
+										required="required" placeholder="First Name"
+										autocomplete="off" minlength="2" maxlength="64">
 								</div>
 
 								<!--  ----------------  lastname ---------------- -->
@@ -65,8 +60,8 @@
 											class="icon-emotsmile"></i></span>
 									</div>
 									<input class="form-control" type="text" name="lastname"
-										required="required" th:value="${user} ? ${user.lastname}"
-										placeholder="Last Name">
+										required="required" placeholder="Last Name" autocomplete="off"
+										minlength="2" maxlength="64">
 								</div>
 
 								<!--  ----------------  eMail ---------------- -->
@@ -75,8 +70,8 @@
 										<span class="input-group-text"><i class="icon-envelope"></i></span>
 									</div>
 									<input class="form-control" type="email" name="eMail"
-										required="required" th:value="${user} ? ${user.eMail}"
-										placeholder="Email">
+										required="required" placeholder="Email" autocomplete="off"
+										minlength="5" maxlength="256">
 								</div>
 
 								<!--  ----------------  telephone Number ---------------- -->
@@ -85,12 +80,11 @@
 										<span class="input-group-text"><i class="icon-phone"></i></span>
 									</div>
 									<input class="form-control" type="tel" name="telNumber"
-										th:value="${user} ? ${user.telNumber}" placeholder="Phone">
+										required="required" placeholder="Phone" autocomplete="off"
+										minlength="9" maxlength="15">
 								</div>
-
 								<!-- --------------  buttons ---------------- -->
-								<button type="submit" class="btn btn-outline-dark"
-									th:text="${user} ? 'Change' : 'Register'">Submit</button>
+								<button type="submit" class="btn btn-outline-dark">Submit</button>
 								<a href="login" class="btn btn-light">Cancel</a>
 
 							</fieldset>
