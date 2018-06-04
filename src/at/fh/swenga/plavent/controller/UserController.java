@@ -59,14 +59,14 @@ public class UserController {
 	/**********************************************
 	 * CRUD FUNCTIONALITIES
 	 ********************************************** 
-	 * C: createUser, registerUser R: showProfile, showUsermanagement U: editUser,
-	 * changePassword, uploadProfilePicture D: deleteUser, reactivateUser
+	 * C: createUser, registerUser R: showProfile, showUsermanagement, searchUser U: editUser,
+	 * changePassword, changeUserRole, uploadProfilePicture D: deleteUser, reactivateUser
 	 * 
 	 **********************************************
 	 * HELPER METHODS
 	 **********************************************
 	 *
-	 * errorsDetected ExceptionHandler
+	 * errorsDetected, ExceptionHandler
 	 * 
 	 */
 
@@ -237,6 +237,13 @@ public class UserController {
 	public String showRegisterIssues(Model model, Authentication authentication) {
 
 		return "login";
+	}
+	
+	@PostMapping(value = "/searchUser")
+	public String searchUser(Model model, @RequestParam("searchString") String searchString, Authentication authentication) {
+		model.addAttribute("user", userRepo.findByUsernameContainingIgnoreCase(searchString));
+		model.addAttribute("information", userRepo.countByUsernameContainingIgnoreCase(searchString));
+		return showUserManagement(model, authentication);
 	}
 
 	// ******************** UPDATE ****************************************

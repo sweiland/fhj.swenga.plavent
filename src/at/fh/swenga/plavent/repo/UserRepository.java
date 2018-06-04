@@ -23,6 +23,9 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 	@Query("Select u from User u")
 	public List<User> findAllBy();
 	
+	public List<User> findByUsernameContainingIgnoreCase(String username);
+	
+	int countByUsernameContainingIgnoreCase(String username);
 	
 	//@Query("Select u from User u where u.enabled == false")
 	public List<User> findByEnabledFalse();
