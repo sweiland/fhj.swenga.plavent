@@ -1,6 +1,7 @@
-	package at.fh.swenga.plavent.model;
+package at.fh.swenga.plavent.model;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
 
@@ -24,9 +25,6 @@ import javax.persistence.Version;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
-
 @Entity
 @Table(name = "Happening")
 public class Happening implements Serializable {
@@ -42,7 +40,7 @@ public class Happening implements Serializable {
 
 	@Column(nullable = false)
 	@Temporal(TemporalType.TIMESTAMP)
-	//@FutureOrPresent //Not working, so we handle it in the controller...
+	// @FutureOrPresent //Not working, so we handle it in the controller...
 	private Calendar start;
 
 	@Column(nullable = false)
@@ -57,21 +55,19 @@ public class Happening implements Serializable {
 	@Size(min = 2, max = 128, message = "Location must be between 2 and 128 characters")
 	private String location;
 
-	/*
-	 * cascade = CascadeType.PERSIST: Changes the default setting for this
-	 * relationship, so the EntityManager saves unmanaged related object
-	 * automatically
+	/**
+	 * Load status with eager because there are just two entries (ACITVE and
+	 * DELETED)
 	 */
-	@ManyToOne(cascade = CascadeType.MERGE,fetch = FetchType.EAGER)
+	@ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
 	@JoinColumn(name = "categoryId")
 	private HappeningCategory category;
 
-	/*
-	 * cascade = CascadeType.PERSIST: Changes the default setting for this
-	 * relationship, so the EntityManager saves unmanaged related object
-	 * automatically
+	/**
+	 * Load status with eager because there are just two entries (ACITVE and
+	 * DELETED)
 	 */
-	@ManyToOne(cascade = CascadeType.MERGE,fetch = FetchType.EAGER)
+	@ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
 	@JoinColumn(name = "statusId")
 	private HappeningStatus happeningStatus;
 
@@ -79,33 +75,29 @@ public class Happening implements Serializable {
 	@JoinColumn(name = "username")
 	private User happeningHost;
 
-	/*
-	 * cascade = CascadeType.PERSIST: Changes the default setting for this
-	 * relationship, so the EntityManager saves unmanaged related object
-	 * automatically
+	/**
+	 * Load guests lazy - we don't want to have the whole db in memory
 	 */
-	@ManyToMany(cascade = CascadeType.MERGE,fetch = FetchType.EAGER)
-	@JoinTable(name = "Guestlist",
-		joinColumns = { @JoinColumn(name = "happeningId") },
-		inverseJoinColumns = { @JoinColumn(name = "username") })
-	@Fetch(value = FetchMode.SUBSELECT)
+	@ManyToMany(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
+	@JoinTable(name = "Guestlist", joinColumns = { @JoinColumn(name = "happeningId") }, inverseJoinColumns = {
+			@JoinColumn(name = "username") })
 	private List<User> guestList;
-	
-	
-	/*
-	 * https://stackoverflow.com/questions/24675340/org-hibernate-loader-multiplebagfetchexception-cannot-simultaneously-fetch-mult/24676806
+
+	/**
+	 * Load tasks lazy - we don't want to have the whole db in memory
 	 */
-	@OneToMany(fetch = FetchType.EAGER, mappedBy = "happening")
-	@Fetch(value = FetchMode.SUBSELECT)
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "happening")
 	private List<HappeningTask> taskList;
 
 	@Version
 	long version;
 
-	public Happening() {}
+	public Happening() {
+	}
 
 	public Happening(String happeningName, Calendar start, Calendar end, String description, String location,
-			HappeningCategory category, HappeningStatus happeningStatus, User happeningHost, List<User> guestList, List<HappeningTask> tasks) {
+			HappeningCategory category, HappeningStatus happeningStatus, User happeningHost, List<User> guestList,
+			List<HappeningTask> tasks) {
 		super();
 		this.happeningName = happeningName;
 		this.start = start;
@@ -226,13 +218,13 @@ public class Happening implements Serializable {
 	}
 
 	public boolean removeFromList(String username) {
-		return guestList.remove(new User(username, null, null, null, null));
+		return guestList.remove(new User(username, null, null, null,null, null));
 	}
-	
+
 	public boolean removeFromList(User user) {
 		return guestList.remove(user);
 	}
-	
+
 	public List<HappeningTask> getTaskList() {
 		return taskList;
 	}
@@ -240,11 +232,11 @@ public class Happening implements Serializable {
 	public void setTaskList(List<HappeningTask> taskList) {
 		this.taskList = taskList;
 	}
-	
+
 	public void addHappeningTask(HappeningTask task) {
 		taskList.add(task);
 	}
-	
+
 	public boolean removeHappeningTaskFromList(HappeningTask task) {
 		return taskList.remove(task);
 	}
@@ -255,5 +247,21 @@ public class Happening implements Serializable {
 				+ ", end=" + end + ", description=" + description + ", location=" + location + ", category=" + category
 				+ ", happeningStatus=" + happeningStatus.getStatusName() + ", happeningHost="
 				+ happeningHost.getUsername() + ", guestListSize=" + guestList.size() + ", version=" + version + "]";
+	}
+
+	public String getHappeningInfos(String tabChar, String newLineChar) {
+		StringBuilder builder = new StringBuilder();
+
+		SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy hh:mm");
+		User host = getHappeningHost();
+		String hostName = host.getFirstname() + " " + host.getLastname();
+
+		builder.append("Happening:").append(tabChar).append(getHappeningName()).append(newLineChar);
+		builder.append("Start:").append(tabChar).append(format.format(getStart().getTime())).append(newLineChar);
+		builder.append("End:").append(tabChar).append(format.format(getEnd().getTime())).append(newLineChar);
+		builder.append("Location:").append(tabChar).append(getLocation()).append(newLineChar);
+		builder.append("Host:").append(tabChar).append(hostName).append(newLineChar);
+
+		return builder.toString();
 	}
 }

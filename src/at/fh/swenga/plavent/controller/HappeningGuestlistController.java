@@ -1,6 +1,8 @@
 package at.fh.swenga.plavent.controller;
 
+import java.util.Calendar;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,22 +10,28 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
+import org.springframework.mail.MailAuthenticationException;
+import org.springframework.mail.MailException;
+import org.springframework.mail.MailSender;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
+import at.fh.swenga.plavent.model.ApplicationProperty;
 import at.fh.swenga.plavent.model.Happening;
 import at.fh.swenga.plavent.model.HappeningTask;
 import at.fh.swenga.plavent.model.User;
+import at.fh.swenga.plavent.repo.ApplicationPropertyRepository;
 import at.fh.swenga.plavent.repo.HappeningGuestlistRepository;
 import at.fh.swenga.plavent.repo.HappeningRepository;
 import at.fh.swenga.plavent.repo.HappeningTaskRepository;
@@ -54,20 +62,13 @@ public class HappeningGuestlistController {
 	@Autowired
 	UserRepository userRepo;
 
-	public HappeningGuestlistController() {
-	}
+	@Autowired
+	ApplicationPropertyRepository appPropertyRepo;
 
-	private boolean errorsDetected(Model model, BindingResult bindingResult) {
-		// Any errors? -> Create a String out of all errors and return to the page
-		if (bindingResult.hasErrors()) {
-			String errorMessage = "";
-			for (FieldError fieldError : bindingResult.getFieldErrors()) {
-				errorMessage += fieldError.getField() + " is invalid<br>";
-			}
-			model.addAttribute("errorMessage", errorMessage);
-			return true;
-		}
-		return false;
+	@Autowired
+	private MailSender mailSender;
+
+	public HappeningGuestlistController() {
 	}
 
 	/**
@@ -78,15 +79,39 @@ public class HappeningGuestlistController {
 	 *            - Happening to check
 	 * @param authentication
 	 *            - current logged in user
+	 * @param ignoreStartdateCheck
+	 *            - Ignore check on start date for HOST
 	 * @return
 	 */
-	public boolean isHappeningHostOrAdmin(Happening happening, Authentication authentication) {
-
+	public boolean isHappeningHostOrAdmin(Happening happening, Authentication authentication,
+			boolean ignoreStartdateCheck) {
 		if (happening == null || authentication == null) {
 			return false;
 		} else {
-			return (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))
-					|| happening.getHappeningHost().getUsername().equals(authentication.getName()));
+			// Admins are allowed to modify all happenings
+			if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN")))
+				return true;
+
+			/*
+			 * Hosts are allowed to modify their happenings when happening is in the future.
+			 * Modification of started happenings or happenings in past depend on
+			 * application property
+			 */
+			if (happening.getHappeningHost().getUsername().equals(authentication.getName())) {
+				Optional<ApplicationProperty> prop = appPropertyRepo.findById("HAPPENING.MODIFICATION.AFTER.START");
+				// Check happening start date if property is present and true
+				if ((!ignoreStartdateCheck) && prop.isPresent() && (!prop.get().isValue())) {
+					Calendar now = Calendar.getInstance();
+					return happening.getStart().getTime().after(now.getTime());
+				} else
+					// When property not found or false do not check date.
+					return true;
+			} else {
+				/*
+				 * Neither ROLE_ADMIN nor host of given happening
+				 */
+				return false;
+			}
 		}
 	}
 
@@ -99,7 +124,7 @@ public class HappeningGuestlistController {
 	 * @return
 	 */
 	private PageRequest generatePageRequest(int pageNr) {
-		return PageRequest.of(pageNr, 10);
+		return PageRequest.of(pageNr, 6);
 	}
 
 	// -----------------------------------------------------------------------------------------
@@ -112,11 +137,14 @@ public class HappeningGuestlistController {
 			Authentication authentication) {
 
 		// Check if user is Owner of Happening or has role ADMIN
-		if (!isHappeningHostOrAdmin(happening, authentication)
+		if (!isHappeningHostOrAdmin(happening, authentication, true)
 				|| "DELETED".equals(happening.getHappeningStatus().getStatusName())) {
 			model.addAttribute("warningMessage", "Happening not found or no permission!");
 			return "forward:/showHappeningManagement";
 		}
+
+		// First: load guestlist of happening (initialized as "LAZY"))
+		happening.setGuestList(happeningGuestlistRepo.getGuestList(happening.getHappeningId()));
 
 		// Show first page with max 10 elements...
 		PageRequest page = generatePageRequest(0);
@@ -138,11 +166,14 @@ public class HappeningGuestlistController {
 			@RequestParam(value = "happeningID") Happening happening, Authentication authentication) {
 
 		// Check if user is Owner of Happening or has role ADMIN
-		if (!isHappeningHostOrAdmin(happening, authentication)
+		if (!isHappeningHostOrAdmin(happening, authentication, true)
 				|| "DELETED".equals(happening.getHappeningStatus().getStatusName())) {
 			model.addAttribute("warningMessage", "Happening not found or no permission!");
 			return "forward:/showHappeningManagement";
 		}
+
+		// Load Guests (initialized as "LAZY"))
+		happening.setGuestList(happeningGuestlistRepo.getGuestList(happening.getHappeningId()));
 
 		// Show first page with max 10 elements...
 		PageRequest page = generatePageRequest(pageNr);
@@ -166,13 +197,17 @@ public class HappeningGuestlistController {
 			@RequestParam(value = "newGuestUsername") String username, Authentication authentication) {
 
 		// Check if user is Owner of Happening or has role ADMIN
-		if (!isHappeningHostOrAdmin(happening, authentication)) {
+		if (!isHappeningHostOrAdmin(happening, authentication, false)) {
 			model.addAttribute("warningMessage", "Happening not found or no permission!");
 			return "forward:/showHappeningManagement";
 		}
 
 		User newGuest = userRepo.findFirstByUsername(username);
 		if (newGuest != null) {
+
+			// First: load guestlist of happening (initialized as "LAZY"))
+			happening.setGuestList(happeningGuestlistRepo.getGuestList(happening.getHappeningId()));
+
 			// Assign new Guest to happening
 			happening.addGuestToList(newGuest);
 			happeningRepo.save(happening);
@@ -191,15 +226,18 @@ public class HappeningGuestlistController {
 			@RequestParam(value = "username") String username, Authentication authentication) {
 
 		// Check if user is Owner of Happening or has role ADMIN
-		if (!isHappeningHostOrAdmin(happening, authentication)) {
+		if (!isHappeningHostOrAdmin(happening, authentication, false)) {
 			model.addAttribute("warningMessage", "Happening not found or no permission!");
 			return "forward:/showHappeningManagement";
 		}
 
+		// First: load guestlist of happening (initialized as "LAZY"))
+		List<User> guestList = happeningGuestlistRepo.getGuestList(happening.getHappeningId());
+		happening.setGuestList(guestList);
+
 		// Check if given user exists and is on guestlist...
 		User guestToRemove = userRepo.findFirstByUsername(username);
-		if (guestToRemove != null
-				&& happeningGuestlistRepo.getGuestList(happening.getHappeningId()).contains(guestToRemove)) {
+		if (guestToRemove != null && guestList.contains(guestToRemove)) {
 
 			/*
 			 * Check for tasks which are under control of deleted guest (User is responsible
@@ -216,6 +254,7 @@ public class HappeningGuestlistController {
 						"Removed Task-Assignement for <" + respTasks.size() + "> tasks of user <" + username + ">");
 			}
 
+			// Load Guests first (initialized as "LAZY"))
 			happening.removeFromList(guestToRemove);
 			happeningRepo.save(happening);
 			model.addAttribute("warningMessage", "User " + guestToRemove.getUsername() + " removed from guestlist!");
@@ -234,10 +273,13 @@ public class HappeningGuestlistController {
 			@RequestParam String searchString, Authentication authentication) {
 
 		// Check if user is Owner of Happening or has role ADMIN
-		if (!isHappeningHostOrAdmin(happening, authentication)) {
+		if (!isHappeningHostOrAdmin(happening, authentication, true)) {
 			model.addAttribute("warningMessage", "Happening not found or no permission!");
 			return "forward:/showHappeningManagement";
 		}
+
+		// First: load guestlist of happening (initialized as "LAZY"))
+		happening.setGuestList(happeningGuestlistRepo.getGuestList(happening.getHappeningId()));
 
 		// Show first page with max 10 elements...
 		PageRequest page = generatePageRequest(0);
@@ -261,7 +303,7 @@ public class HappeningGuestlistController {
 			@RequestParam(value = "username") String username, Authentication authentication) {
 
 		// Check if user is Owner of Happening or has role ADMIN
-		if (!isHappeningHostOrAdmin(happening, authentication)) {
+		if (!isHappeningHostOrAdmin(happening, authentication, false)) {
 			model.addAttribute("warningMessage", "Happening not found or no permission!");
 			return "forward:/showHappeningManagement";
 		}
@@ -288,21 +330,27 @@ public class HappeningGuestlistController {
 	public String unassignTaskToGuest(Model model, @RequestParam(value = "taskId") HappeningTask task,
 			@RequestParam(value = "responsibleGuest") String username, Authentication authentication) {
 
+		// First: load Happening for task (initialized is "LAZY"))
+		Happening happening = happeningRepo.getHappeningForTask(task.getTaskId());
+
 		// Check if user is Owner of Happening or has role ADMIN
-		if (!isHappeningHostOrAdmin(task.getHappening(), authentication)) {
+		if (!isHappeningHostOrAdmin(happening, authentication, false)) {
 			model.addAttribute("warningMessage", "Happening not found or no permission!");
 			return "forward:/showHappeningManagement";
 		}
 
 		User guest = userRepo.findFirstByUsername(username);
 
-		// Valid guest object and guest is on guestlist of happening and given task is
-		// managed by guest...
-		if (guest != null && task.getHappening().getGuestList().contains(guest)
-				&& happeningTaskRepo.getAllAssignedTasks(task.getHappening().getHappeningId(), guest).contains(task)) {
+		// First: load guestlist of happening (initialized as "LAZY"))
+		List<User> happeningGuestList = happeningGuestlistRepo.getGuestList(happening.getHappeningId());
+		happening.setGuestList(happeningGuestList);
+
+		List<HappeningTask> assTasksToUser = happeningTaskRepo.getAllAssignedTasks(happening.getHappeningId(), guest);
+
+		if (guest != null && happeningGuestList.contains(guest) && assTasksToUser.contains(task)) {
 			task.setResponsibleUser(null);
 			happeningTaskRepo.save(task);
-			return showGuestTaskDetailsForm(model, task.getHappening(), username, authentication);
+			return showGuestTaskDetailsForm(model, happening, username, authentication);
 		} else {
 			model.addAttribute("warningMessage", "Guest not found or not on guestlist!");
 			return "forward:/showHappeningManagement";
@@ -315,19 +363,26 @@ public class HappeningGuestlistController {
 	public String assignTaskToGuest(Model model, @RequestParam(value = "taskId") HappeningTask task,
 			@RequestParam(value = "responsibleGuest") String username, Authentication authentication) {
 
+		// First: load Happening for task (initialized is "LAZY"))
+		Happening happening = happeningRepo.getHappeningForTask(task.getTaskId());
+
 		// Check if user is Owner of Happening or has role ADMIN
-		if (!isHappeningHostOrAdmin(task.getHappening(), authentication)) {
+		if (!isHappeningHostOrAdmin(happening, authentication, false)) {
 			model.addAttribute("warningMessage", "Happening not found or no permission!");
 			return "forward:/showHappeningManagement";
 		}
 
 		User guest = userRepo.findFirstByUsername(username);
 
+		// First: load guestlist of happening (initialized as "LAZY"))
+		List<User> happeningGuestList = happeningGuestlistRepo.getGuestList(happening.getHappeningId());
+		happening.setGuestList(happeningGuestList);
+
 		// Valid guest object and guest is on guestlist of happening?
-		if (guest != null && task.getHappening().getGuestList().contains(guest)) {
+		if (guest != null && happeningGuestList.contains(guest)) {
 			task.setResponsibleUser(guest);
 			happeningTaskRepo.save(task);
-			return showGuestTaskDetailsForm(model, task.getHappening(), username, authentication);
+			return showGuestTaskDetailsForm(model, happening, username, authentication);
 		} else {
 			model.addAttribute("warningMessage", "Guest not found or not on guestlist!");
 			return "forward:/showHappeningManagement";
@@ -340,21 +395,92 @@ public class HappeningGuestlistController {
 			Authentication authentication) {
 
 		// Check if user is Owner of Happening or has role ADMIN
-		if (!isHappeningHostOrAdmin(happening, authentication)) {
+		if (!isHappeningHostOrAdmin(happening, authentication, true)) {
 			model.addAttribute("warningMessage", "Happening not found or no permission!");
 			return "forward:/showHappeningManagement";
 		}
-		
+
+		// First: load guestlist of happening (initialized as "LAZY"))
 		List<User> guestList = happeningGuestlistRepo.getGuestList(happening.getHappeningId());
-		
-		if(CollectionUtils.isEmpty(guestList)) {
-			model.addAttribute("warningMessage", "No Guests found for Happening <" + happening.getHappeningName() +">!");
+		happening.setGuestList(guestList);
+
+		if (CollectionUtils.isEmpty(guestList)) {
+			model.addAttribute("warningMessage",
+					"No Guests found for Happening <" + happening.getHappeningName() + ">!");
 			return "forward:/showGuestListManagement";
 		}
-		//PDF generieren
+		// PDF generieren
 		model.addAttribute("guestList", guestList);
-		model.addAttribute("happening",happening);		
-		return "pdfReport";	
+		model.addAttribute("happening", happening);
+		return "pdfReport";
+	}
+
+	@Secured({ "ROLE_HOST" })
+	@PostMapping("/sendMailReminder")
+	public String sendMailReminder(Model model, @RequestParam(value = "happeningID") Happening happening,
+			Authentication authentication) {
+
+		// Check if user is Owner of Happening or has role ADMIN
+		if (!isHappeningHostOrAdmin(happening, authentication, true)) {
+			model.addAttribute("warningMessage", "Happening not found or no permission!");
+			return "forward:/showHappeningManagement";
+		}
+
+		// First: load guestlist of happening (initialized as "LAZY"))
+		List<User> guestList = happeningGuestlistRepo.getGuestList(happening.getHappeningId());
+		happening.setGuestList(guestList);
+
+		if (CollectionUtils.isEmpty(guestList)) {
+			model.addAttribute("warningMessage",
+					"No Guests found for Happening <" + happening.getHappeningName() + ">!");
+			return "forward:/showGuestListManagement";
+		}
+		User host = happening.getHappeningHost();
+		String hostName = host.getFirstname() + " " + happening.getHappeningHost().getLastname();
+
+		SimpleMailMessage msg = new SimpleMailMessage();
+		msg.setSubject("Reminder for Happening " + happening.getHappeningName());
+		msg.setFrom("noreplay@plavent.com");
+		msg.setText("Dear Ladies and Gentleman!\n\n" + "I would like to invite you once again to my event.\n"
+				+ "Here again the most important information:\n" + happening.getHappeningInfos("\t", "\n") + "\n\n"
+				+ "best regards,\n" + hostName);
+
+		/*
+		 * hoedlale16: It is better to send mail to host and BCC to all guests, so the
+		 * email addresses are hidden But mailtrap.io does not show the BCC Mails
+		 * (neither in RAW, so we send it in TO and keep the code here for a possible
+		 * productive solution.
+		 */
+
+		/*
+		 if (host.geteMail() != null) 
+		 	msg.(host.geteMail()); 
+		 else { 
+		 	model.addAttribute("message","HOST has no valid E-Mail: Not able to send reminder!"); return
+		 	"forward:/showGuestListManagement"; 
+		 }
+		 */
+
+		String[] guestMails = new String[guestList.size()];
+		for (int i = 0; i < guestList.size(); i++) {
+			String mail = guestList.get(i).geteMail();
+			if (mail != null)
+				guestMails[i] = mail;
+		}
+		// msg.setBcc(guestMails);
+		msg.setTo(guestMails);
+
+		try {
+			this.mailSender.send(msg);
+		} catch (MailAuthenticationException ex) {
+			throw new IllegalStateException(
+					"Configuration error for mail server detected. Please contact Administrator to setup correct connection settings for mail server.	");
+		} catch (MailException ex) {
+			throw new IllegalStateException("Error while sending mail!");
+		}
+
+		model.addAttribute("message", "Reminder send to guests");
+		return "forward:/showGuestListManagement";
 	}
 
 	// -----------------------------------------------------------------------------------------
@@ -364,4 +490,11 @@ public class HappeningGuestlistController {
 		ex.printStackTrace();
 		return "error";
 	}
+
+	@ExceptionHandler()
+	@ResponseStatus(code = HttpStatus.FORBIDDEN)
+	public String handle403(Exception ex) {
+		return "login";
+	}
+
 }

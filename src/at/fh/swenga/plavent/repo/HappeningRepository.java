@@ -36,4 +36,15 @@ public interface HappeningRepository extends JpaRepository<Happening, Integer> {
 		   			"WHERE h.happeningHost.username = :host " +
 		   			"  AND LOWER(h.happeningStatus.statusName) = LOWER('ACTIVE')", nativeQuery = false)
 	public Page<Happening> getActiveHappeningsForHost(@Param("host") String hostUsername, Pageable pageable);
+	
+	
+	@Query(value = "SELECT h.* " +
+					"FROM Happening h " +
+					"WHERE h.happeningID = (SELECT happeningID " + 
+					"					    FROM HappeningTask " +
+					"						WHERE taskId = :taskId)", nativeQuery = true)
+	public Happening getHappeningForTask(@Param("taskId") int taskId);
 }
+
+
+

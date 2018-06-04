@@ -8,111 +8,76 @@
 <div th:include="~{includes/bootstrap :: bootstrapCSS}" th:remove="tag" />
 </head>
 
-<body>
-	<div class="container card" role="main">
-		<div class="card-body">
-			<div class="page-header">
+<body class="app flex-row align-items-center bg-dark">
+	<div class="container mb-5" role="main">
+		<div class="card bg-light">
+			<div class="card-body text-dark">
+				<div class="row page-header">
+					<!-- include the Nav bar fragment-->
+					<p
+						th:replace="~{includes/fragments :: header (header='Happening Management')}"></p>
+				</div>
 				<!-- include the Nav bar fragment-->
-				<nav
-					th:replace="~{includes/fragments :: header (header='PlaVent - Happening Management')}"></nav>
+				<nav th:replace="~{includes/fragments :: navigation }"></nav>
+
+				<!-- include the search bar fragment for users-->
+				<div sec:authorize="hasRole('ROLE_HOST')">
+					<nav
+						th:replace="~{includes/fragments :: MgmtNavBar (buttonText='New Happening',buttonLink='showCreateHappeningForm',searchLink='filterHappenings')}"></nav>
+				</div>
+				<!-- include message boxes (moved to fragments) -->
+				<div th:replace="~{includes/fragments :: msgs}"></div>
 			</div>
-
-			<!-- include the Nav bar fragment-->
-			<nav th:replace="~{includes/fragments :: navigation }"></nav>
-
-
-			<!-- include the serach bar fragment for users-->
-			<nav
-				th:replace="~{includes/fragments :: MgmtNavBar (buttonText='New Happening',buttonLink='showCreateHappeningForm',searchLink='filterHappenings')}"></nav>
-
-			<!--  include fragement for pageination stuff -->
-			<nav
-				th:replace="~{includes/fragments :: pageNav (linkToChangePage='/showHappeningManagementPage') }"></nav>
-
-			<!-- include message boxes (moved to fragments) -->
-			<div th:replace="~{includes/fragments :: msgs}"></div>
-
-			<div class="row">
+		</div>
+		<div class="card bg-light">
+			<div class="card-body">
 				<div class="col-md-12">
-					<!-- hoedlale16: Generates a sortable table with bootstrap-style -->
-					<table data-toggle="table" class="table table-hover table-striped">
-						<thead class="thead-light">
-							<tr>
-								<th data-sortable="true">Happening Name</th>
-								<th data-sortable="true">Status</th>
-								<th data-sortable="true">Category</th>
-								<th data-sortable="true">Start Time</th>
-								<th data-sortable="true">End Time</th>
-								<th data-sortable="true">Location</th>
-								<th data-sortable="true">Host</th>
-								<th>Actions</th>
-							</tr>
-						</thead>
-						<tbody>
-							<!--  list all items ----------------------------------------------------------- -->
-							<!-- hoedlale16: Fill table content -->
-							<tr th:each="happening : ${#request.getAttribute('happenings')}"
-								th:classappend="${happening.happeningStatus.statusName != 'ACTIVE'} ? table-secondary">
-								<td
-									th:classappend="${happening.happeningStatus.statusName != 'ACTIVE'} ? text-muted"
-									th:text="${happening.happeningName}"></td>
-								<td
-									th:classappend="${happening.happeningStatus.statusName != 'ACTIVE'} ? text-muted"
-									th:text="${happening.happeningStatus.statusName}"></td>
-								<td
-									th:classappend="${happening.happeningStatus.statusName != 'ACTIVE'} ? text-muted"
-									th:text="${happening.category.categoryName}"></td>
-								<td
-									th:classappend="${happening.happeningStatus.statusName != 'ACTIVE'} ? text-muted"
-									th:text="${#dates.format(happening.start,'dd.MM.yyyy hh:mm')}"></td>
-								<td
-									th:classappend="${happening.happeningStatus.statusName != 'ACTIVE'} ? text-muted"
-									th:text="${#dates.format(happening.end,'dd.MM.yyyy hh:mm')}"></td>
-								<td
-									th:classappend="${happening.happeningStatus.statusName != 'ACTIVE'} ? text-muted"
-									th:text="${happening.location}"></td>
-								<td
-									th:classappend="${happening.happeningStatus.statusName != 'ACTIVE'} ? text-muted"
-									th:text="${happening.happeningHost.lastname +' '+#strings.substring(happening.happeningHost.firstname,0,1) +'.'}"></td>
-							<tr th:each="happening : ${#request.getAttribute('happenings')}">
-								<!-- TODO: Disable/Highlight Deleted entries! -->
-								<td th:text="${happening.happeningName}"></td>
-								<td th:text="${happening.happeningStatus.statusName}"></td>
-								<td th:text="${happening.category.categoryName}"></td>
-								<td th:text="${#dates.format(happening.start,'dd.MM.yyyy hh:mm')}"></td>
-								<td th:text="${#dates.format(happening.end,'dd.MM.yyyy hh:mm')}"></td>
-								<td th:text="${happening.location}"></td>
-								<td th:text="${happening.happeningHost.lastname +' '+#strings.substring(happening.happeningHost.firstname,0,1) +'.'}"></td>
-
-								<td>
-
-									<div class="btn-group">
-										<!-- Just show buttons for active Happenings -->
+					<div class="row">
+						<div th:each="happening : ${#request.getAttribute('happenings')}"
+							class="col-4">
+							<div class="card text-dark">
+								<div
+									th:classappend="${happening.happeningStatus.statusName != 'ACTIVE'} ? bg-danger : bg-success"
+									class="card-header">
+									<strong th:text="${happening.happeningName}"></strong>
+									<div class="card-header-actions">
 										<th:block
 											th:if="${happening.happeningStatus.statusName == 'ACTIVE'}">
 											<a
 												th:href="@{/showGuestListManagement(happeningID=${happening.happeningId})}"
-												class="btn btn-pill btn-success"> <span
-												class="glyphicon" aria-hidden="true"></span> Guests
-											</a>
+												class="card-header-action btn-people"><i
+												class="icon-people"></i> </a>
 											<a
 												th:href="@{/showTaskListManagement(happeningID=${happening.happeningId})}"
-												class="btn btn-pill btn-success"> <span
-												class="glyphicon" aria-hidden="true"></span> Tasks
+												class="card-header-action btn-list"><i class="icon-list"></i>
 											</a>
 										</th:block>
-
 										<a
 											th:href="@{/showModifyExistingHappingForm(happeningId=${happening.happeningId})}"
-											class="btn btn-pill btn-secondary"> <span
-											class="glyphicon" aria-hidden="true"></span> Edit
-										</a>
+											class="card-header-action btn-pencil"><i
+											class="icon-pencil"></i> </a>
 									</div>
-								</td>
-							</tr>
-							<!--  list all items ----------------------------------------------------------- -->
-						</tbody>
-					</table>
+								</div>
+								<div class="card-body">
+									<strong>Happening Name:</strong> <em
+										th:text="${happening.happeningName}"></em><br> <strong>Status:</strong>
+									<em th:text="${happening.happeningStatus.statusName}"></em><br>
+									<strong>Category:</strong> <em
+										th:text="${happening.category.categoryName}"></em><br> <strong>Start
+										Time:</strong> <em
+										th:text="${#dates.format(happening.start,'dd.MM.yyyy hh:mm')}"></em><br>
+									<strong>End Time:</strong> <em
+										th:text="${#dates.format(happening.end,'dd.MM.yyyy hh:mm')}"></em><br>
+									<strong>Location:</strong> <em th:text="${happening.location}"></em><br>
+									<strong>Host:</strong> <em
+										th:text="${happening.happeningHost.lastname +' '+#strings.substring(happening.happeningHost.firstname,0,1) +'.'}"></em><br>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!--  include fragement for pageination stuff -->
+					<nav
+						th:replace="~{includes/fragments :: pageNav (linkToChangePage='/showHappeningManagementPage') }"></nav>
 				</div>
 			</div>
 		</div>

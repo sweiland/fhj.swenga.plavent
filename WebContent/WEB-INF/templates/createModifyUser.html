@@ -15,7 +15,8 @@
 	<div class="container  justify-content-center" role="main">
 		<div class="row">
 			<div class="card col-md-8 col-md-offset-2">
-
+				<img th:unless="${image} == null" th:src="${image}" height="100"
+					width="100">
 				<!--  fernbach16: Form calls /edituser or /adduser, depending if an user is set already. -->
 				<form class="form-horizontal" method="post"
 					th:action="${user} ? @{/editUser} : @{/createUser}">
@@ -60,29 +61,28 @@
 						<!--  ----------------  telephone Number ---------------- -->
 						<div class="form-group">
 							<input class="form-control" type="tel" name="telNumber"
-								required="required" th:value="${user} ? ${user.telNumber}"
+								th:value="${user} ? ${user.telNumber}"
 								placeholder="Phone Number">
 						</div>
-						<!-- --------------  User Role ---------------- 
-						<div sec:authorize="hasRole('ROLE_ADMIN')">
-						<div class="form-group">
-							<label for="inputRoles" class="col-md-2 control-label">User Roles</label>
-							<div class="col-md-10">
-								<select class="custom-select" name="roleList"
-									required="required" th:value="${user} ? ${user.roleList">
-									<option style="display: none;"></option>
-									<option value="GUEST">Guest Role</option>
-									<option value="HOST">Host Role</option>
-									<option value="ADMIN">Admin Role</option>
+						<!-- --------------  User Role ---------------->
+								<label for="roles">Select user role</label>
+								
+								<select th:unless="${user}" id="roles" name="role">
+								<option value="guest">Guest</option>
+								<option value="host">Host</option>
+								<option value="admin">Administrator</option>
 								</select>
-							</div>
-						</div> -->
 						<!-- --------------  buttons ---------------- -->
 						<div class="input-group btn-group">
 							<button type="submit" class="btn btn-pill btn-primary">Submit</button>
-							<a href="showUserManagement" class="btn btn-pill btn-secondary">
-								Cancel </a>
-						</div>
+							<div sec:authorize="hasRole('ROLE_ADMIN')">
+								<a href="showUserManagement" class="btn btn-pill btn-secondary">
+									Cancel </a>
+							</div>
+							<div sec:authorize="!hasRole('ROLE_ADMIN')">
+								<a href="showProfile" class="btn btn-pill btn-secondary">
+									Cancel </a> </div>
+							</div>
 					</fieldset>
 				</form>
 			</div>

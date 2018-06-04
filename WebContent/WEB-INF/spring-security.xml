@@ -13,7 +13,6 @@
 		<intercept-url pattern="/" access="permitAll" />
 		<intercept-url pattern="/registerUser" access="permitAll" />
 
-
 		<!-- FERNBACH16: Use Annotation @Secured({ "ROLE_GUEST"}) instead of intercept-url 
 		@Secured({ "ROLE_GUEST"}) for Guest Permissions
 		@Secured({ "ROLE_HOST"}) for Host Permissions
@@ -24,9 +23,6 @@
 			always-use-default-target="true" />
 		<logout logout-success-url="/login" logout-url="/logout" />
 	</http>
-
-
-	<context:property-placeholder location="classpath:db.properties" />
 
 	<authentication-manager>
 		<authentication-provider>
