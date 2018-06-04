@@ -3,11 +3,9 @@
 	xmlns:th="http://www.thymeleaf.org">
 
 <head>
-<div sec:authorize="hasRole('ROLE_ADMIN')">
-	<div th:include="~{includes/bootstrap :: bootstrapMeta}"
-		th:remove="tag" />
-	<title>PlaVent</title>
-	<div th:include="~{includes/bootstrap :: bootstrapCSS}" th:remove="tag" />
+<div th:include="~{includes/bootstrap :: bootstrapMeta}" th:remove="tag" />
+<title>PlaVent - User Management</title>
+<div th:include="~{includes/bootstrap :: bootstrapCSS}" th:remove="tag" />
 </head>
 
 <body class="app flex-row align-items-center bg-dark">
@@ -37,8 +35,8 @@
 						<div th:each="user : ${#request.getAttribute('users')}"
 							class="col-4">
 							<div class="card text-dark">
-								<div class="bg-success card-header">
-									<div class="card-title" th:text="${user.username}"></div>
+								<div th:classappend="${user.enabled} ? bg-success : bg-danger" class="card-header">
+									<strong th:text="${user.username}"></strong>
 									<div class="card-header-actions">
 										<a th:unless="${user.enabled} == false"
 											th:href="@{/editUser(username=${user.username})}"
@@ -46,20 +44,20 @@
 											class="icon-pencil"></i>
 										</a> <a th:unless="${user.enabled} == false"
 											th:href="@{/changeUserRole(username=${user.username})}"
-											class="card-header-action btn-pencil"> <i
-											class="icon-pencil"></i>
+											class="card-header-action btn-people"> <i
+											class="icon-people"></i>
 										</a> <a th:unless="${user.enabled} == false"
 											th:href="@{/changePassword(username=${user.username})}"
 											class="card-header-action btn-settings"><i
 											class="icon-settings"></i> </a> <a
 											th:unless="${user.enabled} == false"
 											th:href="@{/deleteUser(username=${user.username})}"
-											class="card-header-action btn-close"> <i
-											class="icon-close"></i>
+											class="card-header-action btn-trash"> <i
+											class="icon-trash"></i>
 										</a> <a th:unless="${user.enabled} == true"
 											th:href="@{/reactivateUser(username=${user.username})}"
-											class="card-header-action btn-close"> <i
-											class="icon-pencil"></i> <!-- TODO: Schoenes Icon fuer Reactivate finden -->
+											class="card-header-action btn-check"> <i
+											class="icon-check"></i>
 										</a>
 									</div>
 								</div>
@@ -68,20 +66,18 @@
 									<strong>Last Name:</strong> <em th:text="${user.lastname}"></em><br>
 									<strong>Email:</strong> <em th:text="${user.eMail}"></em><br>
 									<strong>Phone:</strong> <em th:text="${user.telNumber}"></em><br>
-									<strong>Profile Picture:</strong><em
+									<strong>Profile Picture:</strong> <em
 										th:text="${user.profilePicture == null} ? 'not set' : 'set'"></em><br>
 									<div th:switch="${user.getUserRole()}">
-										<p th:case="'ROLE_ADMIN'">
-											<strong>User Role:</strong> Administrator
-										</p>
-										<p th:case="'ROLE_HOST'">
-											<strong>User Role:</strong> Host
-										</p>
-										<p th:case="'ROLE_GUEST'">
-											<strong>User Role:</strong> Guest
-										</p>
+										<span th:case="'ROLE_ADMIN'">
+											<strong>User Role:</strong> <em>Administrator</em></span>
+										<span th:case="'ROLE_HOST'">
+											<strong>User Role:</strong> <em>Host</em></span>
+										<span th:case="'ROLE_GUEST'">
+											<strong>User Role:</strong> <em>Guest</em></span>
 									</div>
-									<strong>Status</strong> <em th:text="${user.enabled} ? 'Enabled' : 'Dissabled'"></em><br>
+									<strong>Status:</strong> <em
+										th:text="${user.enabled} ? 'Enabled' : 'Disabled'"></em><br>
 								</div>
 							</div>
 						</div>

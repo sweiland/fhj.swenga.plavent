@@ -1,16 +1,12 @@
 <!-- Fragement to main menu -->
 <nav th:fragment="navigation"
 	class="navbar navbar-expand-lg navbar-light bg-light">
-	<a class="navbar-brand" href="#">PlaVent</a>
+	<a class="navbar-brand" href="dashboard">PlaVent</a>
 	<ul class="navbar-nav mr-auto">
 		<li class="nav-item"><a sec:authorize="hasRole('ROLE_ADMIN')"
 			href="showUserManagement" class="nav-link">User Management</a></li>
 		<li class="nav-item"><a sec:authorize="hasRole('ROLE_GUEST')"
 			href="showProfile" class="nav-link">Profile</a></li>
-		<li class="nav-item"><a sec:authorize="hasRole('ROLE_GUEST')"
-			href="showProfile" class="nav-link">Profile</a></li>
-		<li class="nav-item"><a sec:authorize="hasRole('ROLE_GUEST')"
-			href="dashboard" class="nav-link">Dashboard</a></li>
 		<li class="nav-item"><a sec:authorize="hasRole('ROLE_HOST')"
 			href="showHappeningManagement" class="nav-link">Happening
 				Management</a></li>
