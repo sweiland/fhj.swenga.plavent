@@ -11,75 +11,84 @@
 	rel="stylesheet">
 </head>
 
-<body>
-	<div class="card container" role="main">
-		<div class="card-body row">
-			<div class="col-md-8 col-md-offset-2">
-				<fieldset class="form-horizontal">
-					<h1 th:text="${happeningGuest.username}"></h1>
+<body class="app flex-row align-items-center bg-dark">
+	<div class="container" role="main">
+		<div class="row justify-content-center">
+			<div class="col-md-6">
+				<div class="card bg-light mx-4 text-dark">
+					<fieldset class="form-horizontal card-body">
+						<h1 th:text="${happeningGuest.username}"></h1>
 
-					<!--  ----------------  happening ---------------- -->
-					<div class="form-group">
-						<input class="form-control" type="text" name="happeningName"
-							th:value="${happening.happeningName}" readonly
-							placeholder="Happening">
-					</div>
+						<!--  ----------------  happening ---------------- -->
+						<div class="input-group mb-3">
+							<div class="input-group-prepend">
+								<span class="input-group-text"><i class="icon-note"></i></span>
+							</div>
+							<input type="text" class="form-control" name="happeningName"
+								required="required" th:value="${happening.happeningName}"
+								readonly placeholder="Happening">
+						</div>
 
-					<!--  ----------------  Guest ---------------- -->
-					<div class="form-group">
-						<input class="form-control" type="text" name="guestname" readonly
-							th:value="${happeningGuest.firstname + ' ' + happeningGuest.lastname}"
-							placeholder="Guest">
-					</div>
 
-					<!--  ----------------  Assigned Tasks ---------------- -->
-					<div class="form-group">
-						<form method="post" th:action="@{/unassignTaskToGuest}">
-							<!-- Send connected happeningID and username to show this page after action again -->
-							<input type="hidden" name="responsibleGuest"
-								th:value="${happeningGuest.username}"
-								placeholder="Assigned Tasks" /> <select
-								id="inputResponsibleUser" class="custom-select form-control"
-								name="taskId"
-								th:disabled="${assignedTasks} ? ${#lists.isEmpty(assignedTasks)}">
-								<option disabled="disabled" selected="selected">Assigned
-									Tasks</option>
-								<option th:each="task : ${assignedTasks}"
-									th:value="${task.taskId}" th:text="${task.topic}">
-							</option></select>
+						<!--  ----------------  Guest ---------------- -->
+						<div class="input-group mb-3">
+							<div class="input-group-prepend">
+								<span class="input-group-text"><i class="icon-user"></i></span>
+							</div>
+							<input class="form-control" type="text" name="guestname" readonly
+								th:value="${happeningGuest.firstname + ' ' + happeningGuest.lastname}"
+								placeholder="Guest">
+						</div>
 
-							<!-- --------------  buttons ---------------- -->
-							<!-- TODO: Button disabled solange bis eine gueltige Option gewaehlt wurde! -->
-							<button type="submit" class="btn btn-pill btn-primary"
-								th:disabled="${assignedTasks} ? ${#lists.isEmpty(assignedTasks)}">Remove
-								Assignment</button>
-						</form>
-					</div>
+						<!--  ----------------  Assigned Tasks ---------------- -->
+						<div class="form-group">
+							<form method="post" th:action="@{/unassignTaskToGuest}">
+								<!-- Send connected happeningID and username to show this page after action again -->
+								<input type="hidden" name="responsibleGuest"
+									th:value="${happeningGuest.username}"
+									placeholder="Assigned Tasks" /> <select
+									id="inputResponsibleUser" class="custom-select form-control"
+									name="taskId"
+									th:disabled="${assignedTasks} ? ${#lists.isEmpty(assignedTasks)}">
+									<option disabled="disabled" selected="selected">Assigned
+										Tasks</option>
+									<option th:each="task : ${assignedTasks}"
+										th:value="${task.taskId}" th:text="${task.topic}"></option>
+								</select>
 
-					<!--  ----------------  Unassigned Tasks ---------------- -->
-					<div class="form-group">
-						<form method="post" th:action="@{/assignTaskToGuest}">
-							<!-- Send connected happeningID and username to show this page after action again -->
-							<input type="hidden" name="responsibleGuest"
-								th:value="${happeningGuest.username}" /> <select
-								id="inputResponsibleUser" class="custom-select form-control"
-								name="taskId"
-								th:disabled="${unassignedTasks} ? ${#lists.isEmpty(unassignedTasks)}">
-								<option disabled="disabled" selected="selected">Assign
-									a Task</option>
-								<option th:each="task : ${unassignedTasks}"
-									th:value="${task.taskId}" th:text="${task.topic}"></option>
-							</select>
-							<!-- --------------  buttons ---------------- -->
-							<!-- TODO: Button disabled solange bis eine gueltige Option gewaehlt wurde! -->
-							<button type="submit" class="btn btn-pill btn-primary"
-								th:disabled="${unassignedTasks} ? ${#lists.isEmpty(unassignedTasks)}">Assign</button>
-						</form>
-					</div>
-				</fieldset>
-				<a
-					th:href="@{/showGuestListManagement(happeningID=${happening.happeningId})}"
-					class="btn btn-pill btn-primary"> Close </a>
+								<!-- --------------  buttons ---------------- -->
+								<!-- TODO: Button disabled solange bis eine gueltige Option gewaehlt wurde! -->
+								<button type="submit" class="btn btn-pill btn-primary"
+									th:disabled="${assignedTasks} ? ${#lists.isEmpty(assignedTasks)}">Remove
+									Assignment</button>
+							</form>
+						</div>
+
+						<!--  ----------------  Unassigned Tasks ---------------- -->
+						<div class="form-group">
+							<form method="post" th:action="@{/assignTaskToGuest}">
+								<!-- Send connected happeningID and username to show this page after action again -->
+								<input type="hidden" name="responsibleGuest"
+									th:value="${happeningGuest.username}" /> <select
+									id="inputResponsibleUser" class="custom-select form-control"
+									name="taskId"
+									th:disabled="${unassignedTasks} ? ${#lists.isEmpty(unassignedTasks)}">
+									<option disabled="disabled" selected="selected">Assign
+										a Task</option>
+									<option th:each="task : ${unassignedTasks}"
+										th:value="${task.taskId}" th:text="${task.topic}"></option>
+								</select>
+								<!-- --------------  buttons ---------------- -->
+								<!-- TODO: Button disabled solange bis eine gueltige Option gewaehlt wurde! -->
+								<button type="submit" class="btn btn-pill btn-primary"
+									th:disabled="${unassignedTasks} ? ${#lists.isEmpty(unassignedTasks)}">Assign</button>
+							</form>
+						</div>
+					</fieldset>
+					<a
+						th:href="@{/showGuestListManagement(happeningID=${happening.happeningId})}"
+						class="btn btn-pill btn-primary"> Close </a>
+				</div>
 			</div>
 		</div>
 	</div>
