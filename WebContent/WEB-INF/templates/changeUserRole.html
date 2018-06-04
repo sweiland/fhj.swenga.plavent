@@ -8,41 +8,44 @@
 <div th:include="~{includes/bootstrap :: bootstrapCSS}" th:remove="tag" />
 </head>
 
-<body class="app flex-row align-items-center">
-	<div class="card container justify-content-center" role="main">
-		<div class="card-body">
-			<div class="page-header">
-				<img src="./img/logo.png" alt="PlaVent" height="150px">
-			</div>
-			<div class="row">
-				<div class="col-md-10 col-md-offset-1">
-					<!-- include message boxes (moved to fragments) -->
-					<div th:replace="~{includes/fragments :: msgs}"></div>
+<body class="app flex-row align-items-center bg-dark">
+	<div class="container" role="main">
+		<div class="row justify-content-center">
+			<div class="col-md-6">
+				<div class="card bg-light mx-4 text-dark">
+					<div class="card-body">
+						<h1 th:text="'Change User Role for User ' + ${user.username}"></h1>
+						<!-- include message boxes (moved to fragments) -->
+						<div th:replace="~{includes/fragments :: msgs}"></div>
 
-					<form class="form-horizontal" method="post"
-						th:action="@{user} ? @{/changeUserRole(username=${user.username})} : @{/login}">
+						<form class="form-horizontal" method="post"
+							th:action="@{user} ? @{/changeUserRole(username=${user.username})} : @{/login}">
 
-						<fieldset class="col-md-10">
-							<h1 th:text="'Change User Role for User ' + ${user.username}"></h1>
-							<!-- --------------  User Role ---------------->
-							<div class="form-group">
-								<select name="role">
-								<option value="guest" autofocus th:selected="${user.getUserRole()} == 'ROLE_GUEST'">Guest</option>
-								<option value="host" th:selected="${user.getUserRole()} == 'ROLE_HOST'">Host</option>
-								<option value="admin" th:selected="${user.getUserRole()} == 'ROLE_ADMIN'">Administrator</option>
-								</select>
-							</div>
-							<!-- --------------  buttons ---------------- -->
-							<div class="form-group">
-								<div class="col-md-10 col-md-offset-2">
-									<button type="submit" class="btn btn-primary">Submit</button>
-									<a href="showUserManagement" class="btn btn-pill btn-secondary">
-										Cancel </a>
+							<fieldset class="col-md-10">
+
+								<!-- --------------  User Role ---------------->
+								<div class="form-group">
+									<select class="custom-select form-control" name="role">
+										<option disabled="disabled">User Role</option>
+										<option value="guest"
+											th:selected="${user.getUserRole()} == 'ROLE_GUEST'">Guest</option>
+										<option value="host"
+											th:selected="${user.getUserRole()} == 'ROLE_HOST'">Host</option>
+										<option value="admin"
+											th:selected="${user.getUserRole()} == 'ROLE_ADMIN'">Administrator</option>
+									</select>
 								</div>
-							</div>
-						</fieldset>
-					</form>
-					</th:block>
+								<!-- --------------  buttons ---------------- -->
+								<div class="form-group">
+									<div class="col-md-10 col-md-offset-2">
+										<button type="submit" class="btn btn-outline-dark">Submit</button>
+										<a href="showUserManagement"
+											class="btn btn-outline-secondary"> Cancel </a>
+									</div>
+								</div>
+							</fieldset>
+						</form>
+					</div>
 				</div>
 			</div>
 		</div>
