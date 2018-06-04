@@ -72,6 +72,12 @@
 												<input name="submit" class="btn btn-outline-dark px-4"
 													type="submit" value="Login">
 											</div>
+											<div class="col-6 text-right">
+												<button type="button" class="btn btn-link"
+													data-toggle="modal" data-target="#passwordmodal">Forgot
+													Password?</button>
+											</div>
+
 										</div>
 									</fieldset>
 								</form>
@@ -91,32 +97,48 @@
 						</div>
 					</th:block>
 					<th:block th:unless="${noPlaventEnvironment}">
-						<h1>Reset Password</h1>
-
-						<form class="form-horizontal" method="get"
-							th:action="@{/sendResetPassword}">
-							<input type="hidden" th:name="${_csrf.parameterName}"
-								th:value="${_csrf.token}" />
-							<fieldset>
-
-								<!--  ----------------  User Name ---------------- -->
-								<div class="input-group mb-3">
-									<div class="input-group-prepend">
-										<span class="input-group-text"><i class="icon-user"></i></span>
+						<div class="modal fade show text-dark" id="passwordmodal" tabindex="-1"
+							role="dialog">
+							<div class="modal-dialog modal-dialog-centered" role="document">
+								<div class="modal-content">
+									<div class="modal-header">
+										<h5 class="modal-title">Reset Password</h5>
+										<button type="button" class="close" data-dismiss="modal"
+											aria-label="Close">
+											<span aria-hidden="true">&times;</span>
+										</button>
 									</div>
-									<input type="text" class="form-control" placeholder="Username"
-										name="username" required="required" value=""
-										aria-label="Username" aria-describedby="basic-addon1">
-								</div>
+									<div class="modal-body">
+										<form class="form-horizontal" method="get"
+											th:action="@{/sendResetPassword}">
+											<input type="hidden" th:name="${_csrf.parameterName}"
+												th:value="${_csrf.token}" />
+											<fieldset>
 
-								<div class="row">
-									<div class="col-6">
-										<input name="submit" class="btn btn-outline-dark px-4"
-											type="submit" value="Reset Password">
+												<!--  ----------------  User Name ---------------- -->
+												<div class="input-group mb-3">
+													<div class="input-group-prepend">
+														<span class="input-group-text"><i class="icon-user"></i></span>
+													</div>
+													<input type="text" class="form-control"
+														placeholder="Username" name="username" required="required"
+														value="" aria-label="Username"
+														aria-describedby="basic-addon1">
+												</div>
+											</fieldset>
+										</form>
 									</div>
+
+									<div class="modal-footer">
+										<input name="submit" class="btn btn-outline-danger px-4"
+											type="submit" value="Reset Password" data-dismiss="modal">
+
+									</div>
+
 								</div>
-							</fieldset>
-						</form>
+							</div>
+						</div>
+
 					</th:block>
 				</div>
 			</div>

@@ -52,7 +52,7 @@
 								</div>
 								<input class="form-control" type="text" name="firstname"
 									required="required" placeholder="First Name" autocomplete="off"
-									minlength="2" maxlength="64">
+									minlength="2" maxlength="64" th:value="${user} ? ${user.firstname}">
 							</div>
 
 							<!--  ----------------  lastname ---------------- -->
@@ -62,7 +62,7 @@
 								</div>
 								<input class="form-control" type="text" name="lastname"
 									required="required" placeholder="Last Name" autocomplete="off"
-									minlength="2" maxlength="64">
+									minlength="2" maxlength="64" th:value="${user} ? ${user.lastname}">
 							</div>
 
 							<!--  ----------------  eMail ---------------- -->
@@ -72,7 +72,7 @@
 								</div>
 								<input class="form-control" type="email" name="eMail"
 									required="required" placeholder="Email" autocomplete="off"
-									minlength="5" maxlength="256">
+									minlength="5" maxlength="256" th:value="${user} ? ${user.eMail}">
 							</div>
 
 							<!--  ----------------  telephone Number ---------------- -->
@@ -82,7 +82,7 @@
 								</div>
 								<input class="form-control" type="tel" name="telNumber"
 									required="required" placeholder="Phone" autocomplete="off"
-									minlength="9" maxlength="15">
+									minlength="9" maxlength="15" th:value="${user} ? ${user.telNumber}">
 							</div>
 							<!-- --------------  User Role ---------------->
 							<div class="form-group mb-4">
