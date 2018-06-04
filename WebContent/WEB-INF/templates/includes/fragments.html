@@ -60,7 +60,7 @@
 
 	<!-- HTML form with search textbox and submit button-->
 	<form class="navbar-form navbar-right ml-auto" role="search"
-		method="post" th:action="@{/searchUser(searchString = ${searchString})}">
+		method="post" th:action="${(searchLink)}">
 		<div class="input-group">
 			<input type="search" class="form-control" placeholder="Search for..."
 				name="searchString"> <span class="input-group-append">

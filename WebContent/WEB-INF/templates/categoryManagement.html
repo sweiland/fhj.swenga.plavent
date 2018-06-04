@@ -24,34 +24,63 @@
 			<nav
 				th:replace="~{includes/fragments :: MgmtNavBar (buttonText='New Category',buttonLink='showCreateCategory',searchLink='filterCategories')}"></nav>
 
-			<!--  Error message ----------------------------------------------------------- -->
-			<div th:unless="${errorMessage} == null" th:utext="${errorMessage}"
-				class="alert alert-danger" role="alert"></div>
-			<!--  Error message ----------------------------------------------------------- -->
+			<!-- include message boxes (moved to fragments) -->
+			<div th:replace="~{includes/fragments :: msgs}"></div>
 
-			<!--  Warning message ----------------------------------------------------------- -->
-			<div th:unless="${warningMessage} == null"
-				th:utext="${warningMessage}" class="alert alert-warning"
-				role="warning"></div>
-			<!--  Warning message ----------------------------------------------------------- -->
-
-			<!--   message ----------------------------------------------------------- -->
-			<div th:unless="${message} == null" th:utext="${message}"
-				class="alert alert-success" role="warning"></div>
-			<!--   message ----------------------------------------------------------- -->
-
-			<div class="row">
-				<div class="col-md-10 col-md-offset-1">
-					<table data-toggle="table" class="table table-hover table-striped">
-						<thead>
-							<tr>
-								<th data-sortable="true">Category</th>
-								<th data-sortable="true">In Use</th>
-								<th data-sortable="true">Status</th>
-								<th class="text-right">Actions</th>
-							</tr>
-						</thead>
-					</table>
+			<div class="card bg-light">
+				<div class="card-body">
+					<div class="col-md-12">
+						<div class="row">
+							<div th:each="happeningCategory : ${#request.getAttribute('happeningCategories')}"
+								class="col-4">
+								<div class="card text-dark">
+									<div
+										th:classappend="${happeningCategory.enabled == true} ? bg-success : bg-danger"
+										class="card-header">
+										<strong th:text="${happeningCategory.categoryName}"></strong>
+										<div class="card-header-actions">
+											<th:block
+												th:if="${happeningCategory.enabled == true}">
+												<a
+												th:href="@{/showModifyCategory(categoryID=${happeningCategory.categoryID})}"
+												class="card-header-action btn-pencil"><i
+												class="icon-pencil"></i> </a>
+												
+												<a th:if="${#lists.contains(usedCategories,happeningCategory)}"
+												th:href="@{/disableUsedHappeningCategory(categoryID=${happeningCategory.categoryID})}"
+												class="card-header-action btn-trash"><i
+												class="icon-trash"></i> </a>	
+												
+												<a th:unless="${#lists.contains(usedCategories,happeningCategory)}"
+												th:href="@{/deleteUnusedHappeningCategory(categoryID=${happeningCategory.categoryID})}"
+												class="card-header-action btn-trash"><i
+												class="icon-trash"></i> </a>											
+												
+											</th:block>
+											
+											<th:block
+												th:if="${happeningCategory.enabled == false}">
+												<!-- TODO: Funktion ausimplementieren -->
+												<a
+												th:href="@{/reactivateDisabledHappeningCategory(categoryID=${happeningCategory.categoryID})}"
+												class="card-header-action btn-trash"><i
+												class="icon-check"></i> </a>
+												</th:block>
+											
+										</div>
+									</div>
+									<div class="card-body">
+										<strong>Description:</strong> <em
+											th:text="${happeningCategory.description}"></em><br> 
+										<strong>Used:</strong> <em th:text="${#lists.contains(usedCategories,happeningCategory) ? 'Used' : 'Not used' }"></em><br>									
+									</div>
+								</div>
+							</div>
+						</div>
+						<!--  include fragement for pageination stuff -->
+						<nav
+							th:replace="~{includes/fragments :: pageNav (linkToChangePage='/showCategoryManagementPage') }"></nav>
+					</div>
 				</div>
 			</div>
 		</div>
