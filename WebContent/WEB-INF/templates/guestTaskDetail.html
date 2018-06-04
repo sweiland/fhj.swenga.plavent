@@ -4,7 +4,7 @@
 
 <head>
 <div th:include="~{includes/bootstrap :: bootstrapMeta}" th:remove="tag" />
-<title>PlaVent</title>
+<title>PlaVent - Guest Task</title>
 <div th:include="~{includes/bootstrap :: bootstrapCSS}" th:remove="tag" />
 <link
 	href="http://www.malot.fr/bootstrap-datetimepicker/bootstrap-datetimepicker/css/bootstrap-datetimepicker.css"
@@ -89,6 +89,8 @@
 				</div>
 			</div>
 		</div>
+		<!-- weilands16: include our footer -->
+		<footer th:replace="~{includes/fragments :: footer}"></footer>
 	</div>
 	<!--  End of container -->
 	<div th:include="~{includes/bootstrap :: bootstrapJS}" th:remove="tag" />

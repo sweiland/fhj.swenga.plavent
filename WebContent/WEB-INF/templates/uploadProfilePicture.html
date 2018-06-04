@@ -4,7 +4,7 @@
 
 <head>
 <div th:include="~{includes/bootstrap :: bootstrapMeta}" th:remove="tag" />
-<title>PlaVent</title>
+<title>PlaVent - Profile Picture</title>
 <div th:include="~{includes/bootstrap :: bootstrapCSS}" th:remove="tag" />
 </head>
 <body>
@@ -43,7 +43,8 @@
 				</form>
 			</div>
 		</div>
-
+<!-- weilands16: include our footer -->
+		<footer th:replace="~{includes/fragments :: footer}"></footer>
 	</div>
 	<!--  End of container -->
 	<div th:replace="~{includes/bootstrap :: bootstrapJS}" />

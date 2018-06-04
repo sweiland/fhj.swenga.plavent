@@ -3,7 +3,7 @@
 	xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>TODO</title>
+<title>PlaVent - ToDo!</title>
 <div th:include="~{includes/bootstrap :: bootstrapMeta}" th:remove="tag" />
 <div th:include="~{includes/bootstrap :: bootstrapCSS}" th:remove="tag" />
 </head>
@@ -15,6 +15,7 @@
 				href="./dashboard">back</a>
 		</div>
 	</div>
-	<footer th:replace="~{includes/fragments :: footer}"></footer>
+	<!-- weilands16: include our footer -->
+		<footer th:replace="~{includes/fragments :: footer}"></footer>
 </body>
 </html>

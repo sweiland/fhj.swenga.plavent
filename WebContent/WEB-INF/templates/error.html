@@ -1,4 +1,5 @@
-	<!DOCTYPE html>
+
+<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:th="http://www.thymeleaf.org">
 
@@ -8,36 +9,46 @@
 <div th:include="~{includes/bootstrap :: bootstrapMeta}" th:remove="tag" />
 <div th:include="~{includes/bootstrap :: bootstrapCSS}" th:remove="tag" />
 </head>
-<body>
-	<div class="card container" role="main">
-		<div class="card-body">
-			<div class="page-header">
+<body class="app flex-row align-items-center bg-dark">
+	<div class="container mb-5" role="main">
+		<div class="card bg-light">
+			<div class="card-body text-dark">
+				<div class="row page-header">
+					<!-- include the Nav bar fragment-->
+					<p
+						th:replace="~{includes/fragments :: header (header='Dashboard')}"></p>
+				</div>
 				<!-- include the Nav bar fragment-->
-				<nav th:replace="~{includes/fragments :: header (header='PlaVent - ERROR')}"></nav>
+				<nav th:replace="~{includes/fragments :: navigation }"></nav>
+
+				<!-- include message boxes (moved to fragments) -->
+				<div th:replace="~{includes/fragments :: msgs}"></div>
 			</div>
-	
-			<!-- include the Nav bar fragment-->
-			<nav th:replace="~{includes/fragments :: navigation }"></nav>
-			
-			<div class="row">
+		</div>
+
+		<div class="card bg-light">
+			<div class="card-body">
 				<div class="col-md-12">
-					<h1>Sorry bro, an error occured:</h1>
-					<!--  Spring information to get access -->
-					<b>Exception:</b> 
-						<span th:text="${#request.getAttribute('javax.servlet.error.exception')}"></span><br/><br>
-					<b>Status Code:</b> 
-						<span th:text="${#request.getAttribute('javax.servlet.error.status_code')}"></span><br/>
-					<b>Request-URI:</b> 
-						<span th:text="${#request.getAttribute('javax.servlet.error.request_uri')}"></span><br/>
-					<b>Servlet Name:</b> 
-						<span th:text="${#request.getAttribute('javax.servlet.error.servlet_name')}"></span><br/>
-					<div class="form-group">
-						<a class="btn btn-pill btn-primary" href="./">Back to Safety!</a>
-					</div>	
+					<div class="row">
+						<h1>Sorry brah, we done fucked up:</h1>
+						<!--  Spring information to get access -->
+						<b>Exception:</b> <span
+							th:text="${#request.getAttribute('javax.servlet.error.exception')}"></span><br />
+						<br> <b>Status Code:</b> <span
+							th:text="${#request.getAttribute('javax.servlet.error.status_code')}"></span><br />
+						<b>Request-URI:</b> <span
+							th:text="${#request.getAttribute('javax.servlet.error.request_uri')}"></span><br />
+						<b>Servlet Name:</b> <span
+							th:text="${#request.getAttribute('javax.servlet.error.servlet_name')}"></span><br />
+						<div class="form-group">
+							<a class="btn btn-pill btn-primary" href="./">Back to Safety!</a>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
 	</div>
-	<footer th:replace="~{includes/fragments :: footer}"></footer>
+	<!-- weilands16: include our footer -->
+		<footer th:replace="~{includes/fragments :: footer}"></footer>
 </body>
 </html>
