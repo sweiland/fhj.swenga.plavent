@@ -11,53 +11,60 @@
 	rel="stylesheet">
 </head>
 
-<body class="app flex-row align-items-center">
+<body class="app flex-row align-items-center bg-dark">
 	<div class="container" role="main">
-		<div class="row">
-			<div class="card col-md-8 col-md-offset-2">
+		<div class="row justify-content-center">
+			<div class="col-md-6">
+				<div class="card bg-light mx-4 text-dark">
 
-				<form class="form-horizontal" method="post"
-					th:action="${happeningCategory} ? @{/modifyExistingHappeningCategory} : @{/createNewHappeningCategory}">
-					<fieldset class="card-body">
-						<h1
-							th:text="${happeningCategory} ? 'Change happening category' : 'New happening category'"></h1>
+					<form class="form-horizontal" method="post"
+						th:action="${happeningCategory} ? @{/modifyExistingHappeningCategory} : @{/createNewHappeningCategory}">
+						<fieldset class="card-body">
+							<h1
+								th:text="${happeningCategory} ? 'Change happening category' : 'New happening category'"></h1>
 
-						<!--  ----------------  categoryId ---------------- -->
-						<div th:if="${happeningCategory} != null" class="form-group">
-							<input class="form-control" type="text" name="categoryID" readonly
-								required="required"
-								th:value="${happeningCategory} ? ${happeningCategory.categoryID}"
-								placeholder="Category-ID">
-						</div>
-
-						<!--  ----------------  categoryName ---------------- -->
-						<div class="form-group">
-							<input class="form-control" type="text" name="categoryName"
-								required="required"
-								th:value="${happeningCategory} ? ${happeningCategory.categoryName}"
-								placeholder="Category-Name">
-						</div>
-
-						<!--  ----------------  description ---------------- -->
-						<div class="form-group">
-							<textarea class="form-control" rows="5" id="description"
-								name="description"
-								th:text="${happeningCategory} ? ${happeningCategory.description}"
-								placeholder="Description"></textarea>
-						</div>
-
-						<!-- --------------  buttons ---------------- -->
-						<div class="form-group">
-							<div class="btn-group">
-								<button type="submit" class="btn btn-pill btn-primary">Submit</button>
-								<a
-									th:href="@{showCategoryManagement}"
-									class="btn btn-pill btn-secondary"> Cancel </a>
+							<!--  ----------------  categoryId ---------------- -->
+							<div th:if="${happeningCategory} != null" class="input-group mb-3">
+								<div class="input-group-prepend">
+									<span class="input-group-text">#</span>
+								</div>
+								<input class="form-control" type="text" name="categoryID"
+									readonly required="required"
+									th:value="${happeningCategory} ? ${happeningCategory.categoryID}"
+									placeholder="Category-ID">
 							</div>
-						</div>
 
-					</fieldset>
-				</form>
+							<!--  ----------------  categoryName ---------------- -->
+							<div class="input-group mb-3">
+								<div class="input-group-prepend">
+									<span class="input-group-text"><i class="icon-note"></i></span>
+								</div>
+								<input class="form-control" type="text" name="categoryName"
+									required="required"
+									th:value="${happeningCategory} ? ${happeningCategory.categoryName}"
+									placeholder="Category-Name">
+							</div>
+
+							<!--  ----------------  description ---------------- -->
+							<div class="input-group mb-3">
+								<textarea class="form-control" rows="5" id="description"
+									name="description"
+									th:text="${happeningCategory} ? ${happeningCategory.description}"
+									placeholder="Description"></textarea>
+							</div>
+
+							<!-- --------------  buttons ---------------- -->
+							<div class="input-group mb-3">
+
+								<button type="submit" class="btn btn-outline-dark">Submit</button>
+								<a th:href="@{showCategoryManagement}"
+									class="btn btn-outline-secondary"> Cancel </a>
+
+							</div>
+
+						</fieldset>
+					</form>
+				</div>
 			</div>
 		</div>
 		<!-- weilands16: include our footer -->
