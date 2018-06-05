@@ -1,8 +1,12 @@
 package at.fh.swenga.plavent.controller;
 
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -130,6 +134,7 @@ public class InitialSetupController {
 			happeningStatusRepo.save(hsDeleted);
 		}
 	}
+	
 
 	/** USERS AND ROLES ARE DEPLOYED IN THE SPRING SECURITY XML FILE. FERNBACH16 **/
 	private void createUsersAndRoles() {
@@ -155,7 +160,7 @@ public class InitialSetupController {
 
 		// Create overall admin if required
 		if (userRepo.findFirstByUsername("admin") == null) {
-			User administrator = new User("admin", "password", "Administrator", "Administrator", "admin@plavent.com",new ArrayList<UserRole>());
+			User administrator = new User("admin", "password", "Administrator", "Administrator", "admin@plavent.com",new ArrayList<UserRole>(),UUID.randomUUID().toString());
 			administrator.encryptPassword();
 			administrator.addUserRole(roleGuest);
 			administrator.addUserRole(roleHost);
@@ -165,7 +170,7 @@ public class InitialSetupController {
 
 		// Create a host user if required
 		if (userRepo.findFirstByUsername("host") == null) {
-			User host = new User("host", "password", "Host", "Host","host@plavent.com", new ArrayList<UserRole>());
+			User host = new User("host", "password", "Host", "Host","host@plavent.com", new ArrayList<UserRole>(),UUID.randomUUID().toString());
 			host.encryptPassword();
 			host.addUserRole(roleGuest);
 			host.addUserRole(roleHost);
@@ -174,7 +179,7 @@ public class InitialSetupController {
 
 		// Create a simple guest user if required
 		if (userRepo.findFirstByUsername("guest") == null) {
-			User guest = new User("guest", "password", "Guest", "Guest","guest@plavent.com", new ArrayList<UserRole>());
+			User guest = new User("guest", "password", "Guest", "Guest","guest@plavent.com", new ArrayList<UserRole>(),UUID.randomUUID().toString());
 			guest.encryptPassword();
 			guest.addUserRole(roleGuest);
 			userRepo.save(guest);

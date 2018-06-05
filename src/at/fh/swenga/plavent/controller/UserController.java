@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import javax.validation.Valid;
 
@@ -113,49 +114,28 @@ public class UserController {
 			model.addAttribute("errorMessage", "User already exists!");
 		} else {
 
+			// Set role Guest in any way.
 			List<UserRole> roles = new ArrayList<UserRole>();
+			UserRole userRoleGuest = userRoleRepo.findFirstByRoleName("ROLE_GUEST");
+			roles.add(userRoleGuest);
 
-			if (role.equals("admin")) {
-				UserRole userRoleAdmin = userRoleRepo.findFirstByRoleName("ROLE_ADMIN");
-				UserRole userRoleHost = userRoleRepo.findFirstByRoleName("ROLE_HOST");
-				UserRole userRoleGuest = userRoleRepo.findFirstByRoleName("ROLE_GUEST");
-				if (userRoleAdmin != null && userRoleHost != null && userRoleGuest != null) {
-					roles.add(userRoleGuest);
-					roles.add(userRoleHost);
-					roles.add(userRoleAdmin);
-				} else {
-					model.addAttribute("warningMessage", "Error while assigning user Role!");
-					return showUserManagement(model, authentication);
-				}
+			if ("host".equals(role)) {
+				roles.add(userRoleRepo.findFirstByRoleName("ROLE_HOST"));
 			}
-			if (role.equals("host")) {
-				UserRole userRoleHost = userRoleRepo.findFirstByRoleName("ROLE_HOST");
-				UserRole userRoleGuest = userRoleRepo.findFirstByRoleName("ROLE_GUEST");
-				if (userRoleHost != null && userRoleGuest != null) {
-					roles.add(userRoleGuest);
-					roles.add(userRoleHost);
-				} else {
-					model.addAttribute("warningMessage", "Error while assigning user Role!");
-					return showUserManagement(model, authentication);
-				}
+
+			if ("admin".equals(role)) {
+				roles.add(userRoleRepo.findFirstByRoleName("ROLE_HOST"));
+				roles.add(userRoleRepo.findFirstByRoleName("ROLE_ADMIN"));
 			}
-			if (role.equals("guest")) {
-				UserRole userRoleGuest = userRoleRepo.findFirstByRoleName("ROLE_GUEST");
-				if (userRoleGuest != null) {
-					roles.add(userRoleGuest);
-				} else {
-					model.addAttribute("warningMessage", "Error while assigning user Role!");
-					return showUserManagement(model, authentication);
-				}
 
-				newUser.encryptPassword();
-				newUser.setRoleList(roles);
-				newUser.setEnabled(true);
+			newUser.encryptPassword();
+			newUser.setRoleList(roles);
+			newUser.setEnabled(true);
+			newUser.setToken(UUID.randomUUID().toString());
 
-				userRepo.save(newUser);
-				model.addAttribute("message", "New user " + newUser.getUsername() + "added.");
+			userRepo.save(newUser);
+			model.addAttribute("message", "New user " + newUser.getUsername() + "added.");
 
-			}
 		}
 		return showUserManagement(model, authentication);
 	}
@@ -189,9 +169,10 @@ public class UserController {
 				List<UserRole> roles = new ArrayList<UserRole>();
 				roles.add(role);
 				newUser.setRoleList(roles);
-
 				newUser.encryptPassword();
 				newUser.setEnabled(true);
+				newUser.setToken(UUID.randomUUID().toString());
+
 				model.addAttribute("message", "Successfully registered User: " + newUser.getUsername());
 			}
 			userRepo.save(newUser);
@@ -321,6 +302,7 @@ public class UserController {
 				user.setLastname(editUserModel.getLastname());
 				user.seteMail(editUserModel.geteMail());
 				user.setTelNumber(editUserModel.getTelNumber());
+
 				userRepo.save(user);
 
 			} else {
@@ -528,7 +510,8 @@ public class UserController {
 			model.addAttribute("errorMessage", errorMessage);
 			if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN")))
 				return showUserManagement(model, authentication);
-			else return showProfile(model, authentication);
+			else
+				return showProfile(model, authentication);
 		}
 
 		User user = userRepo.findFirstByUsername(editUserModel.getUsername());
@@ -548,15 +531,16 @@ public class UserController {
 		}
 		if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN")))
 			return showUserManagement(model, authentication);
-		else return showProfile(model, authentication);
+		else
+			return showProfile(model, authentication);
 	}
 
 	@GetMapping("/sendResetPassword")
-	public String sendResetPassword(@RequestParam("username") String username, Model model, Authentication authentication) {
+	public String sendResetPassword(@RequestParam("username") String username, Model model,
+			Authentication authentication) {
 
-		
 		User user = userRepo.findFirstByUsername(username);
-		if (user != null && user.isEnabled() && user.geteMail() != null) {
+		if (user != null && user.isEnabled() && user.geteMail() != null && user.getToken() != null) {
 			sendPasswordResetMail(user);
 			model.addAttribute("message", "Reset Passwort Email for User: " + user.getUsername() + " has been sent.");
 			return "login";
@@ -566,29 +550,31 @@ public class UserController {
 	}
 
 	private void sendPasswordResetMail(User user) {
-		
-		String resetPasswordUrl = "http://localhost:8080/fhj.swenga2017.plavent/resetPassword?username=" + user.getUsername();
-		String content = "Copy and paste the following link in your browser to reset your password: " + resetPasswordUrl;
+
+
+		String content = "Copy and paste the following link in your browser to reset your password: ";
+		String resetPasswordUrl = "http://localhost:8080/fhj.swenga2017.plavent/resetPassword?token="
+				+ user.getToken();
 		
 		// Create a thread safe "copy" of the template message and customize it
 		SimpleMailMessage msg = new SimpleMailMessage(this.templateMessage);
- 
+
 		// You can override default settings from dispatcher-servlet.xml:
 		msg.setTo(user.geteMail());
 		msg.setSubject("Password Reset");
-		msg.setText(String.format(msg.getText(), user.getFirstname() + ' ' + user.getLastname(), content));
+		msg.setText(String.format(msg.getText(), user.getFirstname() + ' ' + user.getLastname(), content, resetPasswordUrl));
 		try {
 			this.mailSender.send(msg);
 		} catch (MailException ex) {
 			ex.printStackTrace();
 		}
+
 	}
 
 	@GetMapping("/resetPassword")
-	public String resetPassword(@RequestParam("username") String username, Model model,
-			Authentication authentication) {
-		
-		User user = userRepo.findFirstByUsername(username);
+	public String resetPassword(@RequestParam("token") String userToken, Model model, Authentication authentication) {
+
+		User user = userRepo.findFirstByToken(userToken);
 		if (user != null && user.isEnabled()) {
 			model.addAttribute("message", "You can now reset the password.");
 			model.addAttribute("userB", user);
@@ -597,11 +583,11 @@ public class UserController {
 			model.addAttribute("errorMessage", "Error while reading user data!");
 		return "login";
 	}
-	
+
 	@PostMapping("/resetPassword")
 	public String resetPassword(@Valid User resetPasswordUser, BindingResult bindingResult, Model model,
 			Authentication authentication) {
-		
+
 		if (bindingResult.hasErrors()) {
 			String errorMessage = "";
 			for (FieldError fieldError : bindingResult.getFieldErrors()) {
@@ -610,7 +596,7 @@ public class UserController {
 			model.addAttribute("errorMessage", errorMessage);
 			return "login";
 		}
-		
+
 		User user = userRepo.findFirstByUsername(resetPasswordUser.getUsername());
 		if (user != null && user.isEnabled()) {
 			user.setPassword(resetPasswordUser.getPassword());

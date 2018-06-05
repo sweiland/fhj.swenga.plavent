@@ -43,6 +43,9 @@ public class User implements java.io.Serializable {
 	@Column(name = "enabled", nullable = false)
 	private boolean enabled;
 
+	@Column(name = "token", nullable = false, unique = true)
+	private String token;
+
 	@OneToOne(cascade = CascadeType.ALL)
 	private ProfilePicture profilePicture;
 
@@ -79,7 +82,7 @@ public class User implements java.io.Serializable {
 	 * @param telNumber
 	 */
 	public User(String username, String password, String firstname, String lastname, String eMail, String telNumber,
-			ProfilePicture profilePicture, List<UserRole> roles, List<Happening> happenings) {
+			ProfilePicture profilePicture, String token, List<UserRole> roles, List<Happening> happenings) {
 		super();
 		this.username = username;
 		this.password = password;
@@ -91,6 +94,7 @@ public class User implements java.io.Serializable {
 		this.roleList = roles;
 		this.happenings = happenings;
 		this.enabled = true;
+		this.token = token;
 	}
 
 	/**
@@ -102,7 +106,7 @@ public class User implements java.io.Serializable {
 	 * @param telNumber
 	 */
 	public User(String username, String password, String firstname, String lastname, String eMail, String telNumber,
-			List<UserRole> roles, List<Happening> happenings) {
+			List<UserRole> roles, List<Happening> happenings, String token) {
 		super();
 		this.username = username;
 		this.password = password;
@@ -113,10 +117,11 @@ public class User implements java.io.Serializable {
 		this.roleList = roles;
 		this.happenings = happenings;
 		this.enabled = true;
+		this.token = token;
 	}
 
 	public User(String username, String password, String firstname, String lastname, String eMail, String telNumber,
-			List<UserRole> roles) {
+			List<UserRole> roles, String token) {
 		super();
 		this.username = username;
 		this.password = password;
@@ -126,9 +131,11 @@ public class User implements java.io.Serializable {
 		this.telNumber = telNumber;
 		this.roleList = roles;
 		this.enabled = true;
+		this.token = token;
 	}
 
-	public User(String username, String password, String firstname, String lastname, String email,List<UserRole> roles) {
+	public User(String username, String password, String firstname, String lastname, String email, List<UserRole> roles,
+			String token) {
 		super();
 		this.username = username;
 		this.password = password;
@@ -137,6 +144,7 @@ public class User implements java.io.Serializable {
 		this.roleList = roles;
 		this.eMail = email;
 		this.enabled = true;
+		this.token = token;
 	}
 
 	/**
@@ -245,15 +253,14 @@ public class User implements java.io.Serializable {
 	}
 
 	public String getUserRole() {
-		if (roleList.contains( new UserRole("ROLE_ADMIN")))
+		if (roleList.contains(new UserRole("ROLE_ADMIN")))
 			return "ROLE_ADMIN";
-		else if (roleList.contains (new UserRole("ROLE_HOST")))
+		else if (roleList.contains(new UserRole("ROLE_HOST")))
 			return "ROLE_HOST";
 		else
 			return "ROLE_GUEST";
-}
-	
-	
+	}
+
 	public void addUserRole(UserRole role) {
 		roleList.add(role);
 	}
@@ -304,6 +311,15 @@ public class User implements java.io.Serializable {
 	public void encryptPassword() {
 		BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 		password = passwordEncoder.encode(password);
+	}
+	
+
+	public String getToken() {
+		return token;
+	}
+
+	public void setToken(String token) {
+		this.token = token;
 	}
 
 	@Override

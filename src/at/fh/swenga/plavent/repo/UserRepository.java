@@ -53,4 +53,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 	
 	@Query("Delete from User u where u.username = :username")
 	public void deleteByUserName(@Param ("username") String username);
+	
+	
+	public User findFirstByToken(String token);
 }

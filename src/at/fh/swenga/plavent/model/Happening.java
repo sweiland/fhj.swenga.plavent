@@ -218,7 +218,7 @@ public class Happening implements Serializable {
 	}
 
 	public boolean removeFromList(String username) {
-		return guestList.remove(new User(username, null, null, null,null, null));
+		return guestList.remove(new User(username, null, null, null,null, null,null));
 	}
 
 	public boolean removeFromList(User user) {
