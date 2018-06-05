@@ -30,6 +30,8 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 	//@Query("Select u from User u where u.enabled == false")
 	public List<User> findByEnabledFalse();
 	
+	public List<User> findByEnabledTrue();
+	
 	@Query(value = "SELECT u.* " + 
 				   	"FROM User u " +
 					"WHERE u.username != (SELECT h.username " + 

@@ -219,7 +219,7 @@ public class UserController {
 		List<User> users = userRepo.findAll();
 		model.addAttribute("users", users);
 		model.addAttribute("information",
-				"Currently there are <strong>" + userRepo.findAll().size() + "</strong> active Users and <strong>"
+				"Currently there are <strong>" + userRepo.findByEnabledTrue().size() + "</strong> active Users and <strong>"
 						+ userRepo.findByEnabledFalse().size() + " </strong> inactive users");
 		return "userManagement";
 
@@ -635,7 +635,7 @@ public class UserController {
 		} else {
 			user.setEnabled(false);
 			userRepo.save(user);
-			model.addAttribute("message", "User " + editUserModel.getUsername() + "sucessfully deleted");
+			model.addAttribute("message", "User " + editUserModel.getUsername() + " sucessfully deleted");
 		}
 		return showUserManagement(model, authentication);
 	}
