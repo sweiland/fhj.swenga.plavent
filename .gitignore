@@ -7,3 +7,4 @@ target/**
 .project
 /target/
 /src/app.properties
+/WebContent/WEB-INF/dispatcher-servlet.xml
