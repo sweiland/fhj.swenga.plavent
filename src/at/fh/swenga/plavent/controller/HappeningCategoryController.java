@@ -185,7 +185,11 @@ public class HappeningCategoryController {
 	public String disableUsedHappeningCategory(Model model,
 			@RequestParam(value = "categoryID") HappeningCategory category) {
 
-		// TODO: Validation checks
+		//Validation checks
+		if("Unassigned".equals(category.getCategoryName())) {
+			model.addAttribute("You cannot delete the Unassigned Category!");
+			return showCategoryManagement(model);
+		}
 
 		category.setEnabled(false);
 		categoryDao.save(category);
@@ -200,7 +204,6 @@ public class HappeningCategoryController {
 	public String reactivateDisabledHappeningCategory(Model model,
 			@RequestParam(value = "categoryID") HappeningCategory category) {
 
-		// TODO: Validation checks
 		category.setEnabled(true);
 		categoryDao.save(category);
 
@@ -215,6 +218,11 @@ public class HappeningCategoryController {
 			@RequestParam(value = "categoryID") HappeningCategory category) {
 
 		// Validation checks
+		if("Unassigned".equals(category.getCategoryName())) {
+			model.addAttribute("You cannot delete the Unassigned Category!");
+			return showCategoryManagement(model);
+		}
+		
 		List<HappeningCategory> usedCategories = categoryDao.getUsedCategories();
 		if (usedCategories.contains(category)) {
 			model.addAttribute("errorMessage", "You can not delete a used cateogry!");

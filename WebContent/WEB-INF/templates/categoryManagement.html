@@ -48,17 +48,20 @@
 												class="card-header-action btn-pencil"><i
 												class="icon-pencil"></i> </a>
 
-											<a
-												th:if="${#lists.contains(usedCategories,happeningCategory)}"
-												th:href="@{/disableUsedHappeningCategory(categoryID=${happeningCategory.categoryID})}"
-												class="card-header-action btn-trash"><i
-												class="icon-trash"></i> </a>
-
-											<a
-												th:unless="${#lists.contains(usedCategories,happeningCategory)}"
-												th:href="@{/deleteUnusedHappeningCategory(categoryID=${happeningCategory.categoryID})}"
-												class="card-header-action btn-trash"><i
-												class="icon-trash"></i> </a>
+											
+											<th:block th:if="${happeningCategory.categoryName != 'Unassigned'}">
+												<a
+													th:if="${#lists.contains(usedCategories,happeningCategory)}"
+													th:href="@{/disableUsedHappeningCategory(categoryID=${happeningCategory.categoryID})}"
+													class="card-header-action btn-trash"><i
+													class="icon-trash"></i> </a>
+	
+												<a
+													th:unless="${#lists.contains(usedCategories,happeningCategory)}"
+													th:href="@{/deleteUnusedHappeningCategory(categoryID=${happeningCategory.categoryID})}"
+													class="card-header-action btn-trash"><i
+													class="icon-trash"></i> </a>
+											</th:block>
 
 										</th:block>
 

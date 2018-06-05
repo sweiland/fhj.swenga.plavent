@@ -228,7 +228,7 @@ public class UserController {
 			model.addAttribute("errorMessage", "Something went wrong!");
 			return "login";
 		}
-		return "viewProfile";
+		return "showProfile";
 	}
 
 	@Secured({ "ROLE_ADMIN" })
@@ -362,8 +362,6 @@ public class UserController {
 				return showUserManagement(model, authentication);
 			}
 
-			model.addAttribute("message", "User data successfully retrieved. You can now change the User Role of User: "
-					+ user.getUsername());
 			model.addAttribute("user", user);
 			return "changeUserRole";
 		} else {
@@ -463,7 +461,7 @@ public class UserController {
 
 			if (!userOpt.isPresent()) {
 				model.addAttribute("errorMessage", "Error while reading Data!");
-				return "viewProfile";
+				return "showProfile";
 			}
 
 			User user = userOpt.get();

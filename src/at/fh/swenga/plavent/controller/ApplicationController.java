@@ -40,7 +40,7 @@ public class ApplicationController {
 			// Check if DB-Environment exists or start is the first initial startup
 			if (!appPropertyRepository.existsById("PLAVENT.INSTALLED")) {
 				model.addAttribute("warningMessage",
-						"Welcome to Plavent! - You first need to initialize the database. Therefor please press start!");
+						"Welcome to Plavent! - You first need to initialize the database. Therefore please press start!");
 				model.addAttribute("noPlaventEnvironment", true);
 			}
 		}

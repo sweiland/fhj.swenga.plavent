@@ -16,8 +16,10 @@
 					<h1 class="display-1 page-header">PlaVent</h1>
 				</div>
 			</div>
-			<!-- include message boxes (moved to fragments) -->
-			<div th:replace="~{includes/fragments :: msgs}"></div>
+			<div class="col-md-8">
+				<!-- include message boxes (moved to fragments) -->
+				<div th:replace="~{includes/fragments :: msgs}"></div>
+			</div>
 		</div>
 		<div class="row justify-content-center">
 			<div class="col-md-8">
@@ -28,9 +30,7 @@
 					If not: just show button for initial setup -->
 							<th:block th:if="${noPlaventEnvironment}">
 								<form>
-									<label for="prepare">No PlaVent environment found,
-										please press Start to initialize your DB.</label><br> <a
-										th:href="@{/preparePlavent}"
+									<a th:href="@{/preparePlavent}"
 										class="btn btn-lg btn-outline-success" id="prepare"> Start
 										Initial Setup</a>
 								</form>

@@ -14,17 +14,30 @@
 			<div class="col-md-6">
 				<div class="card bg-light mx-4 text-dark">
 					<div class="card-body">
-						<h1 th:text="'Change User Role for User ' + ${user.username}"></h1>
-						<!-- include message boxes (moved to fragments) -->
-						<div th:replace="~{includes/fragments :: msgs}"></div>
+						<h1>Change User Role</h1>
+						
+						
 
 						<form class="form-horizontal" method="post"
 							th:action="@{user} ? @{/changeUserRole(username=${user.username})} : @{/login}">
 
 							<fieldset class="col-md-10">
-
+								<!--  ----------------  Username ---------------- -->
+								<div class="input-group mb-3">
+									<div class="input-group-prepend">
+										<span class="input-group-text">User:</span>
+									</div>
+									<input class="form-control" type="text" name="userName"
+										readonly required="required"
+										th:value="${user} ? ${user.username}"
+										placeholder="Username">
+								</div>
+								
 								<!-- --------------  User Role ---------------->
-								<div class="form-group">
+								<div class="input-group mb-3">
+									<div class="input-group-prepend">
+										<span class="input-group-text">Role:</span>
+									</div>
 									<select class="custom-select form-control" name="role">
 										<option disabled="disabled">User Role</option>
 										<option value="guest"
