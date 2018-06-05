@@ -46,7 +46,9 @@ public class User implements java.io.Serializable {
 	@Column(name = "token", nullable = false, unique = true)
 	private String token;
 
-	@OneToOne(cascade = CascadeType.ALL)
+	@OneToOne(fetch = FetchType.LAZY,
+            cascade =  CascadeType.ALL,
+            mappedBy = "assignedUser")
 	private ProfilePicture profilePicture;
 
 	/*

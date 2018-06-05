@@ -448,11 +448,14 @@ public class UserController {
 
 			User user = userOpt.get();
 
+			//Load lazy ProfilePicutre and check if there is one already!
+			ProfilePicture currPic = profilePictureRepo.findByAssignedUserUsername(user.getUsername());		
 			// Already a Profile Picture available -> delete it
-			if (user.getProfilePicture() != null) {
-				profilePictureRepo.delete(user.getProfilePicture());
+			if (currPic != null) {
+				profilePictureRepo.delete(currPic);
 				// Don't forget to remove the relationship too
 				user.setProfilePicture(null);
+				userRepo.save(user);
 			}
 			// Create a new document and set all available infos
 
@@ -461,6 +464,8 @@ public class UserController {
 			pp.setType(imageFile.getContentType());
 			pp.setCreated(new Date());
 			pp.setPic(imageFile.getBytes());
+			
+			pp.setAssignedUser(user);
 			user.setProfilePicture(pp);
 			profilePictureRepo.save(pp);
 			userRepo.save(user);
