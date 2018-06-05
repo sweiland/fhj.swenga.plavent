@@ -27,51 +27,46 @@
 
 			<!-- TODO: Make this redundant (include in User Management)! -->
 		</div>
-		<div class="row">
-			<div class="col-md-10 col-md-offset-1">
-				<table data-toggle="table" class="table table-striped">
+	
+		<div class="card text-dark">
+
+			<div class="bg-success card-header">
+				<strong th:text="${user.username}"></strong>
+			</div>
+			<div class="card-body">
+				<div class="float-left">
+					<strong>First name:</strong> 
+						<em th:text="${user.firstname}"></em><br> 
+					<strong>Last name:</strong>
+						<em th:text="${user.lastname}"></em><br>
+					<strong>Email:</strong> <em
+						th:text="${user.eMail}"></em><br> 
+					<strong>Telephone:</strong> <em
+						th:text="${user.telNumber}"></em><br>
+				</div>
+				<div class="float-right">
 					<img th:unless="${image} == null" th:src="${image}" height="100"
 						width="100">
-					<thead>
-						<tr>
-							<th>User Name</th>
-							<th>First Name</th>
-							<th>Last Name</th>
-							<th>Email</th>
-							<th>Telephone</th>
-							<th>Action</th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr th:each="user : ${user}">
-							<td th:text="${user.username}"></td>
-							<td th:text="${user.firstname}"></td>
-							<td th:text="${user.lastname}"></td>
-							<td th:text="${user.eMail}"></td>
-							<td th:text="${user.telNumber}"></td>
-
-							</span>
-							</td>
-							<td><a th:href="@{/editUser(username=${user.username})}"
-								class="btn btn-xs btn-success"> <span
-									class="glyphicon glyphicon-edit" aria-hidden="true"></span>
-									Edit
-							</a> <a th:href="@{/changePassword(username=${user.username})}"
-								class="btn btn-xs btn-success"> <span
-									class="glyphicon glyphicon-edit" aria-hidden="true"></span>
-									Change Password
-							</a> <a th:href="@{/uploadProfilePicture(username=${user.username})}"
-								class="btn btn-xs btn-success"> <span
-									class="glyphicon glyphicon-edit" aria-hidden="true"></span>
-									Upload Profile Picture
-							</a></td>
-						</tr>
-					</tbody>
-				</table>
+				</div>
 			</div>
-		</div>
-	</div>
-
+			
+			<nav class="navbar navbar-expand-lg navbar-light bg-light">
+			
+				<a th:href="@{/editUser(username=${user.username})}"
+					class="btn btn-outline-success"> <span
+					class="glyphicon glyphicon-edit" aria-hidden="true"></span>Edit</a> 
+				
+				<a th:href="@{/changePassword(username=${user.username})}"
+					class="btn btn-outline-success"> <span
+					class="glyphicon glyphicon-edit" aria-hidden="true"></span>Change Password</a>
+	
+				<a th:href="@{/uploadProfilePicture(username=${user.username})}"
+					class="btn btn-outline-success"> <span
+					class="glyphicon glyphicon-edit" aria-hidden="true"></span>Upload Profile Picture
+				</a>
+			</nav>
+			
+		</div>	
 
 
 	<!-- hoedlale16: include some fancy footer -->

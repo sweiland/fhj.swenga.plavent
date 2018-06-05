@@ -15,9 +15,13 @@
 	<div class="container" role="main">
 		<div class="row justify-content-center">
 			<div class="col-md-6">
+				<div class="float-left card bg-light mx-4 text-dark">
+						<img class="card-img-top" th:unless="${image} == null"
+						th:src="${image}" height="150" width="150">	
+					</div>
+				
 				<div class="card bg-light mx-4 text-dark">
-					<img class="card-img-top" th:unless="${image} == null"
-						th:src="${image}">
+					
 					<!--  fernbach16: Form calls /edituser or /adduser, depending if an user is set already. -->
 					<form class="form-horizontal" method="post"
 						th:action="${user} ? @{/editUser} : @{/createUser}">
