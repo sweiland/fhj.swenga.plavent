@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<div th:include="~{includes/bootstrap :: bootstrapMeta}" th:remove="tag" />
+<title>PlaVent - Profiles</title>
+<div th:include="~{includes/bootstrap :: bootstrapCSS}" th:remove="tag" />
+</head>
+
+<body class="app flex-row align-items-center bg-dark">
+	<div class="container mb-5" role="main">
+		<div class="card bg-light">
+			<div class="card-body text-dark">
+				<div class="row page-header">
+					<!-- include the Nav bar fragment-->
+					<p
+						th:replace="~{includes/fragments :: header (header='User Management')}"></p>
+				</div>
+
+				<!-- include the Nav bar fragment-->
+				<nav th:replace="~{includes/fragments :: navigation }"></nav>
+
+				<!-- include message boxes (moved to fragments) -->
+				<div th:replace="~{includes/fragments :: msgs}"></div>
+			</div>
+
+			<!-- TODO: Make this redundant (include in User Management)! -->
+		</div>
+		<div class="row">
+			<div class="col-md-10 col-md-offset-1">
+				<table data-toggle="table" class="table table-striped">
+					<img th:unless="${image} == null" th:src="${image}" height="100"
+						width="100">
+					<thead>
+						<tr>
+							<th>User Name</th>
+							<th>First Name</th>
+							<th>Last Name</th>
+							<th>Email</th>
+							<th>Telephone</th>
+							<th>Action</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="user : ${user}">
+							<td th:text="${user.username}"></td>
+							<td th:text="${user.firstname}"></td>
+							<td th:text="${user.lastname}"></td>
+							<td th:text="${user.eMail}"></td>
+							<td th:text="${user.telNumber}"></td>
+
+							</span>
+							</td>
+							<td><a th:href="@{/editUser(username=${user.username})}"
+								class="btn btn-xs btn-success"> <span
+									class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+									Edit
+							</a> <a th:href="@{/changePassword(username=${user.username})}"
+								class="btn btn-xs btn-success"> <span
+									class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+									Change Password
+							</a> <a th:href="@{/uploadProfilePicture(username=${user.username})}"
+								class="btn btn-xs btn-success"> <span
+									class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+									Upload Profile Picture
+							</a></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+
+
+
+	<!-- hoedlale16: include some fancy footer -->
+	<footer th:replace="~{includes/fragments :: footer}"></footer>
+
+	<!--  End of container -->
+	<div th:include="~{includes/bootstrap :: bootstrapJS}" th:remove="tag" />
+</body>
+
+</html>
