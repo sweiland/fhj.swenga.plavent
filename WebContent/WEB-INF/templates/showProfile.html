@@ -52,11 +52,11 @@
 			
 			<nav class="navbar navbar-expand-lg navbar-light bg-light">
 			
-				<a th:href="@{/editUser(username=${user.username})}"
+				<a th:href="@{/editUserFromShowProfile(username=${user.username})}"
 					class="btn btn-outline-success"> <span
 					class="glyphicon glyphicon-edit" aria-hidden="true"></span>Edit</a> 
 				
-				<a th:href="@{/changePassword(username=${user.username})}"
+				<a th:href="@{/changePasswordFromShowProfile(username=${user.username})}"
 					class="btn btn-outline-success"> <span
 					class="glyphicon glyphicon-edit" aria-hidden="true"></span>Change Password</a>
 	

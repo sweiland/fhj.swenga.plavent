@@ -13,6 +13,8 @@ import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.mail.MailException;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
@@ -33,6 +35,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
+import at.fh.swenga.plavent.model.Happening;
 import at.fh.swenga.plavent.model.ProfilePicture;
 import at.fh.swenga.plavent.model.User;
 import at.fh.swenga.plavent.model.UserRole;
@@ -66,6 +69,18 @@ public class UserController {
 	private SimpleMailMessage templateMessage;
 
 	public UserController() {
+	}
+
+	/**
+	 * Helper method to include the paging handling. The content is static, so user
+	 * can just change the pagenumber
+	 * 
+	 * @param pageNr
+	 *            .. Page number which should be displayed
+	 * @return
+	 */
+	private PageRequest generatePageRequest(int pageNr) {
+		return PageRequest.of(pageNr, 6);
 	}
 
 	/**********************************************
@@ -140,47 +155,6 @@ public class UserController {
 		return showUserManagement(model, authentication);
 	}
 
-	@GetMapping("/registerUser")
-	public String registerUser(Model model, Authentication authentication) {
-
-		return "registerUser";
-
-	}
-
-	@PostMapping("/registerUser")
-	public String registerUser(@RequestParam(value = "file", required = false) MultipartFile file, @Valid User newUser,
-			BindingResult bindingResult, Model model, Authentication authentication) {
-
-		if (bindingResult.hasErrors()) {
-			String errorMessage = "";
-			for (FieldError fieldError : bindingResult.getFieldErrors()) {
-				errorMessage += fieldError.getField() + " is invalid<br>";
-			}
-			model.addAttribute("errorMessage", errorMessage);
-			return showRegisterIssues(model, authentication);
-		}
-		if (userRepo.findFirstByUsername(newUser.getUsername()) != null) {
-			model.addAttribute("warningMessage", "User could not be registered!");
-		} else {
-
-			UserRole role = userRoleRepo.findFirstByRoleName("ROLE_GUEST");
-			if (role != null) {
-
-				List<UserRole> roles = new ArrayList<UserRole>();
-				roles.add(role);
-				newUser.setRoleList(roles);
-				newUser.encryptPassword();
-				newUser.setEnabled(true);
-				newUser.setToken(UUID.randomUUID().toString());
-
-				model.addAttribute("message", "Successfully registered User: " + newUser.getUsername());
-			}
-			userRepo.save(newUser);
-
-		}
-		return showRegisterIssues(model, authentication);
-	}
-
 	// ******************** R:READ ****************************************
 
 	@Secured({ "ROLE_GUEST" })
@@ -216,22 +190,66 @@ public class UserController {
 	@RequestMapping(value = { "showUserManagement" })
 	public String showUserManagement(Model model, Authentication authentication) {
 
-		List<User> users = userRepo.findAll();
-		model.addAttribute("users", users);
+		PageRequest page = generatePageRequest(0);
+		Page<User> userPage = userRepo.findAll(page);
+
+		model.addAttribute("users", userPage);
+		model.addAttribute("currPage", userPage.getNumber());
+		model.addAttribute("totalPages", userPage.getTotalPages());
+
 		model.addAttribute("information",
-				"Currently there are <strong>" + userRepo.findByEnabledTrue().size() + "</strong> active Users and <strong>"
-						+ userRepo.findByEnabledFalse().size() + " </strong> inactive users");
+				"Currently there are <strong>" + userRepo.findByEnabledTrue().size()
+						+ "</strong> active Users and <strong>" + userRepo.findByEnabledFalse().size()
+						+ " </strong> inactive users");
+
 		return "userManagement";
 
 	}
 
-	@RequestMapping(value = { "showRegisterIssues" })
-	public String showRegisterIssues(Model model, Authentication authentication) {
+	@Secured({ "ROLE_ADMIN" })
+	@RequestMapping(value = { "showUserManagementPage" })
+	public String showUserManagementPage(Model model, Authentication authentication,
+			@RequestParam(value = "page") int pageNr) {
 
-		return "login";
+		PageRequest page = generatePageRequest(pageNr);
+		Page<User> userPage = userRepo.findAll(page);
+
+		model.addAttribute("users", userPage);
+		model.addAttribute("currPage", userPage.getNumber());
+		model.addAttribute("totalPages", userPage.getTotalPages());
+
+		model.addAttribute("information",
+				"Currently there are <strong>" + userRepo.findByEnabledTrue().size()
+						+ "</strong> active Users and <strong>" + userRepo.findByEnabledFalse().size()
+						+ " </strong> inactive users");
+		return "userManagement";
+
+	}
+
+	@Secured({ "ROLE_ADMIN" })
+	@RequestMapping(value = { "filterUsers" })
+	public String filterUsers(Model model, @RequestParam String searchString, Authentication authentication) {
+
+		PageRequest page = generatePageRequest(0);
+		Page<User> userPage = userRepo.getFilteredUsers(searchString, page);
+
+		model.addAttribute("users", userPage);
+		model.addAttribute("currPage", userPage.getNumber());
+		model.addAttribute("totalPages", userPage.getTotalPages());
+
+		model.addAttribute("information",
+				"Found <strong>" + userPage.getContent().size() + "</strong> Users with filter");
+		return "userManagement";
+
 	}
 
 	// ******************** UPDATE ****************************************
+	@Secured({ "ROLE_GUEST" })
+	@GetMapping(value = "/editUserFromShowProfile")
+	public String editUserFromShowProfile(@RequestParam String username, Model model, Authentication authentication) {
+		model.addAttribute("commingFromShowProfile", true);
+		return editUser(username, model, authentication);
+	}
 
 	@Secured({ "ROLE_GUEST" })
 	@GetMapping(value = "/editUser")
@@ -277,8 +295,9 @@ public class UserController {
 
 	@Secured({ "ROLE_GUEST" })
 	@PostMapping(value = "/editUser")
-	public String editUser(@Valid User editUserModel, BindingResult bindingResult, Model model,
-			Authentication authentication) {
+	public String editUser(@Valid User editUserModel,
+			@RequestParam(value = "commingFromShowProfile", required = false) boolean commingFromShowProfile,
+			BindingResult bindingResult, Model model, Authentication authentication) {
 
 		if (bindingResult.hasErrors()) {
 			String errorMessage = "";
@@ -304,29 +323,20 @@ public class UserController {
 				user.setTelNumber(editUserModel.getTelNumber());
 
 				userRepo.save(user);
+				model.addAttribute("message", "Successfully updated User data of User: " + user.getUsername() + " !");
 
 			} else {
 				model.addAttribute("warningMessage",
 						"Not allowed to edit User with username " + editUserModel.getUsername() + "!");
 			}
-
-			if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
-				model.addAttribute("message", "Successfully updated User data of User: " + user.getUsername() + " !");
-				return showUserManagement(model, authentication);
-			} else {
-				model.addAttribute("message", "Successfully updated User data of User: " + user.getUsername() + " !");
-				return showProfile(model, authentication);
-			}
-
 		} else {
-			if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
-				model.addAttribute("errorMessage",
-						"Error while reading User data! Hint: Either dissabled or does not exist");
-				return showUserManagement(model, authentication);
-			} else {
-				model.addAttribute("errorMessage", "Error while reading User data!");
-				return showProfile(model, authentication);
-			}
+			model.addAttribute("errorMessage", "User not found: " + user.getUsername() + " !");
+		}
+		
+		if(commingFromShowProfile) {
+			return showProfile(model, authentication);
+		} else {
+			return showUserManagement(model, authentication);
 		}
 	}
 
@@ -371,10 +381,11 @@ public class UserController {
 
 		if (user != null && user.isEnabled()) {
 
+			UserRole userRoleAdmin = userRoleRepo.findFirstByRoleName("ROLE_ADMIN");
+			UserRole userRoleHost = userRoleRepo.findFirstByRoleName("ROLE_HOST");
+			UserRole userRoleGuest = userRoleRepo.findFirstByRoleName("ROLE_GUEST");
+
 			if (role.equals("admin")) {
-				UserRole userRoleAdmin = userRoleRepo.findFirstByRoleName("ROLE_ADMIN");
-				UserRole userRoleHost = userRoleRepo.findFirstByRoleName("ROLE_HOST");
-				UserRole userRoleGuest = userRoleRepo.findFirstByRoleName("ROLE_GUEST");
 				if (userRoleAdmin != null && userRoleHost != null && userRoleGuest != null) {
 					roles.add(userRoleGuest);
 					roles.add(userRoleHost);
@@ -385,8 +396,6 @@ public class UserController {
 				}
 			}
 			if (role.equals("host")) {
-				UserRole userRoleHost = userRoleRepo.findFirstByRoleName("ROLE_HOST");
-				UserRole userRoleGuest = userRoleRepo.findFirstByRoleName("ROLE_GUEST");
 				if (userRoleHost != null && userRoleGuest != null) {
 					roles.add(userRoleGuest);
 					roles.add(userRoleHost);
@@ -396,7 +405,6 @@ public class UserController {
 				}
 			}
 			if (role.equals("guest")) {
-				UserRole userRoleGuest = userRoleRepo.findFirstByRoleName("ROLE_GUEST");
 				if (userRoleGuest != null) {
 					roles.add(userRoleGuest);
 				} else {
@@ -420,10 +428,9 @@ public class UserController {
 	@Secured({ "ROLE_GUEST" })
 	@GetMapping("/uploadProfilePicture")
 	public String uploadProfilePicture(Model model, @RequestParam("username") String username) {
-		model.addAttribute("username", username);
 		User user = userRepo.findFirstByUsername(username);
 		if (user != null && user.isEnabled()) {
-			model.addAttribute("information", "You can now upload your profile Picture in JPG format.");
+			model.addAttribute("user", user);
 			return "uploadProfilePicture";
 		} else {
 			model.addAttribute("errorMessage",
@@ -448,8 +455,8 @@ public class UserController {
 
 			User user = userOpt.get();
 
-			//Load lazy ProfilePicutre and check if there is one already!
-			ProfilePicture currPic = profilePictureRepo.findByAssignedUserUsername(user.getUsername());		
+			// Load lazy ProfilePicutre and check if there is one already!
+			ProfilePicture currPic = profilePictureRepo.findByAssignedUserUsername(user.getUsername());
 			// Already a Profile Picture available -> delete it
 			if (currPic != null) {
 				profilePictureRepo.delete(currPic);
@@ -464,7 +471,7 @@ public class UserController {
 			pp.setType(imageFile.getContentType());
 			pp.setCreated(new Date());
 			pp.setPic(imageFile.getBytes());
-			
+
 			pp.setAssignedUser(user);
 			user.setProfilePicture(pp);
 			profilePictureRepo.save(pp);
@@ -503,8 +510,17 @@ public class UserController {
 	}
 
 	@Secured({ "ROLE_GUEST" })
+	@GetMapping("/changePasswordFromShowProfile")
+	public String changePasswordFromShowProfile(@RequestParam(name = "username") String username, Model model,
+			Authentication authentication) {
+		model.addAttribute("commingFromShowProfile", true);
+		return changePassword(username, model, authentication);
+	}
+
+	@Secured({ "ROLE_GUEST" })
 	@PostMapping(value = "/changePassword")
 	public String changePassword(@Valid User editUserModel, @RequestParam String password, BindingResult bindingResult,
+			@RequestParam(value = "commingFromShowProfile", required = false) boolean commingFromShowProfile,
 			Model model, Authentication authentication) {
 
 		if (bindingResult.hasErrors()) {
@@ -534,10 +550,12 @@ public class UserController {
 				model.addAttribute("warningMessage", "Error while reading User data!");
 			}
 		}
-		if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN")))
-			return showUserManagement(model, authentication);
-		else
+		
+		if(commingFromShowProfile) {
 			return showProfile(model, authentication);
+		} else {
+			return showUserManagement(model, authentication);
+		}
 	}
 
 	@GetMapping("/sendResetPassword")
@@ -556,18 +574,17 @@ public class UserController {
 
 	private void sendPasswordResetMail(User user) {
 
-
 		String content = "Copy and paste the following link in your browser to reset your password: ";
-		String resetPasswordUrl = "http://localhost:8080/fhj.swenga2017.plavent/resetPassword?token="
-				+ user.getToken();
-		
+		String resetPasswordUrl = "http://localhost:8080/fhj.swenga2017.plavent/resetPassword?token=" + user.getToken();
+
 		// Create a thread safe "copy" of the template message and customize it
 		SimpleMailMessage msg = new SimpleMailMessage(this.templateMessage);
 
 		// You can override default settings from dispatcher-servlet.xml:
 		msg.setTo(user.geteMail());
 		msg.setSubject("Password Reset");
-		msg.setText(String.format(msg.getText(), user.getFirstname() + ' ' + user.getLastname(), content, resetPasswordUrl));
+		msg.setText(String.format(msg.getText(), user.getFirstname() + ' ' + user.getLastname(), content,
+				resetPasswordUrl));
 		try {
 			this.mailSender.send(msg);
 		} catch (MailException ex) {

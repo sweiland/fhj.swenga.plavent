@@ -7,47 +7,64 @@
 <title>PlaVent - Profile Picture</title>
 <div th:include="~{includes/bootstrap :: bootstrapCSS}" th:remove="tag" />
 </head>
-<body>
+<body class="app flex-row align-items-center bg-dark">
+<div class="container" role="main">
+		<div class="row justify-content-center">
+			<div class="col-md-6">
+				<div class="card bg-light mx-4 text-dark">
+					<div class="card-body">
 
-	<!-- TODO: Make this redundant (include in createModifyUser)! -->
-	<div class="container" role="main">
+						<form class="form-horizontal" enctype="multipart/form-data"
+							method="post"
+							th:action="@{/uploadProfilePicture(${_csrf.parameterName}=${_csrf.token})}">
 
-		<div class="row">
-			<div class="col-md-8 col-md-offset-2">
-				<form class="form-horizontal" enctype="multipart/form-data"
-					method="post"
-					th:action="@{/uploadProfilePicture(${_csrf.parameterName}=${_csrf.token})}">
-					<fieldset>
-						<legend th:text="'Upload Profile Picture for User ' + ${username}"></legend>
-
-						<input type="hidden" name="username" th:value="${username}">
-
-						<div class="form-group">
-							<label for="inputFile" class="col-md-2 control-label">Profile
-								Picture:</label>
-							<div class="col-md-10">
-								<input class="form-control" id="inputFile" type="file"
-									name="imageFile" accept=".jpg, .jpeg">
-							</div>
-						</div>
-						<div class="form-group">
-							<div class="col-md-10 col-md-offset-2">
-								<button type="submit" class="btn btn-primary">Upload</button>
-								<a th:href="@{showProfile}"
-									class="btn btn-outline-secondary"> Cancel </a>
+							<fieldset class="card-body">
+								<h1>Upload profile picture</h1>
 								
-							</div>
-						</div>
+								<!-- Send field if we were came from "show profile" -->
+								<th:block th:if="${commingFromShowProfile}">
+									<input type="hidden" name="commingFromShowProfile" th:value=${commingFromShowProfile}>
+								</th:block>
+	
+								<!--  ----------------  username ---------------- -->
+								<div class="input-group mb-3">
+									<div class="input-group-prepend">
+										<span class="input-group-text"><i class="icon-user"></i></span>
+									</div>
+									<input type="text" class="form-control" name="username"
+										required="required" placeholder="Username"
+										th:value="${user} ? ${user.username}" th:readonly="${user}"
+										autocomplete="off">
+								</div>
+								
+								<!--  ----------------  filePath ---------------- -->
+								<div class="input-group mb-3">
+									<div class="input-group-prepend">
+										<span class="input-group-text"><i class="icon-picture"></i></span>
+									</div>
+								<div class="custom-file">
+									<input class="form-control custom-file-input" id="inputFile" type="file"
+											name="imageFile" accept=".jpg, .jpeg">
+											<label class="custom-file-label" for="inputFile">Choose File</label></div>
+								</div>
+				
+								
+								<!-- --------------  buttons ---------------- -->
+								<button type="submit" class="btn btn-outline-dark">Upload</button>
+								<a href="showProfile" class="btn btn-light">Cancel</a>
 
-					</fieldset>
-				</form>
+							</fieldset>
+						</form>
+						</th:block>
+					</div>
+				</div>
 			</div>
+			<!-- weilands16: include our footer -->
+			<footer th:replace="~{includes/fragments :: footer}"></footer>
 		</div>
-		<!-- weilands16: include our footer -->
-		<footer th:replace="~{includes/fragments :: footer}"></footer>
-	</div>
-	<!--  End of container -->
-	<div th:replace="~{includes/bootstrap :: bootstrapJS}" />
 
-</body>
+		<!--  End of container -->
+		<div th:include="~{includes/bootstrap :: bootstrapJS}" th:remove="tag" />
+ </body>
+
 </html>

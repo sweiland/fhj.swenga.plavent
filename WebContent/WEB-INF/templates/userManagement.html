@@ -28,8 +28,8 @@
 				<div th:replace="~{includes/fragments :: msgs}"></div>
 			</div>
 		</div>
-		<div class="card bg-light">
-			<div class="card-body">
+
+			<div class="card bg-light card-body">
 				<div class="col-md-12">
 					<div class="row">
 						<div th:each="user : ${#request.getAttribute('users')}"
@@ -49,8 +49,8 @@
 											class="icon-people"></i>
 										</a> <a th:unless="${user.enabled} == false"
 											th:href="@{/changePassword(username=${user.username})}"
-											class="card-header-action btn-settings"><i
-											class="icon-settings"></i> </a> <a
+											class="card-header-action btn-lock"><i
+											class="icon-lock"></i> </a> <a
 											th:unless="${user.enabled} == false"
 											th:href="@{/deleteUser(username=${user.username})}"
 											class="card-header-action btn-trash"> <i
@@ -82,9 +82,11 @@
 							</div>
 						</div>
 					</div>
-				</div>
+					
+					<!--  include fragement for pageination stuff -->
+					<nav th:replace="~{includes/fragments :: pageNav (linkToChangePage='/showUserManagementPage') }"></nav>
+				</div>						
 			</div>
-		</div>
 	</div>
 
 
