@@ -17,24 +17,31 @@ import at.fh.swenga.plavent.model.Happening;
 @Transactional(isolation = Isolation.READ_COMMITTED)
 public interface HappeningRepository extends JpaRepository<Happening, Integer> {
 
+	@Transactional(readOnly=true)
 	public List<Happening> findByHappeningId(int happeningID);
 
+	@Transactional(readOnly=true)
 	public Page<Happening> findByHappeningName(String happeningName, Pageable pageable);
 
 	// No pageination variante (e.g. for InitialSetupController)
+	@Transactional(readOnly=true)
 	public List<Happening> findByHappeningName(String happeningName);
 
+	@Transactional(readOnly=true)
 	public Page<Happening> findByHappeningNameAndHappeningHostUsername(String happeningName, String username,
 			Pageable pageable);
 
+	@Transactional(readOnly=true)
 	public List<Happening> findByHappeningHostUsername(String username);
 
+	@Transactional(readOnly=true)
 	@Query(value = "SELECT h " +
 					"FROM Happening h " + 
 					"WHERE h.happeningHost.username = :host " + 
 					"  AND LOWER(h.happeningStatus.statusName) = LOWER('ACTIVE')", nativeQuery = false)
 	public Page<Happening> getActiveHappeningsForHost(@Param("host") String hostUsername, Pageable pageable);
 
+	@Transactional(readOnly=true)
 	@Query(value = "SELECT h.* " + 
 				   "FROM Happening h " + 
 				   "WHERE h.happeningID = (SELECT happeningID "  +
@@ -42,13 +49,15 @@ public interface HappeningRepository extends JpaRepository<Happening, Integer> {
 				   "						WHERE taskId = :taskId)", nativeQuery = true)
 	public Happening getHappeningForTask(@Param("taskId") int taskId);
 
+	@Transactional(readOnly=true)
 	@Query(value = "SELECT h.* " +
 					"FROM Happening h " +
-					"INNER JOIN Guestlist gl ON(gl.happeningId = h.happeningId) " +
 					"INNER JOIN Status s ON(s.statusID = h.statusId) " +
+					"LEFT JOIN Guestlist gl ON(gl.happeningId = h.happeningId) " +
 					"WHERE h.start > CURRENT_TIMESTAMP() " +
 					"  AND s.statusName = 'ACTIVE' " +
-					"  And (gl.username = :username OR h.username = :username)" + 
-					"ORDER BY h.start", nativeQuery = true)
-	public List<Happening> getHappeningForGuestInFuture(@Param("username") String username);
+					"  And ( gl.username = :username OR h.username = :username) " +
+					"ORDER BY h.start " +
+					"LIMIT 3", nativeQuery = true)
+	public List<Happening> getTop3HappeningForGuestInFuture(@Param("username") String username);
 }

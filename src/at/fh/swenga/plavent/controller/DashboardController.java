@@ -71,7 +71,7 @@ public class DashboardController {
 	 * @return
 	 */
 	public List<Happening> getHappeningForGuestInFuture(String username) {
-		List<Happening> happenings = happeningRepository.getHappeningForGuestInFuture(username);
+		List<Happening> happenings = happeningRepository.getTop3HappeningForGuestInFuture(username);
 		return happenings;
 		
 	}

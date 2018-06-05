@@ -31,10 +31,10 @@
 					<!-- Stuff every user sees (GUEST -->
 					<!-- Upcomming Happenings -->			
 					<div th:if="${happeningsForGuestInFuture}" class="text-dark">
-					
+						
 						<div class="card">
 							<div class="card-header">
-								<strong>Upcoming Happenings</strong>
+								<strong>Top 3 upcoming Happenings</strong>
 								<div class="card-header-actions">
 									<a href="#" class="card-header-action btn-minimize" data-toggle="collapse" 
 										data-target="#collapseExample" aria-expanded="true">
@@ -52,26 +52,29 @@
 								 	<strong>No upcoming happenings!</strong>
 								</div>
 									
-								<div th:each="happening : ${#request.getAttribute('happeningsForGuestInFuture')}" class="col-4">
-										<div class="card text-dark">
-											<div class="card-header bg-success">
-												<strong th:text="${happening.happeningName}"></strong>
-											</div>											
-											<div class="card-body">
-												<strong>Happening Name:</strong> <em
-													th:text="${happening.happeningName}"></em><br>
-												<strong>Start Time:</strong> <em
-													th:text="${#dates.format(happening.start,'dd.MM.yyyy hh:mm')}"></em><br>
-												<strong>End Time:</strong> <em
-													th:text="${#dates.format(happening.end,'dd.MM.yyyy hh:mm')}"></em><br>
-												<strong>Location:</strong> <em th:text="${happening.location}"></em><br>
-												<strong>Host:</strong> <em
-													th:text="${happening.happeningHost.lastname +' '+#strings.substring(happening.happeningHost.firstname,0,1) +'.'}"></em><br>
+								<div class="row">
+									<div th:each="happening : ${#request.getAttribute('happeningsForGuestInFuture')}" class="col-4">
+											<div class="card text-dark">
+												<div class="card-header bg-success">
+													<strong th:text="${happening.happeningName}"></strong>
+												</div>											
+												<div class="card-body">
+													<strong>Happening Name:</strong> <em
+														th:text="${happening.happeningName}"></em><br>
+													<strong>Start Time:</strong> <em
+														th:text="${#dates.format(happening.start,'dd.MM.yyyy hh:mm')}"></em><br>
+													<strong>End Time:</strong> <em
+														th:text="${#dates.format(happening.end,'dd.MM.yyyy hh:mm')}"></em><br>
+													<strong>Location:</strong> <em th:text="${happening.location}"></em><br>
+													<strong>Host:</strong> <em
+														th:text="${happening.happeningHost.lastname +' '+#strings.substring(happening.happeningHost.firstname,0,1) +'.'}"></em><br>
+												</div>
 											</div>
-										</div>
+									</div>
 								</div>
 							</div>
 						</div>
+					
 					</div>
 				</div>
 
