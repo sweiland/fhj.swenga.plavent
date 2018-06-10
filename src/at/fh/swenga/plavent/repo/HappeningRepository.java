@@ -59,5 +59,5 @@ public interface HappeningRepository extends JpaRepository<Happening, Integer> {
 					"  And ( gl.username = :username OR h.username = :username) " +
 					"ORDER BY h.start " +
 					"LIMIT 3", nativeQuery = true)
-	public List<Happening> getTop3HappeningForGuestInFuture(@Param("username") String username);
+	public List<Happening> getHappeningForGuestInFuture(@Param("username") String username);
 }

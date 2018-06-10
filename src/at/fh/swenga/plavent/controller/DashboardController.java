@@ -13,9 +13,11 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import at.fh.swenga.plavent.model.Happening;
+import at.fh.swenga.plavent.model.User;
 import at.fh.swenga.plavent.repo.HappeningCategoryRepository;
 import at.fh.swenga.plavent.repo.HappeningRepository;
 import at.fh.swenga.plavent.repo.HappeningStatusRepository;
+import at.fh.swenga.plavent.repo.HappeningTaskRepository;
 import at.fh.swenga.plavent.repo.UserRepository;
 import at.fh.swenga.plavent.repo.UserRoleRepository;
 
@@ -37,6 +39,9 @@ public class DashboardController {
 
 	@Autowired
 	private HappeningCategoryRepository happeningCategoryRepository;
+	
+	@Autowired
+	private HappeningTaskRepository happeningTaskRepository;
 
 	public DashboardController() {
 		// TODO Auto-generated constructor stub
@@ -50,14 +55,15 @@ public class DashboardController {
 		
 		//URD 1.1.1.17 Guest see list of happenings where user is guest orderd by start date and start in the future
 		model.addAttribute("happeningsForGuestInFuture", this.getHappeningForGuestInFuture(authentication.getName()));
+		model.addAttribute("assignedTasksNum", this.getNumberOfAssignedTasksForGuest(authentication.getName()));
 		
 		
 		if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_HOST"))) {
-			//TODO: load stuff for host havera
+			//TODO: load stuff for host hawara
 		}
 		
 		if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
-			//TODO: load stuff for admin havera
+			//TODO: load stuff for admin hawara
 		}
 		
 		
@@ -65,13 +71,19 @@ public class DashboardController {
 	}
 	
 	
+	private int getNumberOfAssignedTasksForGuest(String username) {
+		User user = userRepository.findFirstByUsername(username);
+		int taskNum = happeningTaskRepository.getAllAssignedTasksForUser(user);
+		return taskNum;
+	}
+
 	/**
 	 * Return a list of happenings where given user is a guest and the happenings start in the future
 	 * @param username
 	 * @return
 	 */
 	public List<Happening> getHappeningForGuestInFuture(String username) {
-		List<Happening> happenings = happeningRepository.getTop3HappeningForGuestInFuture(username);
+		List<Happening> happenings = happeningRepository.getHappeningForGuestInFuture(username);
 		return happenings;
 		
 	}

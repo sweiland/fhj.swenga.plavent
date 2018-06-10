@@ -26,69 +26,79 @@
 		</div>
 
 		<div class="card bg-light col-12">
-				<div class="card-body">
-					
-					<!-- Stuff every user sees (GUEST -->
-					<!-- Upcomming Happenings -->			
-					<div th:if="${happeningsForGuestInFuture}" class="text-dark">
-						
-						<div class="card">
-							<div class="card-header">
-								<strong>Top 3 upcoming Happenings</strong>
+			<div class="card-body">
+
+				<!-- Stuff every user sees (GUEST -->
+				<!-- Upcoming Happenings -->
+				<div th:if="${happeningsForGuestInFuture}">
+
+					<div class="card">
+						<div class="card-header text-dark">
+							<strong>Upcoming Happenings</strong>
+							<!-- disabled, because JS to minimize seems to glitch out a lot
 								<div class="card-header-actions">
 									<a href="#" class="card-header-action btn-minimize" data-toggle="collapse" 
 										data-target="#collapseExample" aria-expanded="true">
 										<i class="icon-arrow-up"></i>
 									</a>
-										
-									<a href="#" class="card-header-action btn-close">
-										<i class="icon-close"></i>
-									</a>
-								</div>
+								</div> -->
+						</div>
+
+						<div class="card-body collapse show" id="collapseExample"
+							aria-expanded="true">
+							<div th:if="${#lists.isEmpty(happeningsForGuestInFuture)}"
+								class="center">
+								<strong>No upcoming happenings!</strong>
 							</div>
-							
-							<div class="card-body collapse show" id="collapseExample">
-								<div th:if="${#lists.isEmpty(happeningsForGuestInFuture)}" class="center">
-								 	<strong>No upcoming happenings!</strong>
-								</div>
-									
-								<div class="row">
-									<div th:each="happening : ${#request.getAttribute('happeningsForGuestInFuture')}" class="col-4">
-											<div class="card text-dark">
-												<div class="card-header bg-success">
-													<strong th:text="${happening.happeningName}"></strong>
-												</div>											
-												<div class="card-body">
-													<strong>Happening Name:</strong> <em
-														th:text="${happening.happeningName}"></em><br>
-													<strong>Start Time:</strong> <em
-														th:text="${#dates.format(happening.start,'dd.MM.yyyy hh:mm')}"></em><br>
-													<strong>End Time:</strong> <em
-														th:text="${#dates.format(happening.end,'dd.MM.yyyy hh:mm')}"></em><br>
-													<strong>Location:</strong> <em th:text="${happening.location}"></em><br>
-													<strong>Host:</strong> <em
-														th:text="${happening.happeningHost.lastname +' '+#strings.substring(happening.happeningHost.firstname,0,1) +'.'}"></em><br>
-												</div>
-											</div>
+
+							<div class="row">
+								<div
+									th:each="happening : ${#request.getAttribute('happeningsForGuestInFuture')}"
+									class="col-4">
+									<div class="card text-dark">
+										<div class="card-header bg-success">
+											<strong th:text="${happening.happeningName}"></strong>
+										</div>
+										<div class="card-body">
+											<strong>Happening Name:</strong> <em
+												th:text="${happening.happeningName}"></em><br> <strong>Start
+												Time:</strong> <em
+												th:text="${#dates.format(happening.start,'dd.MM.yyyy hh:mm')}"></em><br>
+											<strong>End Time:</strong> <em
+												th:text="${#dates.format(happening.end,'dd.MM.yyyy hh:mm')}"></em><br>
+											<strong>Location:</strong> <em
+												th:text="${happening.location}"></em><br> <strong>Host:</strong>
+											<em
+												th:text="${happening.happeningHost.lastname +' '+#strings.substring(happening.happeningHost.firstname,0,1) +'.'}"></em><br>
+										</div>
 									</div>
 								</div>
 							</div>
 						</div>
-					
+					</div>
+
+				</div>
+				<div class="card text-white bg-success">
+					<div class="card-body">
+						<div class="text-value">
+							<p th:text="${#request.getAttribute('assignedTasksNum')}"></p>
+						</div>
+						<div>Assigned Tasks</div>
 					</div>
 				</div>
+			</div>
 
 
 
 
-								<!-- Stuff if user has role HOST -->
-						<th:block sec:authorize="hasRole('ROLE_HOST')">
-						</th:block>
-						
-						
-						<!-- Stuff if user has role ADMIN -->
-						<th:block sec:authorize="hasRole('ROLE_ADMIN')">
-						</th:block>
+			<!-- Stuff if user has role HOST -->
+			<th:block sec:authorize="hasRole('ROLE_HOST')">
+			</th:block>
+
+
+			<!-- Stuff if user has role ADMIN -->
+			<th:block sec:authorize="hasRole('ROLE_ADMIN')">
+			</th:block>
 		</div>
 	</div>
 
