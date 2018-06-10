@@ -26,24 +26,26 @@
 			</div>
 		</div>
 
-		<div class="card bg-light">
+		<div class="card bg-light text-dark">
+			<div class="card-header">
+				<h1>Sorry brah, we done fucked up!</h1>
+			</div>
 			<div class="card-body">
-				<div class="col-md-12">
-					<div class="row">
-						<h1>Sorry brah, we done fucked up:</h1>
-						<!--  Spring information to get access -->
-						<b>Exception:</b> <span
-							th:text="${#request.getAttribute('javax.servlet.error.exception')}"></span><br />
-						<br> <b>Status Code:</b> <span
-							th:text="${#request.getAttribute('javax.servlet.error.status_code')}"></span><br />
-						<b>Request-URI:</b> <span
-							th:text="${#request.getAttribute('javax.servlet.error.request_uri')}"></span><br />
-						<b>Servlet Name:</b> <span
-							th:text="${#request.getAttribute('javax.servlet.error.servlet_name')}"></span><br />
-						<div class="form-group">
-							<a class="btn btn-pill btn-primary" href="./">Back to Safety!</a>
-						</div>
-					</div>
+				<!--  Spring information to get access -->
+				<strong>Exception:</strong>
+				<p
+					th:text="${#request.getAttribute('javax.servlet.error.exception')}"></p>
+				<strong>Status Code:</strong>
+				<p
+					th:text="${#request.getAttribute('javax.servlet.error.status_code')}"></p>
+				<strong>Request-URI:</strong>
+				<p
+					th:text="${#request.getAttribute('javax.servlet.error.request_uri')}"></p>
+				<strong>Servlet Name:</strong>
+				<p
+					th:text="${#request.getAttribute('javax.servlet.error.servlet_name')}"></p>
+				<div class="form-group">
+					<a class="btn btn-outline-primary" href="./dashboard">Back to Safety!</a>
 				</div>
 			</div>
 		</div>

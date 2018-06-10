@@ -24,56 +24,45 @@
 				<!-- include message boxes (moved to fragments) -->
 				<div th:replace="~{includes/fragments :: msgs}"></div>
 			</div>
-
-			<!-- TODO: Make this redundant (include in User Management)! -->
 		</div>
-	
-		<div class="card text-dark">
-
-			<div class="bg-success card-header">
-				<strong th:text="${user.username}"></strong>
-			</div>
+		<div class="card bg-light md-5">
 			<div class="card-body">
-				<div class="float-left">
-					<strong>First name:</strong> 
-						<em th:text="${user.firstname}"></em><br> 
-					<strong>Last name:</strong>
-						<em th:text="${user.lastname}"></em><br>
-					<strong>Email:</strong> <em
-						th:text="${user.eMail}"></em><br> 
-					<strong>Telephone:</strong> <em
-						th:text="${user.telNumber}"></em><br>
-				</div>
-				<div class="float-right">
-					<img th:unless="${image} == null" th:src="${image}" height="100"
-						width="100">
+				<div class="card text-dark">
+					<div class="bg-success card-header">
+						<strong th:text="${user.username}"></strong>
+						<div class="card-header-actions">
+							<a
+								th:href="@{/editUserFromShowProfile(username=${user.username})}"
+								class="card-header-action btn-user"><i class="icon-user"></i></a>
+							<a
+								th:href="@{/changePasswordFromShowProfile(username=${user.username})}"
+								class="card-header-action btn-lock"><i class="icon-lock"></i></a>
+							<a th:href="@{/uploadProfilePicture(username=${user.username})}"
+								class="card-header-action btn-picture"><i
+								class="icon-picture"></i></a>
+						</div>
+					</div>
+					<div class="card-body">
+						<div class="float-left">
+							<strong>First name:</strong> <em th:text="${user.firstname}"></em><br>
+							<strong>Last name:</strong> <em th:text="${user.lastname}"></em><br>
+							<strong>Email:</strong> <em th:text="${user.eMail}"></em><br>
+							<strong>Telephone:</strong> <em th:text="${user.telNumber}"></em><br>
+						</div>
+						<div class="float-right">
+							<img th:unless="${image} == null" th:src="${image}" height="250">
+						</div>
+					</div>
 				</div>
 			</div>
-			
-			<nav class="navbar navbar-expand-lg navbar-light bg-light">
-			
-				<a th:href="@{/editUserFromShowProfile(username=${user.username})}"
-					class="btn btn-outline-success"> <span
-					class="glyphicon glyphicon-edit" aria-hidden="true"></span>Edit</a> 
-				
-				<a th:href="@{/changePasswordFromShowProfile(username=${user.username})}"
-					class="btn btn-outline-success"> <span
-					class="glyphicon glyphicon-edit" aria-hidden="true"></span>Change Password</a>
-	
-				<a th:href="@{/uploadProfilePicture(username=${user.username})}"
-					class="btn btn-outline-success"> <span
-					class="glyphicon glyphicon-edit" aria-hidden="true"></span>Upload Profile Picture
-				</a>
-			</nav>
-			
-		</div>	
+		</div>
 
 
-	<!-- hoedlale16: include some fancy footer -->
-	<footer th:replace="~{includes/fragments :: footer}"></footer>
+		<!-- hoedlale16: include some fancy footer -->
+		<footer th:replace="~{includes/fragments :: footer}"></footer>
 
-	<!--  End of container -->
-	<div th:include="~{includes/bootstrap :: bootstrapJS}" th:remove="tag" />
+		<!--  End of container -->
+		<div th:include="~{includes/bootstrap :: bootstrapJS}" th:remove="tag" />
 </body>
 
 </html>
