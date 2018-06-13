@@ -57,7 +57,18 @@ public interface HappeningRepository extends JpaRepository<Happening, Integer> {
 					"WHERE h.start > CURRENT_TIMESTAMP() " +
 					"  AND s.statusName = 'ACTIVE' " +
 					"  And ( gl.username = :username OR h.username = :username) " +
-					"ORDER BY h.start " +
-					"LIMIT 3", nativeQuery = true)
+					"ORDER BY h.start ",
+					nativeQuery = true)
 	public List<Happening> getHappeningForGuestInFuture(@Param("username") String username);
+	
+	@Transactional(readOnly=true)
+	@Query(value="SELECT h.* FROM Happening h " +
+				"INNER JOIN Status s ON s.statusID = h.statusId " +
+				"WHERE h.happeningId NOT IN (SELECT gl.happeningId FROM Guestlist gl) " +
+				"AND h.start > CURRENT_TIMESTAMP() " +
+				"AND s.statusName = 'ACTIVE' " +
+				"AND h.username != :username " +
+				"ORDER BY h.start",
+				nativeQuery = true)
+	public List<Happening> getHappeningInFutureWhereGuestNotInvited(@Param("username") String username);
 }

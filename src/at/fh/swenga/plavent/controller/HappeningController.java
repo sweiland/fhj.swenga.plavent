@@ -98,7 +98,7 @@ public class HappeningController {
 
 				Optional<ApplicationProperty> prop = appPropertyRepo.findById("HAPPENING.MODIFICATION.AFTER.START");
 				// Check happening start date if property is present and true
-				if (prop.isPresent() && (! prop.get().isValue()) ) {
+				if (prop.isPresent() && (!prop.get().isValue())) {
 					Calendar now = Calendar.getInstance();
 					return happening.getStart().getTime().after(now.getTime());
 				} else
@@ -323,8 +323,7 @@ public class HappeningController {
 			model.addAttribute("warningMessage", "New Happening-Host not found!");
 			return showHappenings(model, authentication);
 		}
-		
-		
+
 		// Validation checks done, set new parameters and update data
 		Happening happening = happeningOptional.get();
 
@@ -408,9 +407,10 @@ public class HappeningController {
 		return "error";
 	}
 
-	@ExceptionHandler()
-	@ResponseStatus(code = HttpStatus.FORBIDDEN)
-	public String handle403(Exception ex) {
-		return "login";
-	}
+	/*
+	 * @ExceptionHandler()
+	 * 
+	 * @ResponseStatus(code = HttpStatus.FORBIDDEN) public String
+	 * handle403(Exception ex) { return "login"; }
+	 */
 }

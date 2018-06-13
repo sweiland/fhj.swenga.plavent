@@ -56,6 +56,7 @@ public class DashboardController {
 		//URD 1.1.1.17 Guest see list of happenings where user is guest orderd by start date and start in the future
 		model.addAttribute("happeningsForGuestInFuture", this.getHappeningForGuestInFuture(authentication.getName()));
 		model.addAttribute("assignedTasksNum", this.getNumberOfAssignedTasksForGuest(authentication.getName()));
+		model.addAttribute("happeningInFutureNotGuest", this.getHappeningInFutureWhereGuestNotInvited(authentication.getName()));
 		
 		
 		if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_HOST"))) {
@@ -84,8 +85,12 @@ public class DashboardController {
 	 */
 	public List<Happening> getHappeningForGuestInFuture(String username) {
 		List<Happening> happenings = happeningRepository.getHappeningForGuestInFuture(username);
+		return happenings;	
+	}
+	
+	public List<Happening> getHappeningInFutureWhereGuestNotInvited(String username) {
+		List<Happening> happenings = happeningRepository.getHappeningInFutureWhereGuestNotInvited(username);
 		return happenings;
-		
 	}
 }
 

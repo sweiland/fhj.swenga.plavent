@@ -60,9 +60,7 @@
 											<strong th:text="${happening.happeningName}"></strong>
 										</div>
 										<div class="card-body">
-											<strong>Happening Name:</strong> <em
-												th:text="${happening.happeningName}"></em><br> <strong>Start
-												Time:</strong> <em
+											<strong>Start Time:</strong> <em
 												th:text="${#dates.format(happening.start,'dd.MM.yyyy hh:mm')}"></em><br>
 											<strong>End Time:</strong> <em
 												th:text="${#dates.format(happening.end,'dd.MM.yyyy hh:mm')}"></em><br>
@@ -86,26 +84,65 @@
 						<div>Assigned Tasks</div>
 					</div>
 				</div>
+
+
+				<div th:if="${happeningInFutureNotGuest}">
+
+					<div class="card">
+						<div class="card-header text-dark">
+							<strong>Happenings you are not invited to</strong>
+							<!-- disabled, because JS to minimize seems to glitch out a lot
+								<div class="card-header-actions">
+									<a href="#" class="card-header-action btn-minimize" data-toggle="collapse" 
+										data-target="#collapseExample" aria-expanded="true">
+										<i class="icon-arrow-up"></i>
+									</a>
+								</div> -->
+						</div>
+
+						<div class="card-body collapse show" id="collapseExample"
+							aria-expanded="true">
+							<div th:if="${#lists.isEmpty(happeningsForGuestInFuture)}"
+								class="center">
+								<strong>No happenings!</strong>
+							</div>
+
+							<div class="row">
+								<div
+									th:each="happening : ${#request.getAttribute('happeningInFutureNotGuest')}"
+									class="col-4">
+									<div class="card text-dark">
+										<div class="card-header bg-success">
+											<strong th:text="${happening.happeningName}"></strong>
+										</div>
+										<div class="card-body">
+											<strong>Start Time:</strong><em
+												th:text="${#dates.format(happening.start,'dd.MM.yyyy hh:mm')}"></em><br>
+											<strong>Host:</strong> <em
+												th:text="${happening.happeningHost.lastname +' '+#strings.substring(happening.happeningHost.firstname,0,1) +'.'}"></em><br>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Stuff if user has role HOST -->
+				<th:block sec:authorize="hasRole('ROLE_HOST')">
+				</th:block>
+
+
+				<!-- Stuff if user has role ADMIN -->
+				<th:block sec:authorize="hasRole('ROLE_ADMIN')">
+				</th:block>
 			</div>
-
-
-
-
-			<!-- Stuff if user has role HOST -->
-			<th:block sec:authorize="hasRole('ROLE_HOST')">
-			</th:block>
-
-
-			<!-- Stuff if user has role ADMIN -->
-			<th:block sec:authorize="hasRole('ROLE_ADMIN')">
-			</th:block>
 		</div>
-	</div>
 
-	<!-- hoedlale16: include some fancy footer -->
-	<footer th:replace="~{includes/fragments :: footer}"></footer>
+		<!-- hoedlale16: include some fancy footer -->
+		<footer th:replace="~{includes/fragments :: footer}"></footer>
 
-	<!--  End of container -->
-	<div th:include="~{includes/bootstrap :: bootstrapJS}" th:remove="tag" />
+		<!--  End of container -->
+		<div th:include="~{includes/bootstrap :: bootstrapJS}" th:remove="tag" />
 </body>
 </html>
