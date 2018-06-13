@@ -1,5 +1,6 @@
 package at.fh.swenga.plavent.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import at.fh.swenga.plavent.model.Happening;
 import at.fh.swenga.plavent.model.HappeningTask;
 import at.fh.swenga.plavent.model.User;
 import at.fh.swenga.plavent.repo.HappeningCategoryRepository;
+import at.fh.swenga.plavent.repo.HappeningGuestlistRepository;
 import at.fh.swenga.plavent.repo.HappeningRepository;
 import at.fh.swenga.plavent.repo.HappeningStatusRepository;
 import at.fh.swenga.plavent.repo.HappeningTaskRepository;
@@ -44,6 +46,9 @@ public class DashboardController {
 	@Autowired
 	private HappeningTaskRepository happeningTaskRepository;
 
+	@Autowired
+	private HappeningGuestlistRepository happeningGuestlistRepository;
+	
 	public DashboardController() {
 		// TODO Auto-generated constructor stub
 	}	
@@ -59,10 +64,13 @@ public class DashboardController {
 		model.addAttribute("assignedTasksNum", this.getNumberOfAssignedTasksForGuest(authentication.getName()));
 		model.addAttribute("happeningInFutureNotGuest", this.getHappeningInFutureWhereGuestNotInvited(authentication.getName()));
 		model.addAttribute("assignedTasks", this.getAllAssignedTasksForGuest(authentication.getName()));
+		model.addAttribute("numOfHappenings", this.numOfHappenings(this.getHappeningForGuestInFuture(authentication.getName())));
 		
 		
 		if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_HOST"))) {
-			//TODO: load stuff for host hawara
+			model.addAttribute("activeHappeningsHost", this.getAllActiveHappeningsHost(authentication.getName()));
+			model.addAttribute("numOfHosted", this.numOfHappeningsHosted(this.getAllActiveHappeningsHost(authentication.getName())));
+			model.addAttribute("numOfGuests",this.numOfGuests(this.getAllActiveHappeningsHost(authentication.getName())));
 		}
 		
 		if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
@@ -73,7 +81,24 @@ public class DashboardController {
 		return "dashboard";
 	}
 	
-	
+	//TODO: Implement meaningfully
+	public List<Integer> numOfGuests(List<Happening> happenings) {
+		List<Integer> guestNums = new ArrayList<>();
+		for (int i = 0; i<happenings.size();i++) {
+		guestNums.set(i, happeningGuestlistRepository.getGuestList(happenings.get(i).getHappeningId()).size());
+		}
+		return guestNums;
+	}
+
+	public int numOfHappenings(List<Happening> happenings) {
+		return happenings.size();
+	}
+
+	public List<Happening> getAllActiveHappeningsHost(String name) {
+		List<Happening> happenings = happeningRepository.getAllActiveHappeningsHost(name);
+		return happenings;
+	}
+
 	public int getNumberOfAssignedTasksForGuest(String username) {
 		User user = userRepository.findFirstByUsername(username);
 		int taskNum = happeningTaskRepository.getNumOfAssignedTasksForUser(user);
@@ -99,6 +124,10 @@ public class DashboardController {
 	public List<Happening> getHappeningInFutureWhereGuestNotInvited(String username) {
 		List<Happening> happenings = happeningRepository.getHappeningInFutureWhereGuestNotInvited(username);
 		return happenings;
+	}
+	
+	public int numOfHappeningsHosted(List<Happening> happenings) {
+		return happenings.size();
 	}
 }
 

@@ -76,12 +76,21 @@
 					</div>
 
 				</div>
+
 				<div class="card text-white bg-success">
 					<div class="card-body">
 						<div class="text-value">
 							<p th:text="${#request.getAttribute('assignedTasksNum')}"></p>
 						</div>
 						<div>Assigned Tasks</div>
+					</div>
+				</div>
+				<div class="card text-white bg-success">
+					<div class="card-body">
+						<div class="text-value">
+							<p th:text="${#request.getAttribute('numOfHappenings')}"></p>
+						</div>
+						<div>Happenings to go</div>
 					</div>
 				</div>
 
@@ -126,11 +135,58 @@
 							</div>
 						</div>
 					</div>
-					<div th:if="${assignedTasks}">
+				</div>
+				<div th:if="${assignedTasks}">
+					<div class="card">
+						<div class="card-header text-dark">
+							<strong>Your Tasks</strong>
+							<!-- disabled, because JS to minimize seems to glitch out a lot
+								<div class="card-header-actions">
+									<a href="#" class="card-header-action btn-minimize" data-toggle="collapse" 
+										data-target="#collapseExample" aria-expanded="true">
+										<i class="icon-arrow-up"></i>
+									</a>
+								</div> -->
+						</div>
 
+						<div class="card-body collapse show" id="collapseExample"
+							aria-expanded="true">
+							<div th:if="${#lists.isEmpty(assignedTasks)}" class="center">
+								<strong>No happenings!</strong>
+							</div>
+
+							<div class="row">
+								<div th:each="task : ${#request.getAttribute('assignedTasks')}"
+									class="col-4">
+									<div class="card text-dark">
+										<div class="card-header bg-success">
+											<strong th:text="${task.topic}"></strong>
+										</div>
+										<div class="card-body">
+											<strong>Happening:</strong> <em
+												th:text="${task.happening.happeningName}"></em><br> <strong>Description:</strong>
+											<em th:text="${task.description}"></em><br> <strong>Start
+												Time:</strong> <em
+												th:text="${#dates.format(task.happening.start,'dd.MM.yyyy hh:mm')}"></em><br>
+											<strong>Location:</strong> <em
+												th:text="${task.happening.location}"></em>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+
+
+				<!-- Stuff if user has role HOST -->
+				<th:block sec:authorize="hasRole('ROLE_HOST')">
+
+					<div th:if="${activeHappeningsHost}">
 						<div class="card">
 							<div class="card-header text-dark">
-								<strong>Your Tasks</strong>
+								<strong>Your hosted happenings</strong>
 								<!-- disabled, because JS to minimize seems to glitch out a lot
 								<div class="card-header-actions">
 									<a href="#" class="card-header-action btn-minimize" data-toggle="collapse" 
@@ -142,21 +198,22 @@
 
 							<div class="card-body collapse show" id="collapseExample"
 								aria-expanded="true">
-								<div th:if="${#lists.isEmpty(assignedTasks)}"
+								<div th:if="${#lists.isEmpty(activeHappeningsHost)}"
 									class="center">
 									<strong>No happenings!</strong>
 								</div>
 
 								<div class="row">
 									<div
-										th:each="task : ${#request.getAttribute('assignedTasks')}"
+										th:each="happening : ${#request.getAttribute('activeHappeningsHost')}"
 										class="col-4">
 										<div class="card text-dark">
 											<div class="card-header bg-success">
-												<strong th:text="${task.topic}"></strong>
+												<strong th:text="${happening.happeningName}"></strong>
 											</div>
 											<div class="card-body">
-												<strong>Happening: </strong><em th:text="${task.happening.happeningName}"></em><br>
+												<strong>Happening:</strong> <em
+													th:text="${happening.happeningName}"></em><br>
 											</div>
 										</div>
 									</div>
@@ -164,17 +221,22 @@
 							</div>
 						</div>
 					</div>
-				</div>
+					<div class="card text-white bg-success">
+						<div class="card-body">
+							<div class="text-value">
+								<p th:text="${#request.getAttribute('numOfHosted')}"></p>
+							</div>
+							<div>Happenings hosted</div>
+						</div>
+					</div>
+
+				</th:block>
+
+
+				<!-- Stuff if user has role ADMIN -->
+				<th:block sec:authorize="hasRole('ROLE_ADMIN')">
+				</th:block>
 			</div>
-
-			<!-- Stuff if user has role HOST -->
-			<th:block sec:authorize="hasRole('ROLE_HOST')">
-			</th:block>
-
-
-			<!-- Stuff if user has role ADMIN -->
-			<th:block sec:authorize="hasRole('ROLE_ADMIN')">
-			</th:block>
 		</div>
 	</div>
 
@@ -182,6 +244,6 @@
 	<footer th:replace="~{includes/fragments :: footer}"></footer>
 
 	<!--  End of container -->
-	<div th:include="~{includes/bootstrap :: bootstrapJS}" th:remove="tag" />
+	<div th:include="~{includes/bootstrap :: bootstrapJS}" th:remove="tag"></div>
 </body>
 </html>
