@@ -23,7 +23,7 @@ public class HappeningTask implements Serializable {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int taskId;
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "happeningId", nullable = false)
 	private Happening happening;
 

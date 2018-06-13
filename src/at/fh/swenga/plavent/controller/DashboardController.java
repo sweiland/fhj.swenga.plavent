@@ -13,6 +13,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import at.fh.swenga.plavent.model.Happening;
+import at.fh.swenga.plavent.model.HappeningTask;
 import at.fh.swenga.plavent.model.User;
 import at.fh.swenga.plavent.repo.HappeningCategoryRepository;
 import at.fh.swenga.plavent.repo.HappeningRepository;
@@ -57,6 +58,7 @@ public class DashboardController {
 		model.addAttribute("happeningsForGuestInFuture", this.getHappeningForGuestInFuture(authentication.getName()));
 		model.addAttribute("assignedTasksNum", this.getNumberOfAssignedTasksForGuest(authentication.getName()));
 		model.addAttribute("happeningInFutureNotGuest", this.getHappeningInFutureWhereGuestNotInvited(authentication.getName()));
+		model.addAttribute("assignedTasks", this.getAllAssignedTasksForGuest(authentication.getName()));
 		
 		
 		if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_HOST"))) {
@@ -72,10 +74,16 @@ public class DashboardController {
 	}
 	
 	
-	private int getNumberOfAssignedTasksForGuest(String username) {
+	public int getNumberOfAssignedTasksForGuest(String username) {
 		User user = userRepository.findFirstByUsername(username);
-		int taskNum = happeningTaskRepository.getAllAssignedTasksForUser(user);
+		int taskNum = happeningTaskRepository.getNumOfAssignedTasksForUser(user);
 		return taskNum;
+	}
+	
+	public List<HappeningTask> getAllAssignedTasksForGuest(String username) {
+		User user = userRepository.findFirstByUsername(username);
+		List<HappeningTask> tasks = happeningTaskRepository.getAllAssignedTasksForUser(user);
+		return tasks;
 	}
 
 	/**
