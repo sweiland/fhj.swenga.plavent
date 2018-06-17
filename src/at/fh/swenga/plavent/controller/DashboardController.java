@@ -58,19 +58,22 @@ public class DashboardController {
 	public String showDashboard(Model model,Authentication authentication) {
 		
 		//TODO: Show stuff for logged in user	
+		List<Happening> happeningsForGuest =  this.getHappeningForGuestInFuture(authentication.getName());
 		
 		//URD 1.1.1.17 Guest see list of happenings where user is guest orderd by start date and start in the future
-		model.addAttribute("happeningsForGuestInFuture", this.getHappeningForGuestInFuture(authentication.getName()));
-		model.addAttribute("assignedTasksNum", this.getNumberOfAssignedTasksForGuest(authentication.getName()));
-		model.addAttribute("happeningInFutureNotGuest", this.getHappeningInFutureWhereGuestNotInvited(authentication.getName()));
+		model.addAttribute("happeningsForGuestInFuture",happeningsForGuest);
+		model.addAttribute("assignedTasksNum",  happeningTaskRepository.getNumOfAssignedTasksForUser(authentication.getName()));
+		model.addAttribute("happeningInFutureNotGuest", happeningRepository.getHappeningInFutureWhereGuestNotInvited(authentication.getName()));
 		model.addAttribute("assignedTasks", this.getAllAssignedTasksForGuest(authentication.getName()));
-		model.addAttribute("numOfHappenings", this.numOfHappenings(this.getHappeningForGuestInFuture(authentication.getName())));
+		model.addAttribute("numOfHappenings", happeningsForGuest.size());
 		
 		
 		if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_HOST"))) {
-			model.addAttribute("activeHappeningsHost", this.getAllActiveHappeningsHost(authentication.getName()));
-			model.addAttribute("numOfHosted", this.numOfHappeningsHosted(this.getAllActiveHappeningsHost(authentication.getName())));
-			model.addAttribute("numOfGuests",this.numOfGuests(this.getAllActiveHappeningsHost(authentication.getName())));
+			List<Happening> happeningsAsHost = happeningRepository.getAllActiveHappeningsHost(authentication.getName());
+			
+			model.addAttribute("activeHappeningsHost", happeningsAsHost);
+			model.addAttribute("numOfHosted", happeningsAsHost.size());
+			model.addAttribute("numOfGuests",this.numOfGuests(happeningsAsHost));
 		}
 		
 		if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
@@ -84,25 +87,12 @@ public class DashboardController {
 	//TODO: Implement meaningfully
 	public List<Integer> numOfGuests(List<Happening> happenings) {
 		List<Integer> guestNums = new ArrayList<>();
-		for (int i = 0; i<happenings.size();i++) {
-		guestNums.set(i, happeningGuestlistRepository.getGuestList(happenings.get(i).getHappeningId()).size());
+		int i = 0;
+		for (Happening h: happenings) {
+			guestNums.add(i, happeningGuestlistRepository.getGuestListSize(h.getHappeningId()));
+			i++;					
 		}
 		return guestNums;
-	}
-
-	public int numOfHappenings(List<Happening> happenings) {
-		return happenings.size();
-	}
-
-	public List<Happening> getAllActiveHappeningsHost(String name) {
-		List<Happening> happenings = happeningRepository.getAllActiveHappeningsHost(name);
-		return happenings;
-	}
-
-	public int getNumberOfAssignedTasksForGuest(String username) {
-		User user = userRepository.findFirstByUsername(username);
-		int taskNum = happeningTaskRepository.getNumOfAssignedTasksForUser(user);
-		return taskNum;
 	}
 	
 	public List<HappeningTask> getAllAssignedTasksForGuest(String username) {
@@ -121,13 +111,5 @@ public class DashboardController {
 		return happenings;	
 	}
 	
-	public List<Happening> getHappeningInFutureWhereGuestNotInvited(String username) {
-		List<Happening> happenings = happeningRepository.getHappeningInFutureWhereGuestNotInvited(username);
-		return happenings;
-	}
-	
-	public int numOfHappeningsHosted(List<Happening> happenings) {
-		return happenings.size();
-	}
 }
 

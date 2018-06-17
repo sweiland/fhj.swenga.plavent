@@ -38,8 +38,8 @@ public interface HappeningTaskRepository extends JpaRepository<HappeningTask, In
 	@Query("Select t FROM HappeningTask t WHERE t.happening.happeningId = :happeningId AND t.responsibleUser = :user")
 	public List<HappeningTask> getAllAssignedTasks(@Param("happeningId") int happeningId, @Param("user") User user);
 
-	@Query("Select COUNT(t) FROM HappeningTask t WHERE t.responsibleUser= :responsibleUser")
-	public int getNumOfAssignedTasksForUser(@Param("responsibleUser") User user);
+	@Query("Select COUNT(t) FROM HappeningTask t WHERE t.responsibleUser.username = :username")
+	public int getNumOfAssignedTasksForUser(@Param("username") String username);
 
 	@Transactional(readOnly = true)
 	@Query(value = "SELECT t.*, h.* FROM HappeningTask t INNER JOIN Happening h ON h.happeningId = t.happeningId WHERE t.responsibleUser = :responsibleUser", nativeQuery = true)
