@@ -1,5 +1,6 @@
 package at.fh.swenga.plavent.controller;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +16,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import at.fh.swenga.plavent.model.Happening;
-import at.fh.swenga.plavent.model.User;
 import at.fh.swenga.plavent.repo.HappeningGuestlistRepository;
 import at.fh.swenga.plavent.repo.HappeningRepository;
 import at.fh.swenga.plavent.repo.HappeningTaskRepository;
@@ -48,12 +48,14 @@ public class DashboardController {
 		model.addAttribute("assignedTasksNum", this.getNumberOfAssignedTasksForGuest(authentication.getName()));
 		model.addAttribute("happeningInFutureNotGuest",
 				this.getHappeningInFutureWhereGuestNotInvited(authentication.getName()));
-		model.addAttribute("assignedTasks", happeningTaskRepository.getAllAssignedTasksForUser(authentication.getName()));
+		model.addAttribute("assignedTasks",
+				happeningTaskRepository.getAllAssignedTasksForUser(authentication.getName()));
 		model.addAttribute("numOfHappenings",
 				this.numOfHappenings(this.getHappeningForGuestInFuture(authentication.getName())));
 
 		if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_HOST"))) {
-			//model.addAttribute("activeHappeningsHost", this.getAllActiveHappeningsHost(authentication.getName()));
+			// model.addAttribute("activeHappeningsHost",
+			// this.getAllActiveHappeningsHost(authentication.getName()));
 			model.addAttribute("numOfHosted",
 					this.numOfHappeningsHosted(this.getAllActiveHappeningsHost(authentication.getName())));
 			model.addAttribute("numOfGuests",
@@ -67,10 +69,13 @@ public class DashboardController {
 		return "dashboard";
 	}
 
-	public Map<String, Integer> numOfGuests(List<Happening> happenings) {
-		Map<String, Integer> guestNums = new HashMap<String, Integer>();
+	public Map<String, ArrayList<Integer>> numOfGuests(List<Happening> happenings) {
+		Map<String, ArrayList<Integer>> guestNums = new HashMap<String, ArrayList<Integer>>();
 		for (int i = 0; i < happenings.size(); i++) {
-			guestNums.put(happenings.get(i).getHappeningName(), happeningGuestlistRepository.getGuestList(happenings.get(i).getHappeningId()).size());
+			ArrayList<Integer> info = new ArrayList<Integer>();
+			info.add(happeningGuestlistRepository.getGuestList(happenings.get(i).getHappeningId()).size());
+			info.add(happeningTaskRepository.findByHappeningHappeningId(happenings.get(i).getHappeningId()).size());
+			guestNums.put(happenings.get(i).getHappeningName(), info);
 		}
 		return guestNums;
 	}

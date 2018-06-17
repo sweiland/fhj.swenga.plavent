@@ -198,8 +198,7 @@
 
 							<div class="card-body collapse show" id="collapseExample"
 								aria-expanded="true">
-								<div th:if="${#lists.isEmpty(numOfGuests)}"
-									class="center">
+								<div th:if="${#lists.isEmpty(numOfGuests)}" class="center">
 									<strong>No happenings!</strong>
 								</div>
 
@@ -213,7 +212,8 @@
 											</div>
 											<div class="card-body">
 												<strong>Attendees:</strong> <em
-													th:text="${happening.value}"></em><br>
+													th:text="${happening.value[0]}"></em><br> <strong>Tasks:</strong>
+												<em th:text="${happening.value[1]}"></em>
 											</div>
 										</div>
 									</div>
