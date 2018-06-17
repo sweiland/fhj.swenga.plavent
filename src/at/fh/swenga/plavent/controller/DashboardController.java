@@ -15,15 +15,11 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import at.fh.swenga.plavent.model.Happening;
-import at.fh.swenga.plavent.model.HappeningTask;
 import at.fh.swenga.plavent.model.User;
-import at.fh.swenga.plavent.repo.HappeningCategoryRepository;
 import at.fh.swenga.plavent.repo.HappeningGuestlistRepository;
 import at.fh.swenga.plavent.repo.HappeningRepository;
-import at.fh.swenga.plavent.repo.HappeningStatusRepository;
 import at.fh.swenga.plavent.repo.HappeningTaskRepository;
 import at.fh.swenga.plavent.repo.UserRepository;
-import at.fh.swenga.plavent.repo.UserRoleRepository;
 
 @Controller
 @Scope(proxyMode = ScopedProxyMode.TARGET_CLASS, value = "session")
@@ -33,16 +29,7 @@ public class DashboardController {
 	private UserRepository userRepository;
 
 	@Autowired
-	private UserRoleRepository userRoleRepository;
-
-	@Autowired
 	private HappeningRepository happeningRepository;
-
-	@Autowired
-	private HappeningStatusRepository happeningStatusRepository;
-
-	@Autowired
-	private HappeningCategoryRepository happeningCategoryRepository;
 
 	@Autowired
 	private HappeningTaskRepository happeningTaskRepository;
@@ -61,7 +48,7 @@ public class DashboardController {
 		model.addAttribute("assignedTasksNum", this.getNumberOfAssignedTasksForGuest(authentication.getName()));
 		model.addAttribute("happeningInFutureNotGuest",
 				this.getHappeningInFutureWhereGuestNotInvited(authentication.getName()));
-		model.addAttribute("assignedTasks", this.getAllAssignedTasksForGuest(authentication.getName()));
+		model.addAttribute("assignedTasks", happeningTaskRepository.getAllAssignedTasksForUser(authentication.getName()));
 		model.addAttribute("numOfHappenings",
 				this.numOfHappenings(this.getHappeningForGuestInFuture(authentication.getName())));
 
@@ -98,15 +85,8 @@ public class DashboardController {
 	}
 
 	public int getNumberOfAssignedTasksForGuest(String username) {
-		User user = userRepository.findFirstByUsername(username);
-		int taskNum = happeningTaskRepository.getNumOfAssignedTasksForUser(user);
+		int taskNum = happeningTaskRepository.getNumOfAssignedTasksForUser(username);
 		return taskNum;
-	}
-
-	public List<HappeningTask> getAllAssignedTasksForGuest(String username) {
-		User user = userRepository.findFirstByUsername(username);
-		List<HappeningTask> tasks = happeningTaskRepository.getAllAssignedTasksForUser(user);
-		return tasks;
 	}
 
 	/**

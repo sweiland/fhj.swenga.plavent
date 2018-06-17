@@ -38,10 +38,14 @@ public interface HappeningTaskRepository extends JpaRepository<HappeningTask, In
 	@Query("Select t FROM HappeningTask t WHERE t.happening.happeningId = :happeningId AND t.responsibleUser = :user")
 	public List<HappeningTask> getAllAssignedTasks(@Param("happeningId") int happeningId, @Param("user") User user);
 
-	@Query("Select COUNT(t) FROM HappeningTask t WHERE t.responsibleUser= :responsibleUser")
-	public int getNumOfAssignedTasksForUser(@Param("responsibleUser") User user);
+	@Transactional(readOnly = true)
+	@Query(value = "SELECT COUNT(*) as assignedTasks " + "FROM HappeningTask t "
+			+ "INNER JOIN Happening h  ON(h.happeningID = t.happeningID) "
+			+ "INNER JOIN Status s ON( s.statusID = h.statusId) " + "WHERE s.statusName = 'ACTIVE' "
+			+ "  AND t.responsibleUser = :username", nativeQuery = true)
+	public int getNumOfAssignedTasksForUser(@Param("username") String username);
 
 	@Transactional(readOnly = true)
-	@Query(value = "SELECT t.*, h.* FROM HappeningTask t INNER JOIN Happening h ON h.happeningId = t.happeningId WHERE t.responsibleUser = :responsibleUser", nativeQuery = true)
-	public List<HappeningTask> getAllAssignedTasksForUser(@Param("responsibleUser") User user);
+	@Query(value = "SELECT t.* " + "FROM HappeningTask t " + "WHERE t.responsibleUser = :username", nativeQuery = true)
+	public List<HappeningTask> getAllAssignedTasksForUser(@Param("username") String username);
 }
