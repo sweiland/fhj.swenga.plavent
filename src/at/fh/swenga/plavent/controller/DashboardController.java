@@ -1,7 +1,8 @@
 package at.fh.swenga.plavent.controller;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -36,56 +37,53 @@ public class DashboardController {
 
 	@Autowired
 	private HappeningRepository happeningRepository;
-	
+
 	@Autowired
 	private HappeningStatusRepository happeningStatusRepository;
 
 	@Autowired
 	private HappeningCategoryRepository happeningCategoryRepository;
-	
+
 	@Autowired
 	private HappeningTaskRepository happeningTaskRepository;
 
 	@Autowired
 	private HappeningGuestlistRepository happeningGuestlistRepository;
-	
+
 	public DashboardController() {
 		// TODO Auto-generated constructor stub
-	}	
+	}
 
-	@Secured({ "ROLE_GUEST"})
+	@Secured({ "ROLE_GUEST" })
 	@RequestMapping(value = { "dashboard" })
-	public String showDashboard(Model model,Authentication authentication) {
-		
-		//TODO: Show stuff for logged in user	
-		
-		//URD 1.1.1.17 Guest see list of happenings where user is guest orderd by start date and start in the future
+	public String showDashboard(Model model, Authentication authentication) {
 		model.addAttribute("happeningsForGuestInFuture", this.getHappeningForGuestInFuture(authentication.getName()));
 		model.addAttribute("assignedTasksNum", this.getNumberOfAssignedTasksForGuest(authentication.getName()));
-		model.addAttribute("happeningInFutureNotGuest", this.getHappeningInFutureWhereGuestNotInvited(authentication.getName()));
+		model.addAttribute("happeningInFutureNotGuest",
+				this.getHappeningInFutureWhereGuestNotInvited(authentication.getName()));
 		model.addAttribute("assignedTasks", this.getAllAssignedTasksForGuest(authentication.getName()));
-		model.addAttribute("numOfHappenings", this.numOfHappenings(this.getHappeningForGuestInFuture(authentication.getName())));
-		
-		
+		model.addAttribute("numOfHappenings",
+				this.numOfHappenings(this.getHappeningForGuestInFuture(authentication.getName())));
+
 		if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_HOST"))) {
-			model.addAttribute("activeHappeningsHost", this.getAllActiveHappeningsHost(authentication.getName()));
-			model.addAttribute("numOfHosted", this.numOfHappeningsHosted(this.getAllActiveHappeningsHost(authentication.getName())));
-			model.addAttribute("numOfGuests",this.numOfGuests(this.getAllActiveHappeningsHost(authentication.getName())));
+			//model.addAttribute("activeHappeningsHost", this.getAllActiveHappeningsHost(authentication.getName()));
+			model.addAttribute("numOfHosted",
+					this.numOfHappeningsHosted(this.getAllActiveHappeningsHost(authentication.getName())));
+			model.addAttribute("numOfGuests",
+					this.numOfGuests(this.getAllActiveHappeningsHost(authentication.getName())));
 		}
-		
+
 		if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
-			//TODO: load stuff for admin hawara
+			// TODO: load stuff for admin hawara
 		}
-		
-		
+
 		return "dashboard";
 	}
-	
-	//TODO: Implement meaningfully
-	public List<Integer> numOfGuests(List<Happening> happenings) {
-		List<Integer> guestNums = new ArrayList<>();
-		for (int i = 0; i<happenings.size();i++) {
-		guestNums.set(i, happeningGuestlistRepository.getGuestList(happenings.get(i).getHappeningId()).size());
+
+	public Map<String, Integer> numOfGuests(List<Happening> happenings) {
+		Map<String, Integer> guestNums = new HashMap<String, Integer>();
+		for (int i = 0; i < happenings.size(); i++) {
+			guestNums.put(happenings.get(i).getHappeningName(), happeningGuestlistRepository.getGuestList(happenings.get(i).getHappeningId()).size());
 		}
 		return guestNums;
 	}
@@ -104,7 +102,7 @@ public class DashboardController {
 		int taskNum = happeningTaskRepository.getNumOfAssignedTasksForUser(user);
 		return taskNum;
 	}
-	
+
 	public List<HappeningTask> getAllAssignedTasksForGuest(String username) {
 		User user = userRepository.findFirstByUsername(username);
 		List<HappeningTask> tasks = happeningTaskRepository.getAllAssignedTasksForUser(user);
@@ -112,22 +110,23 @@ public class DashboardController {
 	}
 
 	/**
-	 * Return a list of happenings where given user is a guest and the happenings start in the future
+	 * Return a list of happenings where given user is a guest and the happenings
+	 * start in the future
+	 * 
 	 * @param username
 	 * @return
 	 */
 	public List<Happening> getHappeningForGuestInFuture(String username) {
 		List<Happening> happenings = happeningRepository.getHappeningForGuestInFuture(username);
-		return happenings;	
+		return happenings;
 	}
-	
+
 	public List<Happening> getHappeningInFutureWhereGuestNotInvited(String username) {
 		List<Happening> happenings = happeningRepository.getHappeningInFutureWhereGuestNotInvited(username);
 		return happenings;
 	}
-	
+
 	public int numOfHappeningsHosted(List<Happening> happenings) {
 		return happenings.size();
 	}
 }
-

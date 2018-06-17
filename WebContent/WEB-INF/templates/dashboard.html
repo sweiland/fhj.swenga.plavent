@@ -183,7 +183,7 @@
 				<!-- Stuff if user has role HOST -->
 				<th:block sec:authorize="hasRole('ROLE_HOST')">
 
-					<div th:if="${activeHappeningsHost}">
+					<div th:if="${numOfGuests}">
 						<div class="card">
 							<div class="card-header text-dark">
 								<strong>Your hosted happenings</strong>
@@ -198,22 +198,22 @@
 
 							<div class="card-body collapse show" id="collapseExample"
 								aria-expanded="true">
-								<div th:if="${#lists.isEmpty(activeHappeningsHost)}"
+								<div th:if="${#lists.isEmpty(numOfGuests)}"
 									class="center">
 									<strong>No happenings!</strong>
 								</div>
 
 								<div class="row">
 									<div
-										th:each="happening : ${#request.getAttribute('activeHappeningsHost')}"
+										th:each="happening : ${#request.getAttribute('numOfGuests')}"
 										class="col-4">
 										<div class="card text-dark">
 											<div class="card-header bg-success">
-												<strong th:text="${happening.happeningName}"></strong>
+												<strong th:text="${happening.key}"></strong>
 											</div>
 											<div class="card-body">
-												<strong>Happening:</strong> <em
-													th:text="${happening.happeningName}"></em><br>
+												<strong>Attendees:</strong> <em
+													th:text="${happening.value}"></em><br>
 											</div>
 										</div>
 									</div>
@@ -246,4 +246,3 @@
 	<!--  End of container -->
 	<div th:include="~{includes/bootstrap :: bootstrapJS}" th:remove="tag"></div>
 </body>
-</html>
