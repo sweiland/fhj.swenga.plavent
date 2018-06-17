@@ -14,34 +14,17 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import at.fh.swenga.plavent.model.Happening;
-import at.fh.swenga.plavent.model.HappeningTask;
-import at.fh.swenga.plavent.model.User;
-import at.fh.swenga.plavent.repo.HappeningCategoryRepository;
 import at.fh.swenga.plavent.repo.HappeningGuestlistRepository;
 import at.fh.swenga.plavent.repo.HappeningRepository;
-import at.fh.swenga.plavent.repo.HappeningStatusRepository;
 import at.fh.swenga.plavent.repo.HappeningTaskRepository;
-import at.fh.swenga.plavent.repo.UserRepository;
-import at.fh.swenga.plavent.repo.UserRoleRepository;
 
 @Controller
 @Scope(proxyMode = ScopedProxyMode.TARGET_CLASS, value = "session")
 public class DashboardController {
 
-	@Autowired
-	private UserRepository userRepository;
-
-	@Autowired
-	private UserRoleRepository userRoleRepository;
-
-	@Autowired
-	private HappeningRepository happeningRepository;
 	
 	@Autowired
-	private HappeningStatusRepository happeningStatusRepository;
-
-	@Autowired
-	private HappeningCategoryRepository happeningCategoryRepository;
+	private HappeningRepository happeningRepository;
 	
 	@Autowired
 	private HappeningTaskRepository happeningTaskRepository;
@@ -64,7 +47,7 @@ public class DashboardController {
 		model.addAttribute("happeningsForGuestInFuture",happeningsForGuest);
 		model.addAttribute("assignedTasksNum",  happeningTaskRepository.getNumOfAssignedTasksForUser(authentication.getName()));
 		model.addAttribute("happeningInFutureNotGuest", happeningRepository.getHappeningInFutureWhereGuestNotInvited(authentication.getName()));
-		model.addAttribute("assignedTasks", this.getAllAssignedTasksForGuest(authentication.getName()));
+		model.addAttribute("assignedTasks", happeningTaskRepository.getAllAssignedTasksForUser(authentication.getName()));
 		model.addAttribute("numOfHappenings", happeningsForGuest.size());
 		
 		
@@ -93,12 +76,6 @@ public class DashboardController {
 			i++;					
 		}
 		return guestNums;
-	}
-	
-	public List<HappeningTask> getAllAssignedTasksForGuest(String username) {
-		User user = userRepository.findFirstByUsername(username);
-		List<HappeningTask> tasks = happeningTaskRepository.getAllAssignedTasksForUser(user);
-		return tasks;
 	}
 
 	/**
