@@ -69,12 +69,14 @@ public class DashboardController {
 		return "dashboard";
 	}
 
-	public Map<String, ArrayList<Integer>> numOfGuests(List<Happening> happenings) {
-		Map<String, ArrayList<Integer>> guestNums = new HashMap<String, ArrayList<Integer>>();
+	public Map<String, ArrayList> numOfGuests(List<Happening> happenings) {
+		Map<String, ArrayList> guestNums = new HashMap<String, ArrayList>();
 		for (int i = 0; i < happenings.size(); i++) {
-			ArrayList<Integer> info = new ArrayList<Integer>();
+			ArrayList info = new ArrayList<>();
 			info.add(happeningGuestlistRepository.getGuestList(happenings.get(i).getHappeningId()).size());
 			info.add(happeningTaskRepository.findByHappeningHappeningId(happenings.get(i).getHappeningId()).size());
+			info.add(happenings.get(i).getStart());
+			info.add(happenings.get(i).getEnd());
 			guestNums.put(happenings.get(i).getHappeningName(), info);
 		}
 		return guestNums;
