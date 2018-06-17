@@ -63,7 +63,7 @@ public class DashboardController {
 		}
 
 		if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
-			// TODO: load stuff for admin hawara
+			model.addAttribute("allHappenings", happeningRepository.findAll());
 		}
 
 		return "dashboard";
