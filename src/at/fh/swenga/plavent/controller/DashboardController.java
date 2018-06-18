@@ -141,7 +141,7 @@ public class DashboardController {
 			throw new IllegalStateException("Error while sending mail!");
 		}
 
-		model.addAttribute("message", "Inventation send!");
+		model.addAttribute("message", "Invitation send!");
 		return "forward:/dashboard";
 	}
 	
