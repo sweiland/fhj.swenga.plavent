@@ -196,7 +196,13 @@ public class InitialSetupController {
 			List<User> guests = userRepo.getUsersByRolename("GUEST");
 			guests.remove(host); // Remove host itself which is the host and not the guest of the happening!
 
-			Happening happening = new Happening("Tutorial", Calendar.getInstance(), Calendar.getInstance(),
+			Calendar today = Calendar.getInstance();
+			today.add(Calendar.HOUR, 3); //Start in 3 hours
+			
+			Calendar nextYear =  Calendar.getInstance();
+			nextYear.add(Calendar.YEAR, 1); //ends next year
+			
+			Happening happening = new Happening("Tutorial", today, nextYear,
 					"Example Happening", "FH Joanneum", catUnassinged, statusActive, host, guests,
 					new ArrayList<HappeningTask>());
 			happeningRepo.save(happening);

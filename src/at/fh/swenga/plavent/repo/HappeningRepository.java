@@ -46,17 +46,25 @@ public interface HappeningRepository extends JpaRepository<Happening, Integer> {
 	public Happening getHappeningForTask(@Param("taskId") int taskId);
 
 	@Transactional(readOnly = true)
-	@Query(value = "SELECT h.* " + "FROM Happening h " + "INNER JOIN Status s ON(s.statusID = h.statusId) "
-			+ "LEFT JOIN Guestlist gl ON(gl.happeningId = h.happeningId) " + "WHERE h.start > CURRENT_TIMESTAMP() "
-			+ "  AND s.statusName = 'ACTIVE' " + "  And ( gl.username = :username OR h.username = :username) "
-			+ "ORDER BY h.start ", nativeQuery = true)
+	@Query(value = "SELECT h.* " +
+			"FROM Happening h " +
+			"INNER JOIN Status s ON(s.statusID = h.statusId) " +
+			"WHERE h.start > CURRENT_TIMESTAMP() " + 
+			"  AND s.statusName = 'ACTIVE'  " +
+			"  And ( h.username = :username "
+			+ "       OR :username IN (SELECT username FROM Guestlist gl WHeRE gl.happeningId = h.happeningId) ) " + 
+			"ORDER BY h.start ", nativeQuery = true)
 	public List<Happening> getHappeningForGuestInFuture(@Param("username") String username);
 
 	@Transactional(readOnly = true)
-	@Query(value = "SELECT h.* FROM Happening h " + "INNER JOIN Status s ON s.statusID = h.statusId "
-			+ "WHERE h.happeningId NOT IN (SELECT gl.happeningId FROM Guestlist gl) "
-			+ "AND h.start > CURRENT_TIMESTAMP() " + "AND s.statusName = 'ACTIVE' " + "AND h.username != :username "
-			+ "ORDER BY h.start", nativeQuery = true)
+	@Query(value = "SELECT h.*  " +
+			"FROM Happening h  " +
+			"INNER JOIN Status s ON (s.statusID = h.statusId ) " +
+			"WHERE h.start > CURRENT_TIMESTAMP()   " +
+			"  AND s.statusName = 'ACTIVE' " +
+			"  AND h.username != :username " +
+			"  AND :username NOT IN (SELECT gl.username FROM Guestlist gl wherE gl.happeningId = h.happeningId) " +
+			"ORDER BY h.start ", nativeQuery = true)
 	public List<Happening> getHappeningInFutureWhereGuestNotInvited(@Param("username") String username);
 
 	@Transactional(readOnly = true)

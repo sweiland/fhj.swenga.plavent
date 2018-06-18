@@ -30,7 +30,7 @@
 
 				<!-- Stuff every user sees (GUEST -->
 				<!-- Upcoming Happenings -->
-				<div th:if="${happeningsForGuestInFuture}">
+				<div th:unless="${#lists.isEmpty(happeningsForGuestInFuture)}">
 
 					<div class="card">
 						<div class="card-header text-dark">
@@ -95,7 +95,7 @@
 				</div>
 
 
-				<div th:if="${happeningInFutureNotGuest}">
+				<div th:unless="${#lists.isEmpty(happeningInFutureNotGuest)}">
 
 					<div class="card">
 						<div class="card-header text-dark">
@@ -129,20 +129,21 @@
 												th:text="${#dates.format(happening.start,'dd.MM.yyyy hh:mm')}"></em><br>
 											<strong>Host:</strong> <em
 												th:text="${happening.happeningHost.lastname +' '+#strings.substring(happening.happeningHost.firstname,0,1) +'.'}"></em><br>
-												
+
 											<form class="navbar-form navbar-left" method="post"
 												th:action="@{/sendMailInviteMe}">
-						
+
 												<input type="hidden" name="happeningID"
 													th:value="${happening.happeningId}">
-						
+
 												<div class="input-group">
 													<span class="input-group-btn">
-														<button class="btn btn-outline-success" type="submit">Invite me!</button>
+														<button class="btn btn-outline-success" type="submit">Invite
+															me!</button>
 													</span>
 												</div>
-											</form>	
-												
+											</form>
+
 										</div>
 									</div>
 								</div>
@@ -150,25 +151,12 @@
 						</div>
 					</div>
 				</div>
-				<div th:if="${assignedTasks}">
+				<div th:unless="${#lists.isEmpty(assignedTasks)}">
 					<div class="card">
 						<div class="card-header text-dark">
 							<strong>Your Tasks</strong>
-							<!-- disabled, because JS to minimize seems to glitch out a lot
-								<div class="card-header-actions">
-									<a href="#" class="card-header-action btn-minimize" data-toggle="collapse" 
-										data-target="#collapseExample" aria-expanded="true">
-										<i class="icon-arrow-up"></i>
-									</a>
-								</div> -->
 						</div>
-
-						<div class="card-body collapse show" id="collapseExample"
-							aria-expanded="true">
-							<div th:if="${#lists.isEmpty(assignedTasks)}" class="center">
-								<strong>No happenings!</strong>
-							</div>
-
+						<div class="card-body">
 							<div class="row">
 								<div th:each="task : ${#request.getAttribute('assignedTasks')}"
 									class="col-4">
@@ -197,7 +185,7 @@
 				<!-- Stuff if user has role HOST -->
 				<th:block sec:authorize="hasRole('ROLE_HOST')">
 
-					<div th:if="${numOfGuests}">
+					<div th:unless="${#maps.isEmpty(numOfGuests)}">
 						<div class="card">
 							<div class="card-header text-dark">
 								<strong>Your hosted happenings</strong>
@@ -253,7 +241,7 @@
 				<!-- Stuff if user has role ADMIN -->
 				<th:block sec:authorize="hasRole('ROLE_ADMIN')">
 
-					<div th:if="${allHappenings}">
+					<div th:unless="${#lists.isEmpty(allHappenings)}">
 						<div class="card">
 							<div class="card-header text-dark">
 								<strong>All Happenings</strong>
