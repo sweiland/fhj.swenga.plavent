@@ -519,23 +519,11 @@ public class UserController {
 
 	@Secured({ "ROLE_GUEST" })
 	@PostMapping(value = "/changePassword")
-	public String changePassword(@Valid User editUserModel, @RequestParam String password, BindingResult bindingResult,
+	public String changePassword(@RequestParam(value = "username") String username, @RequestParam(value = "password") String password, 
 			@RequestParam(value = "commingFromShowProfile", required = false) boolean commingFromShowProfile,
 			Model model, Authentication authentication) {
 
-		if (bindingResult.hasErrors()) {
-			String errorMessage = "";
-			for (FieldError fieldError : bindingResult.getFieldErrors()) {
-				errorMessage += fieldError.getField() + " is invalid<br>";
-			}
-			model.addAttribute("errorMessage", errorMessage);
-			if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN")))
-				return showUserManagement(model, authentication);
-			else
-				return showProfile(model, authentication);
-		}
-
-		User user = userRepo.findFirstByUsername(editUserModel.getUsername());
+		User user = userRepo.findFirstByUsername(username);
 
 		if (user != null && user.isEnabled()) {
 			if ((user.getUsername().equalsIgnoreCase(authentication.getName())
@@ -545,10 +533,12 @@ public class UserController {
 				user.encryptPassword();
 				userRepo.save(user);
 
-				model.addAttribute("message", "Password successfully changed for User: " + editUserModel.getUsername());
+				model.addAttribute("message", "Password successfully changed for User: " + username);
 			} else {
 				model.addAttribute("warningMessage", "Error while reading User data!");
 			}
+		} else {
+			model.addAttribute("warningMessage","User not found!");
 		}
 		
 		if(commingFromShowProfile) {
@@ -600,6 +590,7 @@ public class UserController {
 		if (user != null && user.isEnabled()) {
 			model.addAttribute("message", "You can now reset the password.");
 			model.addAttribute("userB", user);
+			model.addAttribute("userToken", userToken);
 			return "changeResetPassword";
 		} else
 			model.addAttribute("errorMessage", "Error while reading user data!");
@@ -607,21 +598,15 @@ public class UserController {
 	}
 
 	@PostMapping("/resetPassword")
-	public String resetPassword(@Valid User resetPasswordUser, BindingResult bindingResult, Model model,
+	public String resetPassword(@RequestParam(value = "username") String username, @RequestParam(value = "password") String password, 
+			@RequestParam(value = "userToken") String userToken, Model model,
 			Authentication authentication) {
 
-		if (bindingResult.hasErrors()) {
-			String errorMessage = "";
-			for (FieldError fieldError : bindingResult.getFieldErrors()) {
-				errorMessage += fieldError.getField() + " is invalid<br>";
-			}
-			model.addAttribute("errorMessage", errorMessage);
-			return "login";
-		}
-
-		User user = userRepo.findFirstByUsername(resetPasswordUser.getUsername());
-		if (user != null && user.isEnabled()) {
-			user.setPassword(resetPasswordUser.getPassword());
+		User user = userRepo.findFirstByUsername(username);
+		User tokenUser = userRepo.findFirstByToken(userToken);
+		
+		if (user != null && user.isEnabled() && user.equals(tokenUser)) {
+			user.setPassword(password);
 			user.encryptPassword();
 			userRepo.save(user);
 			model.addAttribute("message", "Password successfully reset");
