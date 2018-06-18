@@ -129,6 +129,20 @@
 												th:text="${#dates.format(happening.start,'dd.MM.yyyy hh:mm')}"></em><br>
 											<strong>Host:</strong> <em
 												th:text="${happening.happeningHost.lastname +' '+#strings.substring(happening.happeningHost.firstname,0,1) +'.'}"></em><br>
+												
+											<form class="navbar-form navbar-left" method="post"
+												th:action="@{/sendMailInviteMe}">
+						
+												<input type="hidden" name="happeningID"
+													th:value="${happening.happeningId}">
+						
+												<div class="input-group">
+													<span class="input-group-btn">
+														<button class="btn btn-outline-success" type="submit">Invite me!</button>
+													</span>
+												</div>
+											</form>	
+												
 										</div>
 									</div>
 								</div>

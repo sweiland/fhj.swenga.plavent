@@ -35,7 +35,7 @@ public class User implements java.io.Serializable {
 	@Column(name = "lastname", nullable = false, length = 64)
 	private String lastname;
 
-	@Column(name = "eMail", nullable = true, length = 256)
+	@Column(name = "eMail", nullable = false, length = 256)
 	private String eMail;
 	@Column(name = "telNumber", nullable = true, length = 15)
 	private String telNumber;

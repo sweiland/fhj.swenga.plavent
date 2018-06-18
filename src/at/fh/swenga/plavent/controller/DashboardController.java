@@ -8,17 +8,25 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
+import org.springframework.mail.MailAuthenticationException;
+import org.springframework.mail.MailException;
+import org.springframework.mail.MailSender;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import at.fh.swenga.plavent.model.Happening;
+import at.fh.swenga.plavent.model.User;
 import at.fh.swenga.plavent.repo.HappeningGuestlistRepository;
 import at.fh.swenga.plavent.repo.HappeningRepository;
 import at.fh.swenga.plavent.repo.HappeningTaskRepository;
+import at.fh.swenga.plavent.repo.UserRepository;
 
 @Controller
 @Scope(proxyMode = ScopedProxyMode.TARGET_CLASS, value = "session")
@@ -33,6 +41,12 @@ public class DashboardController {
 
 	@Autowired
 	private HappeningGuestlistRepository happeningGuestlistRepository;
+	
+	@Autowired
+	private UserRepository userRepository;
+	
+	@Autowired
+	private MailSender mailSender;
 
 	public DashboardController() {
 		// TODO Auto-generated constructor stub
@@ -88,17 +102,48 @@ public class DashboardController {
 	 * @param username
 	 * @return
 	 */
-	public List<Happening> getHappeningForGuestInFuture(String username) {
+	private List<Happening> getHappeningForGuestInFuture(String username) {
 		List<Happening> happenings = happeningRepository.getHappeningForGuestInFuture(username);
 		return happenings;
 	}
+	
+	@Secured({ "ROLE_GUEST" })
+	@PostMapping("/sendMailInviteMe")
+	public String sendMailInviteMe(Model model, @RequestParam(value = "happeningID") Happening happening,
+			Authentication authentication) {
 
-	public List<Happening> getHappeningInFutureWhereGuestNotInvited(String username) {
-		List<Happening> happenings = happeningRepository.getHappeningInFutureWhereGuestNotInvited(username);
-		return happenings;
-	}
+		// Check if user is Owner of Happening or has role ADMIN
+		if(happening == null) {
+			model.addAttribute("warningMessage","Happening not found!");
+			return showDashboard(model, authentication);
+		}
+			
+		User guest = userRepository.findFirstByUsername(authentication.getName());
+		
+		User host = happening.getHappeningHost();
+		String hostName = host.getFirstname() + " " + host.getLastname();
 
-	public int numOfHappeningsHosted(List<Happening> happenings) {
-		return happenings.size();
+		SimpleMailMessage msg = new SimpleMailMessage();
+		msg.setSubject("Invite me to Happening " + happening.getHappeningName());
+		msg.setFrom(guest.geteMail());
+		msg.setTo(host.geteMail());
+
+		msg.setText("Dear "+hostName+"\n\n" + "Can you please invite me to your happening (" + happening.getHappeningName() +")?.\n"
+				+ "Thank you very much!\n\n"
+				+ "best regards,\n" + guest.getFirstname() + " " + guest.getLastname());
+
+		try {
+			this.mailSender.send(msg);
+		} catch (MailAuthenticationException ex) {
+			throw new IllegalStateException(
+					"Configuration error for mail server detected. Please contact Administrator to setup correct connection settings for mail server.	");
+		} catch (MailException ex) {
+			throw new IllegalStateException("Error while sending mail!");
+		}
+
+		model.addAttribute("message", "Inventation send!");
+		return "forward:/dashboard";
 	}
+	
+	
 }
