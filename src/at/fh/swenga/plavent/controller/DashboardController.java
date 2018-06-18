@@ -1,7 +1,9 @@
 package at.fh.swenga.plavent.controller;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -22,21 +24,21 @@ import at.fh.swenga.plavent.repo.HappeningTaskRepository;
 @Scope(proxyMode = ScopedProxyMode.TARGET_CLASS, value = "session")
 public class DashboardController {
 
-	
+
 	@Autowired
 	private HappeningRepository happeningRepository;
-	
+
 	@Autowired
 	private HappeningTaskRepository happeningTaskRepository;
 
 	@Autowired
 	private HappeningGuestlistRepository happeningGuestlistRepository;
-	
+
 	public DashboardController() {
 		// TODO Auto-generated constructor stub
-	}	
+	}
 
-	@Secured({ "ROLE_GUEST"})
+	@Secured({ "ROLE_GUEST" })
 	@RequestMapping(value = { "dashboard" })
 	public String showDashboard(Model model,Authentication authentication) {
 		
@@ -58,35 +60,45 @@ public class DashboardController {
 			model.addAttribute("numOfHosted", happeningsAsHost.size());
 			model.addAttribute("numOfGuests",this.numOfGuests(happeningsAsHost));
 		}
-		
+
 		if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
-			//TODO: load stuff for admin hawara
+			model.addAttribute("allHappenings", happeningRepository.findAll());
 		}
-		
-		
+
 		return "dashboard";
 	}
 	
-	//TODO: Implement meaningfully
-	public List<Integer> numOfGuests(List<Happening> happenings) {
-		List<Integer> guestNums = new ArrayList<>();
-		int i = 0;
-		for (Happening h: happenings) {
-			guestNums.add(i, happeningGuestlistRepository.getGuestListSize(h.getHappeningId()));
-			i++;					
+	public Map<String, ArrayList<Object>> numOfGuests(List<Happening> happenings) {
+		Map<String, ArrayList<Object>> guestNums = new HashMap<String, ArrayList<Object>>();
+		for (int i = 0; i < happenings.size(); i++) {
+			ArrayList<Object> info = new ArrayList<>();
+			info.add(happeningGuestlistRepository.getGuestList(happenings.get(i).getHappeningId()).size());
+			info.add(happeningTaskRepository.findByHappeningHappeningId(happenings.get(i).getHappeningId()).size());
+			info.add(happenings.get(i).getStart());
+			info.add(happenings.get(i).getEnd());
+			guestNums.put(happenings.get(i).getHappeningName(), info);
 		}
 		return guestNums;
 	}
 
 	/**
-	 * Return a list of happenings where given user is a guest and the happenings start in the future
+	 * Return a list of happenings where given user is a guest and the happenings
+	 * start in the future
+	 * 
 	 * @param username
 	 * @return
 	 */
 	public List<Happening> getHappeningForGuestInFuture(String username) {
 		List<Happening> happenings = happeningRepository.getHappeningForGuestInFuture(username);
-		return happenings;	
+		return happenings;
 	}
-	
-}
 
+	public List<Happening> getHappeningInFutureWhereGuestNotInvited(String username) {
+		List<Happening> happenings = happeningRepository.getHappeningInFutureWhereGuestNotInvited(username);
+		return happenings;
+	}
+
+	public int numOfHappeningsHosted(List<Happening> happenings) {
+		return happenings.size();
+	}
+}
