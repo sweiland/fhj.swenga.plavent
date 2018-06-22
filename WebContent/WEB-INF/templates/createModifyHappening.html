@@ -100,7 +100,7 @@
 									required="required"
 									th:value="${happening} ? ${happening.location}"
 									th:readonly="${happening} ? ${happening.happeningStatus.statusName == 'DELETED'}"
-									maxlength="128"
+									minlength="2" maxlength="128"
 									placeholder="Location">
 							</div>
 
