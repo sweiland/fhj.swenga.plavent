@@ -257,7 +257,7 @@ public class HappeningController {
 		now.set(Calendar.SECOND, 0);
 		now.set(Calendar.MILLISECOND, 0);
 
-		SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy hh:mm");
+		SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy HH:mm");
 		Calendar start = Calendar.getInstance();
 		start.setTime(format.parse(startAsString));
 
@@ -298,7 +298,7 @@ public class HappeningController {
 			return showHappenings(model, authentication);
 		}
 
-		SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy hh:mm");
+		SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy HH:mm");
 		Calendar start = Calendar.getInstance();
 		start.setTime(format.parse(startAsString));
 

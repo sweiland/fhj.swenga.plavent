@@ -158,7 +158,7 @@ public class PdfGuestListReportView extends AbstractPdfView {
 		pHappening.add(new Paragraph(happening.getHappeningName(),getSectionHeaderFont()));
 		
 
-		SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy hh:mm");
+		SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm");
 		User host = happening.getHappeningHost();
 		
 		//Create Table with content

@@ -252,7 +252,7 @@ public class Happening implements Serializable {
 	public String getHappeningInfos(String tabChar, String newLineChar) {
 		StringBuilder builder = new StringBuilder();
 
-		SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy hh:mm");
+		SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy HH:mm");
 		User host = getHappeningHost();
 		String hostName = host.getFirstname() + " " + host.getLastname();
 
