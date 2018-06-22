@@ -65,9 +65,9 @@
 									<strong>Category:</strong> <em
 										th:text="${happening.category.categoryName}"></em><br> <strong>Start
 										Time:</strong> <em
-										th:text="${#dates.format(happening.start,'dd.MM.yyyy hh:mm')}"></em><br>
+										th:text="${#dates.format(happening.start,'dd.MM.yyyy HH:mm')}"></em><br>
 									<strong>End Time:</strong> <em
-										th:text="${#dates.format(happening.end,'dd.MM.yyyy hh:mm')}"></em><br>
+										th:text="${#dates.format(happening.end,'dd.MM.yyyy HH:mm')}"></em><br>
 									<strong>Location:</strong> <em th:text="${happening.location}"></em><br>
 									<strong>Host:</strong> <em
 										th:text="${happening.happeningHost.lastname +' '+#strings.substring(happening.happeningHost.firstname,0,1) +'.'}"></em><br>

@@ -60,7 +60,7 @@
 								</div>
 								<input class="form_datetime form-control" type="text"
 									name="startDate" required="required"
-									th:value="${happening} ? ${#dates.format(happening.start, 'dd.MM.yyyy hh:mm')}"
+									th:value="${happening} ? ${#dates.format(happening.start, 'dd.MM.yyyy HH:mm')}"
 									th:disabled="${happening} ? ${happening.happeningStatus.statusName == 'DELETED'}"
 									placeholder="Start Date">
 							</div>
@@ -72,7 +72,7 @@
 								</div>
 								<input class="form_datetime form-control" type="text"
 									name="endDate" required="required"
-									th:value="${happening} ? ${#dates.format(happening.end, 'dd.MM.yyyy hh:mm')}"
+									th:value="${happening} ? ${#dates.format(happening.end, 'dd.MM.yyyy HH:mm')}"
 									th:disabled="${happening} ? ${happening.happeningStatus.statusName == 'DELETED'}"
 									placeholder="End Date">
 							</div>

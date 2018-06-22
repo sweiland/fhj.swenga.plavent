@@ -61,9 +61,9 @@
 										</div>
 										<div class="card-body">
 											<strong>Start Time:</strong> <em
-												th:text="${#dates.format(happening.start,'dd.MM.yyyy hh:mm')}"></em><br>
+												th:text="${#dates.format(happening.start,'dd.MM.yyyy HH:mm')}"></em><br>
 											<strong>End Time:</strong> <em
-												th:text="${#dates.format(happening.end,'dd.MM.yyyy hh:mm')}"></em><br>
+												th:text="${#dates.format(happening.end,'dd.MM.yyyy HH:mm')}"></em><br>
 											<strong>Location:</strong> <em
 												th:text="${happening.location}"></em><br> <strong>Host:</strong>
 											<em
@@ -126,7 +126,7 @@
 										</div>
 										<div class="card-body">
 											<strong>Start Time:</strong><em
-												th:text="${#dates.format(happening.start,'dd.MM.yyyy hh:mm')}"></em><br>
+												th:text="${#dates.format(happening.start,'dd.MM.yyyy HH:mm')}"></em><br>
 											<strong>Host:</strong> <em
 												th:text="${happening.happeningHost.lastname +' '+#strings.substring(happening.happeningHost.firstname,0,1) +'.'}"></em><br>
 
@@ -169,7 +169,7 @@
 												th:text="${task.happening.happeningName}"></em><br> <strong>Description:</strong>
 											<em th:text="${task.description}"></em><br> <strong>Start
 												Time:</strong> <em
-												th:text="${#dates.format(task.happening.start,'dd.MM.yyyy hh:mm')}"></em><br>
+												th:text="${#dates.format(task.happening.start,'dd.MM.yyyy HH:mm')}"></em><br>
 											<strong>Location:</strong> <em
 												th:text="${task.happening.location}"></em>
 										</div>
@@ -217,9 +217,9 @@
 													th:text="${happening.value[0]}"></em><br> <strong>Tasks:</strong>
 												<em th:text="${happening.value[1]}"></em><br> <strong>Start:</strong>
 												<em
-													th:text="${#dates.format(happening.value[2],'dd.MM.yyyy hh:mm')}">
+													th:text="${#dates.format(happening.value[2],'dd.MM.yyyy HH:mm')}">
 												</em><br> <strong>End:</strong> <em
-													th:text="${#dates.format(happening.value[3],'dd.MM.yyyy hh:mm')}">
+													th:text="${#dates.format(happening.value[3],'dd.MM.yyyy HH:mm')}">
 												</em>
 											</div>
 										</div>
