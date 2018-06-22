@@ -16,7 +16,7 @@ Workload distribution:
 
 
 ## Setup Guide
-1. Download project source from [here](https://github.com/sweiland/fhj.swenga2017.plavent/releases/tag/v1.0.8)
+1. Download project source from [here](https://github.com/sweiland/fhj.swenga2017.plavent/releases/tag/V1.0.8)
 2. Create ``New dynamic Web project`` eclipse project, convert to maven project and import sources  
 3. Setup ``app.properties`` in folder ``src`` (db-connection-information and mail-information) based on [this](https://gist.github.com/sweiland/d6fed135f0b072ac6afc12ec00cc81d0).
 4. Change jpa-properties in dispatcher-servlet.xml to required attributes (``validate``, ``update``, or ``create-drop``)
