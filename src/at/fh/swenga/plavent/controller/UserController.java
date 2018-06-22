@@ -553,7 +553,7 @@ public class UserController {
 		}
 	}
 
-	@GetMapping("/sendResetPassword")
+	@PostMapping("/sendResetPassword")
 	public String sendResetPassword(@RequestParam("username") String username, Model model,
 			Authentication authentication) {
 
