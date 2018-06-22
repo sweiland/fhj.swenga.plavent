@@ -30,6 +30,10 @@ public interface HappeningRepository extends JpaRepository<Happening, Integer> {
 	@Transactional(readOnly = true)
 	public Page<Happening> findByHappeningNameAndHappeningHostUsername(String happeningName, String username,
 			Pageable pageable);
+	
+	@Transactional(readOnly = true)
+	@Query("SELECT h FROM Happening h WHERE LOWER(h.happeningName) LIKE LOWER(CONCAT('%',:searchstring,'%'))")
+	public Page<Happening> filterHappenings(@Param("searchstring") String searchstring, Pageable page);
 
 	@Transactional(readOnly = true)
 	public List<Happening> findByHappeningHostUsername(String username);

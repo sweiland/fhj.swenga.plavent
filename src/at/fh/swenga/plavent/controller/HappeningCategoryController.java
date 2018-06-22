@@ -11,7 +11,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -21,16 +20,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import at.fh.swenga.plavent.model.Happening;
 import at.fh.swenga.plavent.model.HappeningCategory;
-import at.fh.swenga.plavent.model.HappeningTask;
-import at.fh.swenga.plavent.model.User;
 import at.fh.swenga.plavent.repo.HappeningCategoryRepository;
 
 /**
  * @author Stefan Heider:
  * 
- *         description of this controller
+ *         Handling to create,modify od disable categories
  *
  */
 
@@ -106,8 +102,7 @@ public class HappeningCategoryController {
 		PageRequest page = generatePageRequest(0);
 		Page<HappeningCategory> happeningCategoryPage;
 
-		// Show filter happenings of user!
-		happeningCategoryPage = categoryDao.findByCategoryName(searchString, page);
+		happeningCategoryPage = categoryDao.filterHappeningCategories(searchString, page);
 		
 		model.addAttribute("happeningCategories", happeningCategoryPage);
 		model.addAttribute("usedCategories", categoryDao.getUsedCategories());
@@ -174,10 +169,6 @@ public class HappeningCategoryController {
 			return showCategoryManagement(model);
 		}
 	}
-
-	// TODO:
-	// filterCategories
-	// reactivateCategory => 'Update enabled flag to actiate them again
 
 	// Disable and used happening category
 	@Secured({ "ROLE_HOST" })

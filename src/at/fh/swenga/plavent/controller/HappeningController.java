@@ -387,7 +387,7 @@ public class HappeningController {
 
 		if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
 			// ADMINS are allowed to see all happening
-			happeningPage = happeningRepo.findByHappeningName(searchString, page);
+			happeningPage = happeningRepo.filterHappenings(searchString, page);
 		} else {
 			// Show filter happenings of user!
 			happeningPage = happeningRepo.findByHappeningNameAndHappeningHostUsername(searchString,
