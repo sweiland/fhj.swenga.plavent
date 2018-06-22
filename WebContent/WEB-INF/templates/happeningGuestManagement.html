@@ -22,8 +22,7 @@
 				<nav th:replace="~{includes/fragments :: navigation }"></nav>
 
 				<!-- include Header information of given happening-->
-				<div
-					th:replace="~{includes/happeningFragments :: happeningHeader (happening=${#request.getAttribute('happening')},linkTo='Tasks') }"></div>
+				<div th:replace="~{includes/happeningFragments :: happeningHeader (happening=${#request.getAttribute('happening')},linkTo='Tasks') }"></div>
 				
 
 				<!-- Customized Subnavbar because of Drop-Down selection -->
@@ -112,9 +111,11 @@
 									<div class="card-header-actions">
 										<a
 											th:href="@{/unassignExistingGuest(happeningID=${happening.happeningId}, username=${guest.username})}"
+											title="Unassign Guest"
 											class="card-header-action btn-trash"><i
 											class="icon-trash"></i> </a> <a
 											th:href="@{/showGuestTaskDetailsForm(happeningID=${happening.happeningId}, username=${guest.username})}"
+											title="Show Details"
 											class="card-header-action btn-list"><i class="icon-list"></i>
 										</a>
 									</div>

@@ -43,16 +43,18 @@
 									<div class="card-header-actions">
 										<th:block
 											th:if="${happening.happeningStatus.statusName == 'ACTIVE'}">
-											<a
+											<a  title="Guest Management"
 												th:href="@{/showGuestListManagement(happeningID=${happening.happeningId})}"
 												class="card-header-action btn-people"><i
 												class="icon-people"></i> </a>
 											<a
 												th:href="@{/showTaskListManagement(happeningID=${happening.happeningId})}"
+												title="Task Management"
 												class="card-header-action btn-list"><i class="icon-list"></i>
 											</a>
 										</th:block>
 										<a
+											title="Edit Happening"
 											th:href="@{/showModifyExistingHappingForm(happeningId=${happening.happeningId})}"
 											class="card-header-action btn-pencil"><i
 											class="icon-pencil"></i> </a>

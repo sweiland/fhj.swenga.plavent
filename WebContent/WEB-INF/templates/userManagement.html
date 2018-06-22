@@ -41,22 +41,27 @@
 									<div class="card-header-actions">
 										<a th:unless="${user.enabled} == false"
 											th:href="@{/editUser(username=${user.username})}"
+											title="Edit User"
 											class="card-header-action btn-pencil"> <i
 											class="icon-pencil"></i>
 										</a> <a th:unless="${user.enabled} == false"
 											th:href="@{/changeUserRole(username=${user.username})}"
+											title="Change user role"
 											class="card-header-action btn-people"> <i
 											class="icon-people"></i>
 										</a> <a th:unless="${user.enabled} == false"
 											th:href="@{/changePassword(username=${user.username})}"
+											title="Change password"
 											class="card-header-action btn-lock"><i
 											class="icon-lock"></i> </a> <a
 											th:unless="${user.enabled} == false"
 											th:href="@{/deleteUser(username=${user.username})}"
+											title="Disable User"
 											class="card-header-action btn-trash"> <i
 											class="icon-trash"></i>
 										</a> <a th:unless="${user.enabled} == true"
 											th:href="@{/reactivateUser(username=${user.username})}"
+											title="Reactivate User"
 											class="card-header-action btn-check"> <i
 											class="icon-check"></i>
 										</a>

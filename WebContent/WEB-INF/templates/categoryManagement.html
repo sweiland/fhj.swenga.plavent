@@ -45,6 +45,7 @@
 										<th:block th:if="${happeningCategory.enabled == true}">
 											<a
 												th:href="@{/showModifyCategory(categoryID=${happeningCategory.categoryID})}"
+												title="Edit Category"
 												class="card-header-action btn-pencil"><i
 												class="icon-pencil"></i> </a>
 
@@ -53,12 +54,14 @@
 												<a
 													th:if="${#lists.contains(usedCategories,happeningCategory)}"
 													th:href="@{/disableUsedHappeningCategory(categoryID=${happeningCategory.categoryID})}"
+													title="Disable used Category"
 													class="card-header-action btn-trash"><i
 													class="icon-trash"></i> </a>
 	
 												<a
 													th:unless="${#lists.contains(usedCategories,happeningCategory)}"
 													th:href="@{/deleteUnusedHappeningCategory(categoryID=${happeningCategory.categoryID})}"
+													title="Delete Category"
 													class="card-header-action btn-trash"><i
 													class="icon-trash"></i> </a>
 											</th:block>
@@ -69,6 +72,7 @@
 											<!-- TODO: Funktion ausimplementieren -->
 											<a
 												th:href="@{/reactivateDisabledHappeningCategory(categoryID=${happeningCategory.categoryID})}"
+												title="Reactivate Category"
 												class="card-header-action btn-trash"><i
 												class="icon-check"></i> </a>
 										</th:block>

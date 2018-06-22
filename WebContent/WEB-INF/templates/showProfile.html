@@ -33,11 +33,14 @@
 						<div class="card-header-actions">
 							<a
 								th:href="@{/editUserFromShowProfile(username=${user.username})}"
+								title="Edit Profile"
 								class="card-header-action btn-user"><i class="icon-user"></i></a>
 							<a
 								th:href="@{/changePasswordFromShowProfile(username=${user.username})}"
+								title="Change Password"
 								class="card-header-action btn-lock"><i class="icon-lock"></i></a>
 							<a th:href="@{/uploadProfilePicture(username=${user.username})}"
+								title="Upload profile picture"
 								class="card-header-action btn-picture"><i
 								class="icon-picture"></i></a>
 						</div>

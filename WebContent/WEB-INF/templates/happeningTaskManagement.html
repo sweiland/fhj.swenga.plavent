@@ -59,9 +59,11 @@
 									<div class="card-header-actions">
 										<a
 											th:href="@{/showModifyHappeningTaskForm(taskId=${task.taskId})}"
+											title="Edit Task"
 											class="card-header-action btn-pencil"><i
 											class="icon-pencil"></i> </a> <a
 											th:href="@{/deleteExistingTask(taskId=${task.taskId})}"
+											title="Delete Task"
 											class="card-header-action btn-trash"><i
 											class="icon-trash"></i> </a>
 									</div>
