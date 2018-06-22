@@ -14,17 +14,20 @@
 		<li class="nav-item"><a sec:authorize="hasRole('ROLE_ADMIN')"
 			href="showUserManagement" class="nav-link">User Management</a></li>
 	</ul>
+
 	<form class="navbar-form navbar-left" method="post"
-		th:action="@{/logout}">
+			th:action="@{/logout}">
 		<button class="btn btn-outline-danger navbar-btn" type="submit">Logout</button>
 	</form>
 </nav>
 
 <!-- Fragment for main header  -->
-<header th:fragment="header (header)">
-	<div class="container-fluid">
+<header th:fragment="header (header)" class="col-12" >
+
+	<div class="float-left">
 		<h1 th:text="${(header)}"></h1>
 	</div>
+	<div class="float-right" th:text="'Welcome ' + ${#authentication.principal.getUsername()} + '!'"></div>
 </header>
 
 <!-- Fragment to have pagination -->
