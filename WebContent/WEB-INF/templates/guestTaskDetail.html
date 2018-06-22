@@ -46,15 +46,19 @@
 								<!-- Send connected happeningID and username to show this page after action again -->
 								<input type="hidden" name="responsibleGuest"
 									th:value="${happeningGuest.username}"
-									placeholder="Assigned Tasks" /> <select
+									placeholder="Assigned Tasks" /> 
+								
+								<select
 									id="inputResponsibleUser"
-									class="custom-select form-control col-md-6" name="taskId"
+									class="custom-select form-control col-md-6" name="taskId" required="required"
 									th:disabled="${assignedTasks} ? ${#lists.isEmpty(assignedTasks)}">
 									<option disabled="disabled" selected="selected">Assigned
 										Tasks</option>
 									<option th:each="task : ${assignedTasks}"
 										th:value="${task.taskId}" th:text="${task.topic}"></option>
-								</select><span class="input-group-btn">
+								</select>
+								
+								<span class="input-group-btn">
 									<button class="btn btn-outline-dark" type="submit"
 										th:disabled="${assignedTasks} ? ${#lists.isEmpty(assignedTasks)}">Remove
 										Assignment</button>
@@ -68,7 +72,7 @@
 								<!-- Send connected happeningID and username to show this page after action again -->
 								<input type="hidden" name="responsibleGuest"
 									th:value="${happeningGuest.username}" /> <select
-									id="inputResponsibleUser"
+									id="inputResponsibleUser" required="required"
 									class="custom-select form-control col-md-6" name="taskId"
 									th:disabled="${unassignedTasks} ? ${#lists.isEmpty(unassignedTasks)}">
 									<option disabled="disabled" selected="selected">Assign
