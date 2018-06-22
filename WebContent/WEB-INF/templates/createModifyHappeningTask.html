@@ -57,6 +57,7 @@
 								<input class="form-control" type="text" name="topic"
 									required="required"
 									th:value="${happeningTask} ? ${happeningTask.topic}"
+									minlength="5" maxlength="128"
 									placeholder="Topic">
 							</div>
 
@@ -128,6 +129,7 @@
 								<textarea class="form-control" rows="5" id="description"
 									name="description"
 									th:text="${happeningTask} ? ${happeningTask.description}"
+									maxlength="512"
 									placeholder="Description"></textarea>
 							</div>
 

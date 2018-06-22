@@ -49,6 +49,7 @@
 									required="required"
 									th:value="${happening} ? ${happening.happeningName}"
 									th:readonly="${happening} ? ${happening.happeningStatus.statusName == 'DELETED'}"
+									minlength="5" maxlength="64"
 									placeholder="Name">
 							</div>
 
@@ -85,6 +86,7 @@
 								<input class="form-control" type="text" name="description"
 									th:value="${happening} ? ${happening.description}"
 									th:readonly="${happening} ? ${happening.happeningStatus.statusName == 'DELETED'}"
+									maxlength="128"
 									placeholder="Description">
 							</div>
 
@@ -98,6 +100,7 @@
 									required="required"
 									th:value="${happening} ? ${happening.location}"
 									th:readonly="${happening} ? ${happening.happeningStatus.statusName == 'DELETED'}"
+									maxlength="128"
 									placeholder="Location">
 							</div>
 

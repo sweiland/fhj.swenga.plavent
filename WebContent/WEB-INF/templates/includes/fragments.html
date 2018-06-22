@@ -61,7 +61,8 @@
 		method="post" th:action="${(searchLink)}">
 		<div class="input-group">
 			<input type="search" class="form-control" placeholder="Search for..."
-				name="searchString"> <span class="input-group-append">
+				name="searchString"> <span class="input-group-append"
+				maxlength="512">
 				<button class="btn btn-outline-success" type="submit">Filter</button>
 			</span>
 		</div>

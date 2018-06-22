@@ -39,6 +39,7 @@
 								</div>
 								<input class="form-control" type="text" name="categoryName"
 									required="required"
+									minlength="5" maxlength="64"
 									th:value="${happeningCategory} ? ${happeningCategory.categoryName}"
 									placeholder="Category-Name">
 							</div>
@@ -47,6 +48,7 @@
 							<div class="input-group mb-3">
 								<textarea class="form-control" rows="5" id="description"
 									name="description"
+									maxlength="512"
 									th:text="${happeningCategory} ? ${happeningCategory.description}"
 									placeholder="Description"></textarea>
 							</div>

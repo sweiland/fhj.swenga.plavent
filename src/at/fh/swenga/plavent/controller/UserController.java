@@ -445,15 +445,20 @@ public class UserController {
 			@RequestParam("username") String username, @RequestParam("imageFile") MultipartFile imageFile) {
 
 		try {
-
 			Optional<User> userOpt = userRepo.findByUsername(username);
 
 			if (!userOpt.isPresent()) {
 				model.addAttribute("errorMessage", "Error while reading Data!");
-				return "showProfile";
+				return "login"; 
 			}
 
 			User user = userOpt.get();
+			
+			if (!"image/jpeg".equals(imageFile.getContentType()))
+			{
+				model.addAttribute("errorMessage", "Just JPG Files allowed!");
+				return showProfile(model, authentication);
+			}
 
 			// Load lazy ProfilePicutre and check if there is one already!
 			ProfilePicture currPic = profilePictureRepo.findByAssignedUserUsername(user.getUsername());
