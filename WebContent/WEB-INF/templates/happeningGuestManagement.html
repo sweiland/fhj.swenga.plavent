@@ -23,7 +23,8 @@
 
 				<!-- include Header information of given happening-->
 				<div
-					th:replace="~{includes/happeningFragments :: happeningHeader (happening=${#request.getAttribute('happening')}) }"></div>
+					th:replace="~{includes/happeningFragments :: happeningHeader (happening=${#request.getAttribute('happening')},linkTo='Tasks') }"></div>
+				
 
 				<!-- Customized Subnavbar because of Drop-Down selection -->
 				<nav class="navbar navbar-expand-lg navbar-light bg-light">

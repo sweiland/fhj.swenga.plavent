@@ -1,23 +1,29 @@
 <div class="justify-content-center bg-light"
-	th:fragment="happeningHeader (happening)">
+	th:fragment="happeningHeader (happening,linkTo)">
 	<div class="col-12">
 		<div class="card text-dark">
 			<div class="bg-success card-header">
 				<strong th:text="${happening.happeningName}"></strong>
 			</div>
 			<div class="card-body">
-				<strong>Happening Name:</strong> <em
-					th:text="${happening.happeningName}"></em><br> <strong>Status:</strong>
-				<em th:text="${happening.happeningStatus.statusName}"></em><br>
-				<strong>Category:</strong> <em
-					th:text="${happening.category.categoryName}"></em><br> <strong>Start
-					Time:</strong> <em
-					th:text="${#dates.format(happening.start,'dd.MM.yyyy HH:mm')}"></em><br>
-				<strong>End Time:</strong> <em
-					th:text="${#dates.format(happening.end,'dd.MM.yyyy HH:mm')}"></em><br>
-				<strong>Location:</strong> <em th:text="${happening.location}"></em><br>
-				<strong>Host:</strong> <em
-					th:text="${happening.happeningHost.lastname +' '+#strings.substring(happening.happeningHost.firstname,0,1) +'.'}"></em><br>
+				<div class="float-left">
+					<strong>Happening Name:</strong> <em
+						th:text="${happening.happeningName}"></em><br> <strong>Status:</strong>
+					<em th:text="${happening.happeningStatus.statusName}"></em><br>
+					<strong>Category:</strong> <em
+						th:text="${happening.category.categoryName}"></em><br> <strong>Start
+						Time:</strong> <em
+						th:text="${#dates.format(happening.start,'dd.MM.yyyy HH:mm')}"></em><br>
+					<strong>End Time:</strong> <em
+						th:text="${#dates.format(happening.end,'dd.MM.yyyy HH:mm')}"></em><br>
+					<strong>Location:</strong> <em th:text="${happening.location}"></em><br>
+					<strong>Host:</strong> <em
+						th:text="${happening.happeningHost.lastname +' '+#strings.substring(happening.happeningHost.firstname,0,1) +'.'}"></em><br>
+				</div>	
+				<div class="float-right">	
+					<a th:if="${(linkTo) == 'Guests'}" th:href="@{/showGuestListManagement(happeningID=${happening.happeningId})}" class="btn btn-outline-success navbar-btn">Guest Management</a>
+					<a th:if="${(linkTo) == 'Tasks'}" th:href="@{/showTaskListManagement(happeningID=${happening.happeningId})}" class="btn btn-outline-success navbar-btn">Task Management</a>
+				</div>
 			</div>
 		</div>
 	</div>
