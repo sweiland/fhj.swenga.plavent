@@ -38,7 +38,6 @@ public class HappeningCategoryController {
 	private HappeningCategoryRepository categoryDao;
 
 	public HappeningCategoryController() {
-		// TODO Auto-generated constructor stub
 	}
 	
 	/**

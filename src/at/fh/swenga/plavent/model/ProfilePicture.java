@@ -49,7 +49,6 @@ public class ProfilePicture implements java.io.Serializable {
 	 */
 	public ProfilePicture() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	/**

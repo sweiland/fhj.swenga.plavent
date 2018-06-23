@@ -208,7 +208,6 @@ public class InitialSetupController {
 			happeningRepo.save(happening);
 
 			// Now add the tasks...
-			// TODO: Assign task to a guest
 			happening.addHappeningTask(
 					createTask(happening, "Create Tasks", "Create new Tasks for this happening", null));
 			happening.addHappeningTask(createTask(happening, "Create Category", "Create a new category", null));

@@ -49,14 +49,12 @@ public class DashboardController {
 	private MailSender mailSender;
 
 	public DashboardController() {
-		// TODO Auto-generated constructor stub
 	}
 
 	@Secured({ "ROLE_GUEST" })
 	@RequestMapping(value = { "dashboard" })
 	public String showDashboard(Model model,Authentication authentication) {
 		
-		//TODO: Show stuff for logged in user	
 		List<Happening> happeningsForGuest =  this.getHappeningForGuestInFuture(authentication.getName());
 		
 		//URD 1.1.1.17 Guest see list of happenings where user is guest orderd by start date and start in the future
