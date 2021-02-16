@@ -13,7 +13,7 @@
 				<!-- Required for SpringData -->
 				<groupId>org.springframework.data</groupId>
 				<artifactId>spring-data-releasetrain</artifactId>
-				<version>Kay-SR7</version>
+				<version>1.4.6.RELEASE</version>
 				<scope>import</scope>
 				<type>pom</type>
 			</dependency>
